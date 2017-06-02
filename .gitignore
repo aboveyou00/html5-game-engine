@@ -1,16 +1,9 @@
 
 
-.vs
 /**/bin
 /**/dist
 /**/obj
 /**/node_modules
-
-/**/config/local-*.json
-/**/*.njsproj.user
-
-/**/src/*.js
-/**/src/*.js.map
 
 /**/coverage-js/
 /**/coverage/

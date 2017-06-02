@@ -4,9 +4,10 @@
         "target": "es5",
         "outDir": "dist",
         "rootDir": "src",
-        "sourceMap": true,
         "emitDecoratorMetadata": false,
         "experimentalDecorators": false,
+        "declaration": true,
+        "sourceMap": true,
         "moduleResolution": "node",
         "removeComments": true,
         "forceConsistentCasingInFileNames": true,
@@ -17,19 +18,16 @@
         "skipLibCheck": true,
         "lib": [ "es6", "dom" ],
         "baseUrl": ".",
-        "paths": {
-            "*": [ "node_modules/*", "src/*", "public/assets/*" ]
-        },
         "types": [
             "core-js",
-            "lodash.merge",
-            "noisejs"
+            "lodash.merge"
         ]
     },
     "exclude": [
         "node_modules",
         ".c9",
-        "**/deprecated"
+        "**/deprecated",
+        "dist"
     ],
     "compileOnSave": false,
     "buildOnSave": false

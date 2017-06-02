@@ -5,10 +5,9 @@ import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 use(sinonChai);
 
-import { sfx } from '../../dbs/sfx-db';
 import { AudioSourceObject } from '../audio-source-object';
-import { MockAgileGame } from '../../test/mock-agile-game';
-import { AgileGame } from '../../agile-game';
+import { MockGame } from './mock-game';
+import { Game } from '../game';
 import { GameScene } from '../game-scene';
 
 describe('AudioSourceObject', () => {
@@ -23,8 +22,8 @@ describe('AudioSourceObject', () => {
     });
 
     it('should call play on its audio on scene enter', () => {
-        let audio: AudioSourceObject = new AudioSourceObject('test audio', sfx['explode'], { shouldLoop: false });
-        let game: AgileGame = <any>(new MockAgileGame(new GameScene()));
+        let audio: AudioSourceObject = new AudioSourceObject('test audio', { src: 'test audio' }, { shouldLoop: false });
+        let game: Game = <any>(new MockGame(new GameScene()));
         audio.addToScene(game.scene);
         audio.onSceneExit();
         let stub = sinon.stub(audio.myAudio, 'play');
@@ -33,8 +32,8 @@ describe('AudioSourceObject', () => {
     });
 
     it('should call pause on its audio on scene enter', () => {
-        let audio: AudioSourceObject = new AudioSourceObject('test audio', sfx['explode'], { shouldLoop: false });
-        let game: AgileGame = <any>(new MockAgileGame(new GameScene()));
+        let audio: AudioSourceObject = new AudioSourceObject('test audio', { src: 'test audio' }, { shouldLoop: false });
+        let game: Game = <any>(new MockGame(new GameScene()));
         audio.addToScene(game.scene);
         audio.onSceneEnter();
         let stub = sinon.stub(audio.myAudio, 'pause');
@@ -44,7 +43,7 @@ describe('AudioSourceObject', () => {
 
     it('should call play for a looping audio when it ends', () => {
         let audio: AudioSourceObject = new AudioSourceObject('test audio', { src: 'test audio' }, { shouldLoop: true });
-        let game: AgileGame = <any>(new MockAgileGame(new GameScene()));
+        let game: Game = <any>(new MockGame(new GameScene()));
         audio.addToScene(game.scene);
 
         let stub = sinon.stub(audio.myAudio, 'play');
@@ -54,7 +53,7 @@ describe('AudioSourceObject', () => {
 
     it('should remove a non-looping audio game object when it ends', () => {
         let audio: AudioSourceObject = new AudioSourceObject('test audio', { src: 'test audio' }, { shouldLoop: false });
-        let game: AgileGame = <any>(new MockAgileGame(new GameScene()));
+        let game: Game = <any>(new MockGame(new GameScene()));
         audio.addToScene(game.scene);
 
         let stub = sinon.stub(game.scene, 'removeObject');

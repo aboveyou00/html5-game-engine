@@ -1,8 +1,9 @@
 {
-  "name": "ts-webpack-spike",
-  "version": "0.0.0",
+  "name": "@aboveyou00/agile-html5-engine",
+  "version": "0.0.1",
   "description": "ts-webpack-spike",
   "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "contributors": [
     {
       "name": "Brandon",
@@ -19,8 +20,8 @@
     }
   ],
   "scripts": {
-    "build": "webpack --config ./config/webpack/development.js --colors --progress --display-error-details --display-cached",
-    "watch": "webpack --config ./config/webpack/development.js --colors --progress --display-error-details --display-cached --watch",
+    "build": "tsc",
+    "watch": "tsc --watch",
     "test-watch": "mocha-typescript-watch -p tsconfig.json \"dist/**/*.spec.js\"",
     "test-once": "mocha --require ts-node/register \"src/**/*.spec.ts\"",
     "test-coverage-js": "rimraf dist && tsc && istanbul cover node_modules/mocha/bin/_mocha \"dist/**/*.spec.js\" --dir \"./coverage-js\" --report json",
@@ -51,14 +52,8 @@
   "dependencies": {
     "@types/core-js": "^0.9.41",
     "@types/lodash.merge": "^4.6.2",
-    "@types/noisejs": "^0.0.28",
-    "awesome-typescript-loader": "^3.1.3",
-    "config": "^1.26.1",
     "lodash.merge": "^4.6.0",
-    "noisejs": "^2.1.0",
-    "typescript": "^2.3.2",
-    "webpack": "^2.5.1",
-    "webpack-merge": "^4.1.0"
+    "typescript": "^2.3.2"
   },
   "license": "MIT",
   "repository": {

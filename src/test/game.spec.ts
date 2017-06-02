@@ -10,7 +10,7 @@ import { GameObject } from '../game-object';
 import { Camera } from '../camera';
 import { delay } from '../utils/delay';
 import { GameScene } from '../game-scene';
-import { MockEventQueue } from '../../test/mock-event-queue';
+import { MockEventQueue } from './mock-event-queue';
 
 describe('Game', () => {
     let game: Game;

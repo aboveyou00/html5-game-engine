@@ -6,6 +6,8 @@ import { SpriteT } from './utils/sprite';
 import { drawSprite, measureSprite } from './utils/render';
 import { GameScene } from './game-scene';
 import { Camera } from './camera';
+import { ResourceLoader } from './resource-loader';
+import { EventQueue } from './event-queue';
 
 export type RenderCameraT = 'default' | 'none' | Camera;
 
@@ -205,19 +207,19 @@ export class GameObject {
     }
 
     private _scene: GameScene;
-    get scene() {
+    get scene(): GameScene {
         if (!this._scene) return null;
         return this._scene;
     }
-    get game() {
+    get game(): Game {
         if (!this.scene) return null;
         return this.scene.game;
     }
-    get resources() {
+    get resources(): ResourceLoader {
         if (!this.game) return null;
         return this.game.resourceLoader;
     }
-    get events() {
+    get events(): EventQueue {
         if (!this.game) return null;
         return this.game.eventQueue;
     }
