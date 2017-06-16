@@ -47,7 +47,8 @@ export class GameScene {
     
     public render(context: CanvasRenderingContext2D) {
         let defaultCamera = this.camera;
-        let lastRenderCamera = null;
+        let lastRenderCamera = defaultCamera;
+        if (lastRenderCamera) lastRenderCamera.push(context);
         
         for (let obj of this._objects) {
             if (obj.shouldRender) {
@@ -62,6 +63,7 @@ export class GameScene {
                 obj.render(context);
             }
         }
+        
         if (lastRenderCamera) lastRenderCamera.pop(context);
     }
 
