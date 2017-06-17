@@ -80,8 +80,8 @@ export class Camera {
         };
     }
 
-    tick(delta: number) {
-    }
+    tick(delta: number) { }
+    fixedTick() { }
 
     push(context: CanvasRenderingContext2D) {
         let [cvWidth, cvHeight] = this.game.canvasSize;

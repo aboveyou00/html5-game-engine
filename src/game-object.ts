@@ -244,6 +244,7 @@ export class GameObject {
         this.y += this.vspeed * delta;
         this.animationAge += this.animationSpeed * delta;
     }
+    fixedTick() { }
 
     render(context: CanvasRenderingContext2D) {
         if (!this.shouldRender) return;

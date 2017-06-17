@@ -5,6 +5,7 @@ import { GameScene } from './game-scene';
 export class Game {
     constructor(protected readonly framesPerSecond = 30) {
         this.init();
+        this.timePerFixedTick = 1 / framesPerSecond;
     }
 
     private _scene: GameScene = null;
@@ -126,9 +127,22 @@ export class Game {
             if (this._scene) { this._scene.handleEvent(evt); }
         }
     }
+    private fixedTickDelta = 0;
+    private timePerFixedTick = 1;
     protected tick(delta: number) {
         if (this._scene) {
             this._scene.tick(delta);
+            this.handleSceneChange();
+        }
+        this.fixedTickDelta += delta;
+        while (this.fixedTickDelta >= this.timePerFixedTick) {
+            this.fixedTickDelta -= this.timePerFixedTick;
+            this.fixedTick();
+        }
+    }
+    protected fixedTick() {
+        if (this._scene) {
+            this._scene.fixedTick();
             this.handleSceneChange();
         }
     }

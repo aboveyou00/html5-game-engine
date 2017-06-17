@@ -44,6 +44,12 @@ export class GameScene {
         }
         if (this.camera) this.camera.tick(delta);
     }
+    public fixedTick() {
+        for (let obj of this._objects) {
+            if (obj.shouldTick) obj.fixedTick();
+        }
+        if (this.camera) this.camera.fixedTick();
+    }
     
     public render(context: CanvasRenderingContext2D) {
         let defaultCamera = this.camera;
