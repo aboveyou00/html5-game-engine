@@ -23,11 +23,12 @@ export class FollowCamera extends Camera {
         this._offset = [offsetx, offsety];
     }
 
-    tick(delta: number) {
+    //TODO: add beforeRender lifecycle hook; use that hook to avoid calling this method multiple times in one render cycle
+    push(context: CanvasRenderingContext2D) {
         if (this.follow) {
             let target: [number, number] = [this._follow.x + this._offset[0], this._follow.y + this._offset[1]];
             this.center = target;
         }
-        super.tick(delta);
+        super.push(context);
     }
 }
