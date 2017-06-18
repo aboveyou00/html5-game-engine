@@ -29,6 +29,14 @@ export class Camera {
     set center([x, y]: [number, number]) {
         this._center = [x, y];
     }
+    
+    private _floorCenterPosition = true;
+    get floorCenterPosition() {
+        return this._floorCenterPosition;
+    }
+    set floorCenterPosition(val: boolean) {
+        this._floorCenterPosition = val;
+    }
 
     private _zoomScale = 1;
     get zoomScale() {
@@ -96,7 +104,12 @@ export class Camera {
 
         context.translate(Math.floor(cvWidth / 2), Math.floor(cvHeight / 2));
         context.scale(this._zoomScale, this._zoomScale);
-        context.translate(-Math.floor(this._center[0]), -Math.floor(this._center[1]));
+        if (this.floorCenterPosition) {
+            context.translate(-Math.floor(this._center[0]), -Math.floor(this._center[1]));
+        }
+        else {
+            context.translate(-this._center[0], -this._center[1]);
+        }
     }
     pop(context: CanvasRenderingContext2D) {
         context.restore();
