@@ -78,13 +78,16 @@ export class Camera {
     }
 
     get bounds() {
+        return this.calculateBounds(this.center, this.zoomScale)
+    }
+    protected calculateBounds(center: [number, number], zoomScale: number) {
         let [cvWidth, cvHeight] = this.game.canvasSize;
-        let [hoff, voff] = [(cvWidth / 2) / this._zoomScale, (cvHeight / 2) / this._zoomScale];
+        let [hoff, voff] = [(cvWidth / 2) / zoomScale, (cvHeight / 2) / zoomScale];
         return {
-            left: this._center[0] - hoff,
-            right: this._center[0] + hoff,
-            top: this._center[1] + voff,
-            bottom: this._center[1] - voff
+            left: center[0] - hoff,
+            right: center[0] + hoff,
+            top: center[1] + voff,
+            bottom: center[1] - voff
         };
     }
 
