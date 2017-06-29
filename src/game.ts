@@ -51,6 +51,13 @@ export class Game {
         }
     }
 
+    private _renderPhysics = false;
+    get renderPhysics() {
+        return this._renderPhysics;
+    }
+    set renderPhysics(val: boolean) {
+        this._renderPhysics = val;
+    }
 
     protected canvas: HTMLCanvasElement = null;
     private context: CanvasRenderingContext2D = null;

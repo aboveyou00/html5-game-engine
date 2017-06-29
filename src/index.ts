@@ -13,3 +13,4 @@ export * from './audio-source-object';
 export * from './game-scene';
 
 export * from './utils';
+export * from './physics';

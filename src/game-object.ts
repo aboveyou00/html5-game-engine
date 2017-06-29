@@ -8,13 +8,13 @@ import { GameScene } from './game-scene';
 import { Camera } from './camera';
 import { ResourceLoader } from './resource-loader';
 import { EventQueue } from './event-queue';
+import { CollisionMask } from './physics/collision-mask';
 
 export type RenderCameraT = 'default' | 'none' | Camera;
 
 export interface GameObjectOptions {
     x?: number,
     y?: number,
-    collisionBounds?: Rect,
 
     shouldTick?: boolean,
     direction?: number,
@@ -27,7 +27,9 @@ export interface GameObjectOptions {
     sprite?: SpriteT,
     animationAge?: number,
     animationSpeed?: number,
-    imageAngle?: number
+    imageAngle?: number,
+    
+    mask?: CollisionMask,
 };
 
 export class GameObject {
@@ -36,7 +38,6 @@ export class GameObject {
 
         if (typeof opts.x != 'undefined') this.x = opts.x;
         if (typeof opts.y != 'undefined') this.y = opts.y;
-        if (typeof opts.collisionBounds != 'undefined') this.collisionBounds = opts.collisionBounds;
 
         if (typeof opts.shouldTick != 'undefined') this.shouldTick = opts.shouldTick;
         if (typeof opts.direction != 'undefined') this.direction = opts.direction;
@@ -50,6 +51,8 @@ export class GameObject {
         if (typeof opts.animationAge != 'undefined') this.animationAge = opts.animationAge;
         if (typeof opts.animationSpeed != 'undefined') this.animationSpeed = opts.animationSpeed;
         if (typeof opts.imageAngle != 'undefined') this.imageAngle = opts.imageAngle;
+        
+        if (typeof opts.mask != 'undefined') this.mask = opts.mask;
     }
 
     private DEBUG_MOVEMENT = false;
@@ -76,20 +79,6 @@ export class GameObject {
     }
     set y(val) {
         this._y = val;
-    }
-
-    private _collisionBounds: Rect | null;
-    get collisionBounds(): Rect {
-        if (!this._collisionBounds) {
-            if (!this.sprite) return Rect.zero;
-            let pivot = this.sprite.pivot || { x: 0, y: 0 };
-            let spriteSize = measureSprite(this.resources, this.sprite);
-            return new Rect(-pivot.x, spriteSize.width - pivot.x, -pivot.y, spriteSize.height - pivot.y);
-        }
-        return this._collisionBounds;
-    }
-    set collisionBounds(val: Rect) {
-        this._collisionBounds = val;
     }
 
     private _shouldTick = true;
@@ -159,6 +148,17 @@ export class GameObject {
         if (this.DEBUG_MOVEMENT) console.log(`  speed: ${this._speed}; direction: ${this._dir}`);
     }
 
+    private _mask: CollisionMask;
+    get mask() {
+        return this._mask;
+    }
+    set mask(val: CollisionMask) {
+        if (val === this._mask) return;
+        if (this._mask && this.scene) this.scene.removeCollider(this._mask);
+        this._mask = val;
+        if (this._mask && this.scene) this.scene.addCollider(this._mask);
+    }
+
     private _shouldRender = true;
     get shouldRender() {
         return this._shouldRender;
@@ -226,8 +226,10 @@ export class GameObject {
     addToScene(scene: GameScene) {
         if (this._scene) throw new Error('This game object is already added to a scene!');
         this._scene = scene;
+        if (this.mask) this.scene.addCollider(this.mask);
     }
     removeFromScene() {
+        if (this.mask) this.scene.removeCollider(this.mask);
         this._scene = null;
     }
 

@@ -1,6 +1,7 @@
 ﻿import { Game } from './game';
 import { GameObject } from './game-object';
 import { Camera } from './camera';
+import { CollisionMask } from './physics/collision-mask';
 
 export class GameScene {
     constructor(private _game: Game = null) {
@@ -43,19 +44,23 @@ export class GameScene {
             if (obj.shouldTick) obj.tick(delta);
         }
         if (this.camera) this.camera.tick(delta);
+        this.physicsTick(delta);
     }
     public fixedTick() {
         for (let obj of this._objects) {
             if (obj.shouldTick) obj.fixedTick();
         }
         if (this.camera) this.camera.fixedTick();
+        this.physicsTick(0);
+    }
+    public physicsTick(delta: number) {
+        
     }
     
     public render(context: CanvasRenderingContext2D) {
         let defaultCamera = this.camera;
         let lastRenderCamera = defaultCamera;
         if (lastRenderCamera) lastRenderCamera.push(context);
-        
         for (let obj of this._objects) {
             if (obj.shouldRender) {
                 let renderCamera = obj.renderCamera === 'default' ? defaultCamera :
@@ -69,7 +74,26 @@ export class GameScene {
                 obj.render(context);
             }
         }
-        
+        if (lastRenderCamera) lastRenderCamera.pop(context);
+        if (this.game.renderPhysics) this.renderPhysics(context);
+    }
+    public renderPhysics(context: CanvasRenderingContext2D) {
+        let defaultCamera = this.camera;
+        let lastRenderCamera = defaultCamera;
+        if (lastRenderCamera) lastRenderCamera.push(context);
+        for (let obj of this._objects) {
+            if (obj.shouldRender) {
+                let renderCamera = obj.renderCamera === 'default' ? defaultCamera :
+                                      obj.renderCamera !== 'none' ? obj.renderCamera :
+                                                                    null;
+                if (lastRenderCamera != renderCamera) {
+                    if (lastRenderCamera) lastRenderCamera.pop(context);
+                    lastRenderCamera = renderCamera;
+                    if (lastRenderCamera) lastRenderCamera.push(context);
+                }
+                obj.render(context);
+            }
+        }
         if (lastRenderCamera) lastRenderCamera.pop(context);
     }
 
@@ -105,6 +129,15 @@ export class GameScene {
         if (!predicate) return [...this._objects];
         if (typeof predicate !== 'function') throw new Error(`Invalid predicate: ${predicate}`);
         return this._objects.filter(predicate);
+    }
+
+    private _colliders: CollisionMask[] = [];
+    removeCollider(mask: CollisionMask) {
+        let idx = this._colliders.indexOf(mask);
+        if (idx !== -1) this._colliders.splice(idx, 1);
+    }
+    addCollider(mask: CollisionMask) {
+        this._colliders.push(mask);
     }
 
     private initCamera() {
