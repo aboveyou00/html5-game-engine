@@ -15,6 +15,7 @@ export class EventQueue {
     }
     private initKeyboard(body: HTMLBodyElement) {
         body.onkeydown = e => {
+            e.preventDefault();
             if (this.DEBUG_KEYS) console.log(`Key Pressed: ${e.key}; ${e.code}`);
             if (!this.isKeyDown(e.code)) {
                 this.enqueue({
@@ -36,6 +37,7 @@ export class EventQueue {
             });
         };
         body.onkeyup = e => {
+            e.preventDefault();
             if (this.DEBUG_KEYS) console.log(`Key Released: ${e.key}; ${e.code}`);
             if (this.isKeyDown(e.code)) {
                 this.enqueue({
@@ -51,6 +53,7 @@ export class EventQueue {
     }
     private initMouse(body: HTMLBodyElement) {
         body.onmousemove = e => {
+            e.preventDefault();
             if (this.DEBUG_MOUSE) console.log(`Mouse moved. Movement: ${e.movementX}, ${e.movementY}; Position: ${e.pageX}, ${e.pageY}`);
             if (typeof e.pageX !== 'undefined') this._pageX = e.pageX;
             else this._pageX += e.movementX;
@@ -65,6 +68,7 @@ export class EventQueue {
             });
         };
         body.onmousedown = e => {
+            e.preventDefault();
             if (this.DEBUG_MOUSE) console.log(`Mouse button pressed. Button: ${e.button}; Position: ${e.pageX}, ${e.pageY}`);
             if (!this.isMouseButtonDown(e.button)) {
                 if (typeof e.pageX !== 'undefined') this._pageX = e.pageX;
@@ -79,6 +83,7 @@ export class EventQueue {
             }
         };
         body.onmouseup = e => {
+            e.preventDefault();
             if (this.DEBUG_MOUSE) console.log(`Mouse button released. Button: ${e.button}; Position: ${e.pageX}, ${e.pageY}`);
             if (this.isMouseButtonDown(e.button)) {
                 if (typeof e.pageX !== 'undefined') this._pageX = e.pageX;
@@ -93,6 +98,7 @@ export class EventQueue {
             }
         };
         body.onwheel = e => {
+            e.preventDefault();
             if (this.DEBUG_MOUSE) console.log(`Mouse wheel. delta: ${e.deltaY}; Position: ${e.pageX}, ${e.pageY}`);
             if (typeof e.pageX !== 'undefined') this._pageX = e.pageX;
             if (typeof e.pageY !== 'undefined') this._pageY = e.pageY;
