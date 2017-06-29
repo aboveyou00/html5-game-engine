@@ -131,7 +131,12 @@ export class Game {
     protected sendEvents() {
         let events = this._eventQueue.clearQueue();
         for (let evt of events) {
-            if (this._scene) { this._scene.handleEvent(evt); }
+            if (this._scene) {
+                let handled = this._scene.handleEvent(evt);
+                if (!handled && evt.type === 'keyPressed' && evt.code === 'F5') {
+                    location.reload();
+                }
+            }
         }
     }
     private fixedTickDelta = 0;
