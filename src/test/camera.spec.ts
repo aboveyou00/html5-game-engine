@@ -178,6 +178,26 @@ describe('Camera', () => {
         });
     });
 
+    describe('.clear', () => {
+        let context: CanvasRenderingContext2D;
+        beforeEach(() => {
+            context = new HTMLCanvasElement().getContext('2d');
+        });
+
+        it('should not attempt to fill the screen if no clear color is specified', () => {
+            sinon.stub(context, 'fillRect');
+            camera.clear(context);
+            expect(context.fillRect).not.to.have.been.called;
+        });
+        it('should fill the screen with the clear color if it is specified', () => {
+            sinon.stub(context, 'fillRect');
+            camera.clearColor = 'green';
+            camera.clear(context);
+            expect(context.fillRect).to.have.been.calledOnce;
+            expect(context.fillStyle).to.eq('green');
+        });
+    });
+
     describe('.push', () => {
         let context: CanvasRenderingContext2D;
         beforeEach(() => {
@@ -188,18 +208,6 @@ describe('Camera', () => {
             sinon.stub(context, 'save');
             camera.push(context);
             expect(context.save).to.have.been.calledOnce;
-        });
-        it('should not attempt to fill the screen if no clear color is specified', () => {
-            sinon.stub(context, 'fillRect');
-            camera.push(context);
-            expect(context.fillRect).not.to.have.been.called;
-        });
-        it('should fill the screen with the clear color if it is specified', () => {
-            sinon.stub(context, 'fillRect');
-            camera.clearColor = 'green';
-            camera.push(context);
-            expect(context.fillRect).to.have.been.calledOnce;
-            expect(context.fillStyle).to.eq('green');
         });
         it('should translate further draw calls by the camera center position', () => {
             game.canvasSize = [0, 0];

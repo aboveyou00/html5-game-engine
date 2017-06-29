@@ -60,7 +60,10 @@ export class GameScene {
     public render(context: CanvasRenderingContext2D) {
         let defaultCamera = this.camera;
         let lastRenderCamera = defaultCamera;
-        if (lastRenderCamera) lastRenderCamera.push(context);
+        if (lastRenderCamera) {
+            lastRenderCamera.clear(context);
+            lastRenderCamera.push(context);
+        }
         for (let obj of this._objects) {
             if (obj.shouldRender) {
                 let renderCamera = obj.renderCamera === 'default' ? defaultCamera :
@@ -81,18 +84,17 @@ export class GameScene {
         let defaultCamera = this.camera;
         let lastRenderCamera = defaultCamera;
         if (lastRenderCamera) lastRenderCamera.push(context);
-        for (let obj of this._objects) {
-            if (obj.shouldRender) {
-                let renderCamera = obj.renderCamera === 'default' ? defaultCamera :
-                                      obj.renderCamera !== 'none' ? obj.renderCamera :
-                                                                    null;
-                if (lastRenderCamera != renderCamera) {
-                    if (lastRenderCamera) lastRenderCamera.pop(context);
-                    lastRenderCamera = renderCamera;
-                    if (lastRenderCamera) lastRenderCamera.push(context);
-                }
-                obj.render(context);
+        for (let collider of this._colliders) {
+            let obj = collider.gameObject;
+            let renderCamera = obj.renderCamera === 'default' ? defaultCamera :
+                                  obj.renderCamera !== 'none' ? obj.renderCamera :
+                                                              null;
+            if (lastRenderCamera != renderCamera) {
+                if (lastRenderCamera) lastRenderCamera.pop(context);
+                lastRenderCamera = renderCamera;
+                if (lastRenderCamera) lastRenderCamera.push(context);
             }
+            collider.render(context);
         }
         if (lastRenderCamera) lastRenderCamera.pop(context);
     }

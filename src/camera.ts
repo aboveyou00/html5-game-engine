@@ -91,14 +91,17 @@ export class Camera {
     tick(delta: number) { }
     fixedTick() { }
 
-    push(context: CanvasRenderingContext2D) {
+    clear(context: CanvasRenderingContext2D) {
         let [cvWidth, cvHeight] = this.game.canvasSize;
-        context.save();
-
         if (this._clearColor) {
             context.fillStyle = this._clearColor;
             context.fillRect(0, 0, cvWidth, cvHeight);
         }
+    }
+
+    push(context: CanvasRenderingContext2D) {
+        let [cvWidth, cvHeight] = this.game.canvasSize;
+        context.save();
 
         context.imageSmoothingEnabled = context.mozImageSmoothingEnabled = context.oImageSmoothingEnabled = context.webkitImageSmoothingEnabled = this._smoothing;
 

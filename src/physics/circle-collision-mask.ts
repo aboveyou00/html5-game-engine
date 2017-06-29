@@ -20,7 +20,7 @@ export class CircleCollisionMask extends CollisionMask {
         this._offset = [val[0], val[1]];
     }
     
-    render(context: CanvasRenderingContext2D) {
+    renderImpl(context: CanvasRenderingContext2D) {
         context.strokeStyle = 'red';
         context.beginPath();
         context.ellipse(this._offset[0], this._offset[1], this.radius, this.radius, 0, 0, 2 * Math.PI);
