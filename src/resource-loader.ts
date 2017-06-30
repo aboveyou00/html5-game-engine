@@ -1,7 +1,5 @@
-﻿import { fillText } from './utils/render';
-import { PreloadStrategy } from './utils/preload-strategy';
+﻿import { PreloadStrategy } from './utils/preload-strategy';
 import { GraphicsAdapter } from './graphics/graphics-adapter';
-import { DefaultGraphicsAdapter } from './graphics/default-graphics-adapter';
 
 export class ResourceLoader {
     constructor() {
@@ -82,25 +80,6 @@ export class ResourceLoader {
     }
 
     render(adapter: GraphicsAdapter) {
-        if (adapter instanceof DefaultGraphicsAdapter) this.renderContext2D(adapter.context);
-        else throw new Error(`Not implemented`);
-    }
-    protected renderContext2D(context: CanvasRenderingContext2D) {
-        context.fillStyle = 'grey';
-        context.fillRect(0, 0, context.canvas.scrollWidth, context.canvas.scrollHeight);
-        
-        if (this.totalResources > 0) {
-            context.fillStyle = 'white';
-            context.fillRect(4, 4, 100, 4);
-            context.fillStyle = 'black';
-            context.fillRect(4, 4, 100 * (this.resourcesLoaded / this.totalResources), 4);
-        }
-
-        let msg = `${this.resourcesLoaded}/${this.totalResources}`;
-        if (this._errors.length) msg += '\n' + this.error;
-        context.textBaseline = 'top';
-        context.textAlign = 'left';
-        context.fillStyle = 'black';
-        fillText(context, msg, 4, 12);
+        adapter.renderResourceLoader(this.resourcesLoaded, this.totalResources, this.error);
     }
 }

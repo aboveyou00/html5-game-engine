@@ -3,14 +3,13 @@ import { Rect } from './utils/rect';
 import { Game } from './game';
 import { GameEvent } from './utils/events';
 import { SpriteT } from './utils/sprite';
-import { drawSprite, measureSprite } from './utils/render';
+import { measureSprite } from './utils/render';
 import { GameScene } from './game-scene';
 import { Camera } from './camera';
 import { ResourceLoader } from './resource-loader';
 import { EventQueue } from './event-queue';
 import { CollisionMask } from './physics/collision-mask';
 import { GraphicsAdapter } from './graphics/graphics-adapter';
-import { DefaultGraphicsAdapter } from './graphics/default-graphics-adapter';
 
 export type RenderCameraT = 'default' | 'none' | Camera;
 
@@ -252,41 +251,11 @@ export class GameObject {
     
     render(adapter: GraphicsAdapter) {
         if (!this.shouldRender) return;
-        if (adapter instanceof DefaultGraphicsAdapter) this.doInModelSpaceContext2d(adapter.context, () => this.renderImpl(adapter));
-        else throw new Error(`Not implemented`);
-    }
-    protected doInModelSpaceContext2d(context: CanvasRenderingContext2D, act: () => void) {
-        if (!this.shouldRender) return;
-
-        context.save();
-
-        try {
-            context.translate(this.x, this.y);
-            context.rotate(-degToRad(this.imageAngle));
-
-            act();
-        }
-        finally {
-            context.restore();
-        }
+        adapter.renderTransformed(this.x, this.y, -degToRad(this.imageAngle), 1, 1, () => {
+            this.renderImpl(adapter);
+        });
     }
     protected renderImpl(adapter: GraphicsAdapter) {
-        if (adapter instanceof DefaultGraphicsAdapter) this.renderImplContext2d(adapter.context);
-        else throw new Error(`Not implmented`);
-    }
-    protected renderImplContext2d(context: CanvasRenderingContext2D) {
-        if (this.sprite) {
-            drawSprite(context, this.resources, this.sprite, 0, 0, this.animationAge);
-        }
-        else {
-            context.fillStyle = 'red';
-            context.fillRect(0, 0, 16, 16);
-
-            context.fillStyle = 'white';
-            context.font = '16px Consolas';
-            context.textAlign = 'center';
-            context.textBaseline = 'middle';
-            context.fillText('?', 0 + 8, 0 + 8);
-        }
+        adapter.renderObject(this);
     }
 }
