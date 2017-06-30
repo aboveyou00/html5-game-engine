@@ -22,6 +22,15 @@ describe('DefaultGraphicsAdapter', () => {
         adapter = new DefaultGraphicsAdapter(context);
     });
 
+    describe('.clear', () => {
+        it('should fill the screen with the clear color if it is specified', () => {
+            sinon.stub(context, 'fillRect');
+            (<any>adapter)._canvas = { width: 400, height: 400 };
+            adapter.clear('green');
+            expect(context.fillRect).to.have.been.calledOnce;
+            expect(context.fillStyle).to.eq('green');
+        });
+    });
     describe('.renderResourceLoader', () => {
         it('should not throw an error', () => {
             expect(() => adapter.renderResourceLoader(0, 0)).not.to.throw;
@@ -128,7 +137,6 @@ describe('DefaultGraphicsAdapter', () => {
                 subject.calledOnce;
                 subject.calledWith(img);
             });
-
             it('should render the image offset by x, y, and the sprite pivot', () => {
                 sinon.stub(context, 'drawImage');
                 adapter.drawSprite(loader, _.merge({ pivot: { x: 5, y: 3 } }, sprite), 13, 28);
@@ -148,7 +156,6 @@ describe('DefaultGraphicsAdapter', () => {
                 subject.calledOnce;
                 subject.calledWith(img);
             });
-
             it('should render only the tile specified in sprite.tileset', () => {
                 sinon.stub(context, 'drawImage');
                 adapter.drawSprite(loader, sprite);
@@ -156,7 +163,6 @@ describe('DefaultGraphicsAdapter', () => {
                 subject.calledOnce;
                 subject.calledWithExactly(any, 32, 32, 32, 32, any, any, 32, 32);
             });
-
             it('should render the image offset by x, y, and the sprite pivot', () => {
                 sinon.stub(context, 'drawImage');
                 adapter.drawSprite(loader, _.merge({ pivot: { x: 5, y: 3 } }, sprite), 13, 28);
@@ -176,7 +182,6 @@ describe('DefaultGraphicsAdapter', () => {
                 subject.calledOnce;
                 subject.calledWith(img);
             });
-
             it('should render only the tile specified in sprite.tileset and sprite.frames', () => {
                 sinon.stub(context, 'drawImage');
                 adapter.drawSprite(loader, sprite, 0, 0, 0 / 30, 30);
@@ -184,7 +189,6 @@ describe('DefaultGraphicsAdapter', () => {
                 subject.calledOnce;
                 subject.calledWithExactly(any, 0, 0, 32, 32, any, any, 32, 32);
             });
-
             it('should render the correct frame when an image index is passed in', () => {
                 sinon.stub(context, 'drawImage');
                 adapter.drawSprite(loader, sprite, 0, 0, 1 / 30, 30);
@@ -192,7 +196,6 @@ describe('DefaultGraphicsAdapter', () => {
                 subject.calledOnce;
                 subject.calledWithExactly(any, 32, 0, 32, 32, any, any, 32, 32);
             });
-
             it('should wrap the image index around the number of frames', () => {
                 sinon.stub(context, 'drawImage');
                 adapter.drawSprite(loader, sprite, 0, 0, 5 / 30, 30);
@@ -200,7 +203,6 @@ describe('DefaultGraphicsAdapter', () => {
                 subject.calledOnce;
                 subject.calledWithExactly(any, 64, 0, 32, 32, any, any, 32, 32);
             });
-
             it('should allow negative image indexes', () => {
                 sinon.stub(context, 'drawImage');
                 adapter.drawSprite(loader, sprite, 0, 0, -2 / 30, 30);
@@ -208,7 +210,6 @@ describe('DefaultGraphicsAdapter', () => {
                 subject.calledOnce;
                 subject.calledWithExactly(any, 32, 0, 32, 32, any, any, 32, 32);
             });
-
             it('should round down when the image index is not a evenly divisible by the sprite fps', () => {
                 sinon.stub(context, 'drawImage');
                 adapter.drawSprite(loader, sprite, 0, 0, .8 / 30, 30);
@@ -216,7 +217,6 @@ describe('DefaultGraphicsAdapter', () => {
                 subject.calledOnce;
                 subject.calledWithExactly(any, 0, 0, 32, 32, any, any, 32, 32);
             });
-
             it('should render the image offset by x, y, and the sprite pivot', () => {
                 sinon.stub(context, 'drawImage');
                 adapter.drawSprite(loader, _.merge({ pivot: { x: 5, y: 3 } }, sprite), 13, 28);

@@ -30,6 +30,11 @@ export class DefaultGraphicsAdapter extends GraphicsAdapter {
         return this._context;
     }
     
+    clear(color: string) {
+        let context = this.context;
+        context.fillStyle = color;
+        context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
     renderResourceLoader(resourcesLoaded: number, totalResources: number, errors?: string) {
         let context = this.context;
         

@@ -4,6 +4,7 @@ export abstract class GraphicsAdapter {
     abstract init();
     abstract readonly canvas: HTMLCanvasElement;
     
+    abstract clear(color: string);
     abstract renderResourceLoader(resourcsLoaded: number, totalResources: number, errors?: string);
     abstract renderObject(obj: GameObject);
     

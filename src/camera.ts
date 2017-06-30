@@ -71,14 +71,6 @@ export class Camera {
         this.zoomScale = this.zoomScale;
     }
 
-    private _smoothing = true;
-    get enableSmoothing() {
-        return this._smoothing;
-    }
-    set enableSmoothing(val) {
-        this._smoothing = val;
-    }
-
     get bounds() {
         return this.calculateBounds(this.center, this.zoomScale)
     }
@@ -97,41 +89,18 @@ export class Camera {
     fixedTick() { }
 
     clear(adapter: GraphicsAdapter) {
-        if (adapter instanceof DefaultGraphicsAdapter) this.clearContext2d(adapter.context);
-        else throw new Error(`Not implemented!`);
-    }
-    protected clearContext2d(context: CanvasRenderingContext2D) {
-        let [cvWidth, cvHeight] = this.game.canvasSize;
-        if (this._clearColor) {
-            context.fillStyle = this._clearColor;
-            context.fillRect(0, 0, cvWidth, cvHeight);
-        }
+        if (this._clearColor) adapter.clear(this._clearColor);
     }
 
-    push(adapter: GraphicsAdapter) {
-        if (adapter instanceof DefaultGraphicsAdapter) this.pushContext2d(adapter.context);
-        else throw new Error(`Not implemented`);
-    }
-    protected pushContext2d(context: CanvasRenderingContext2D) {
-        let [cvWidth, cvHeight] = this.game.canvasSize;
-        context.save();
-
-        context.imageSmoothingEnabled = context.mozImageSmoothingEnabled = context.oImageSmoothingEnabled = context.webkitImageSmoothingEnabled = this._smoothing;
-
-        context.translate(Math.floor(cvWidth / 2), Math.floor(cvHeight / 2));
-        context.scale(this._zoomScale, this._zoomScale);
+    renderTransformed(adapter: GraphicsAdapter, act: () => void) {
+        let [tx, ty] = this._center;
         if (this.floorCenterPosition) {
-            context.translate(-Math.floor(this._center[0]), -Math.floor(this._center[1]));
+            tx = Math.floor(tx);
+            ty = Math.floor(ty);
         }
-        else {
-            context.translate(-this._center[0], -this._center[1]);
-        }
-    }
-    pop(adapter: GraphicsAdapter) {
-        if (adapter instanceof DefaultGraphicsAdapter) this.popContext2d(adapter.context);
-        else throw new Error(`Not implemented`);
-    }
-    protected popContext2d(context: CanvasRenderingContext2D) {
-        context.restore();
+        let [cvWidth, cvHeight] = this.game.canvasSize;
+        tx = Math.floor(cvWidth / 2) - (tx * this._zoomScale);
+        ty = Math.floor(cvHeight / 2) - (ty * this._zoomScale);
+        adapter.renderTransformed(tx, ty, 0, this._zoomScale, this._zoomScale, act);
     }
 }

@@ -60,45 +60,31 @@ export class GameScene {
     
     public render(adapter: GraphicsAdapter) {
         let defaultCamera = this.camera;
-        let lastRenderCamera = defaultCamera;
-        if (lastRenderCamera) {
-            lastRenderCamera.clear(adapter);
-            lastRenderCamera.push(adapter);
-        }
+        if (defaultCamera) defaultCamera.clear(adapter);
+
         for (let obj of this._objects) {
             if (obj.shouldRender) {
                 let renderCamera = obj.renderCamera === 'default' ? defaultCamera :
                                       obj.renderCamera !== 'none' ? obj.renderCamera :
                                                                     null;
-                if (lastRenderCamera != renderCamera) {
-                    if (lastRenderCamera) lastRenderCamera.pop(adapter);
-                    lastRenderCamera = renderCamera;
-                    if (lastRenderCamera) lastRenderCamera.push(adapter);
-                }
-                obj.render(adapter);
+                if (!renderCamera) obj.render(adapter);
+                else renderCamera.renderTransformed(adapter, () => obj.render(adapter));
             }
         }
-        
-        if (lastRenderCamera) lastRenderCamera.pop(adapter);
+
         if (this.game.renderPhysics) this.renderPhysics(adapter);
     }
     public renderPhysics(adapter: GraphicsAdapter) {
         let defaultCamera = this.camera;
-        let lastRenderCamera = defaultCamera;
-        if (lastRenderCamera) lastRenderCamera.push(adapter);
+        
         for (let collider of this._colliders) {
             let obj = collider.gameObject;
             let renderCamera = obj.renderCamera === 'default' ? defaultCamera :
                                   obj.renderCamera !== 'none' ? obj.renderCamera :
                                                               null;
-            if (lastRenderCamera != renderCamera) {
-                if (lastRenderCamera) lastRenderCamera.pop(adapter);
-                lastRenderCamera = renderCamera;
-                if (lastRenderCamera) lastRenderCamera.push(adapter);
-            }
-            collider.render(adapter);
+            if (!renderCamera) collider.render(adapter);
+            else renderCamera.renderTransformed(adapter, () => collider.render(adapter));
         }
-        if (lastRenderCamera) lastRenderCamera.pop(adapter);
     }
 
     private _objects: GameObject[] = [];

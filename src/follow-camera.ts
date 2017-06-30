@@ -25,11 +25,11 @@ export class FollowCamera extends Camera {
     }
 
     //TODO: add beforeRender lifecycle hook; use that hook to avoid calling this method multiple times in one render cycle
-    push(adapter: GraphicsAdapter) {
+    renderTransformed(adapter: GraphicsAdapter, act: () => void) {
         if (this.follow) {
             let target: [number, number] = [this._follow.x + this._offset[0], this._follow.y + this._offset[1]];
             this.center = target;
         }
-        super.push(adapter);
+        super.renderTransformed(adapter, act);
     }
 }
