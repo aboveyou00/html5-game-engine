@@ -9,6 +9,8 @@ import { Camera } from './camera';
 import { ResourceLoader } from './resource-loader';
 import { EventQueue } from './event-queue';
 import { CollisionMask } from './physics/collision-mask';
+import { GraphicsAdapter } from './graphics/graphics-adapter';
+import { DefaultGraphicsAdapter } from './graphics/default-graphics-adapter';
 
 export type RenderCameraT = 'default' | 'none' | Camera;
 
@@ -247,8 +249,13 @@ export class GameObject {
         this.animationAge += this.animationSpeed * delta;
     }
     fixedTick() { }
-
-    render(context: CanvasRenderingContext2D) {
+    
+    render(adapter: GraphicsAdapter) {
+        if (!this.shouldRender) return;
+        if (adapter instanceof DefaultGraphicsAdapter) this.doInModelSpaceContext2d(adapter.context, () => this.renderImpl(adapter));
+        else throw new Error(`Not implemented`);
+    }
+    protected doInModelSpaceContext2d(context: CanvasRenderingContext2D, act: () => void) {
         if (!this.shouldRender) return;
 
         context.save();
@@ -257,13 +264,17 @@ export class GameObject {
             context.translate(this.x, this.y);
             context.rotate(-degToRad(this.imageAngle));
 
-            this.renderImpl(context);
+            act();
         }
         finally {
             context.restore();
         }
     }
-    protected renderImpl(context: CanvasRenderingContext2D) {
+    protected renderImpl(adapter: GraphicsAdapter) {
+        if (adapter instanceof DefaultGraphicsAdapter) this.renderImplContext2d(adapter.context);
+        else throw new Error(`Not implmented`);
+    }
+    protected renderImplContext2d(context: CanvasRenderingContext2D) {
         if (this.sprite) {
             drawSprite(context, this.resources, this.sprite, 0, 0, this.animationAge);
         }

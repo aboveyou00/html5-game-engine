@@ -327,7 +327,7 @@ describe('EventQueue', () => {
 
         describe('onresize', () => {
             it('should emit a canvasResize event when the body is resized', () => {
-                let canvas = (<any>game).canvas = <any>new HTMLCanvasElement();
+                let canvas = (<any>game.graphicsAdapter)._canvas = <any>new HTMLCanvasElement();
                 let body = document.getElementsByTagName('body')[0];
                 [canvas.scrollWidth, canvas.scrollHeight] = [123, 456];
                 body.onresize(<any>void(0));
@@ -339,7 +339,7 @@ describe('EventQueue', () => {
             });
             it('should emit only one canvasResize event per frame even if multiple are fired', () => {
                 sinon.spy(events, 'enqueue');
-                let canvas = (<any>game).canvas = <any>new HTMLCanvasElement();
+                let canvas = (<any>game.graphicsAdapter)._canvas = <any>new HTMLCanvasElement();
                 let body = document.getElementsByTagName('body')[0];
                 [canvas.scrollWidth, canvas.scrollHeight] = [123, 456];
                 body.onresize(<any>void(0));

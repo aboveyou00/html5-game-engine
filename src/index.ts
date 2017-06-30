@@ -1,4 +1,4 @@
-﻿
+
 
 export * from './event-queue';
 export * from './resource-loader';
@@ -13,4 +13,5 @@ export * from './audio-source-object';
 export * from './game-scene';
 
 export * from './utils';
+export * from './graphics';
 export * from './physics';

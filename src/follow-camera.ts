@@ -1,6 +1,7 @@
 ﻿import { Camera } from './camera';
 import { GameScene } from './game-scene';
 import { GameObject } from './game-object';
+import { GraphicsAdapter } from './graphics/graphics-adapter';
 
 export class FollowCamera extends Camera {
     constructor(scene: GameScene) {
@@ -24,11 +25,11 @@ export class FollowCamera extends Camera {
     }
 
     //TODO: add beforeRender lifecycle hook; use that hook to avoid calling this method multiple times in one render cycle
-    push(context: CanvasRenderingContext2D) {
+    push(adapter: GraphicsAdapter) {
         if (this.follow) {
             let target: [number, number] = [this._follow.x + this._offset[0], this._follow.y + this._offset[1]];
             this.center = target;
         }
-        super.push(context);
+        super.push(adapter);
     }
 }

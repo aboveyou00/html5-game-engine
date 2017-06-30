@@ -1,6 +1,8 @@
 ﻿import { Game } from './game';
 import { GameScene } from './game-scene';
 import { clamp } from './utils/math';
+import { GraphicsAdapter } from './graphics/graphics-adapter';
+import { DefaultGraphicsAdapter } from './graphics/default-graphics-adapter';
 
 export class Camera {
     constructor(private readonly _scene: GameScene) {
@@ -94,7 +96,11 @@ export class Camera {
     tick(delta: number) { }
     fixedTick() { }
 
-    clear(context: CanvasRenderingContext2D) {
+    clear(adapter: GraphicsAdapter) {
+        if (adapter instanceof DefaultGraphicsAdapter) this.clearContext2d(adapter.context);
+        else throw new Error(`Not implemented!`);
+    }
+    protected clearContext2d(context: CanvasRenderingContext2D) {
         let [cvWidth, cvHeight] = this.game.canvasSize;
         if (this._clearColor) {
             context.fillStyle = this._clearColor;
@@ -102,7 +108,11 @@ export class Camera {
         }
     }
 
-    push(context: CanvasRenderingContext2D) {
+    push(adapter: GraphicsAdapter) {
+        if (adapter instanceof DefaultGraphicsAdapter) this.pushContext2d(adapter.context);
+        else throw new Error(`Not implemented`);
+    }
+    protected pushContext2d(context: CanvasRenderingContext2D) {
         let [cvWidth, cvHeight] = this.game.canvasSize;
         context.save();
 
@@ -117,7 +127,11 @@ export class Camera {
             context.translate(-this._center[0], -this._center[1]);
         }
     }
-    pop(context: CanvasRenderingContext2D) {
+    pop(adapter: GraphicsAdapter) {
+        if (adapter instanceof DefaultGraphicsAdapter) this.popContext2d(adapter.context);
+        else throw new Error(`Not implemented`);
+    }
+    protected popContext2d(context: CanvasRenderingContext2D) {
         context.restore();
     }
 }

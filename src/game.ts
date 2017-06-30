@@ -1,11 +1,14 @@
 ﻿import { ResourceLoader } from './resource-loader';
 import { EventQueue } from './event-queue';
 import { GameScene } from './game-scene';
+import { GraphicsAdapter } from './graphics/graphics-adapter';
+import { DefaultGraphicsAdapter } from './graphics/default-graphics-adapter';
 
 export class Game {
-    constructor(protected readonly framesPerSecond = 30) {
-        this.init();
+    constructor(protected readonly framesPerSecond = 30, public readonly graphicsAdapter: GraphicsAdapter | null = null) {
+        if (!this.graphicsAdapter) this.graphicsAdapter = new DefaultGraphicsAdapter();
         this.timePerFixedTick = 1 / framesPerSecond;
+        this.init();
     }
 
     private _scene: GameScene = null;
@@ -59,8 +62,9 @@ export class Game {
         this._renderPhysics = val;
     }
 
-    protected canvas: HTMLCanvasElement = null;
-    private context: CanvasRenderingContext2D = null;
+    get canvas() {
+        return this.graphicsAdapter.canvas;
+    }
     private previousTick: Date = null;
 
     private _resourceLoader: ResourceLoader = null;
@@ -83,10 +87,8 @@ export class Game {
         if (this.isRunning) throw new Error(`This game is already running. You can't run it again.`);
         this._isRunning = true;
 
-        if (!this.canvas) this.canvas = <HTMLCanvasElement>document.getElementById('gameCanvas');
+        this.graphicsAdapter.init();
         this.refreshCanvasSize();
-
-        this.context = this.canvas.getContext("2d");
 
         this._intervalHandle = setInterval(() => this.onTick(), 1000 / this.framesPerSecond);
     }
@@ -122,10 +124,10 @@ export class Game {
             for (let q = 0; q < this.LOGIC_TICKS_PER_RENDER_TICK; q++) {
                 this.tick(delta / this.LOGIC_TICKS_PER_RENDER_TICK);
             }
-            this.render(this.context);
+            this.render(this.graphicsAdapter);
         }
         else {
-            this.resourceLoader.render(this.context);
+            this.resourceLoader.render(this.graphicsAdapter);
         }
     }
     protected sendEvents() {
@@ -158,8 +160,8 @@ export class Game {
             this.handleSceneChange();
         }
     }
-    protected render(context: CanvasRenderingContext2D) {
-        if (!context) throw new Error(`What the heck just happened? There is no rendering context!`);
-        if (this._scene) { this._scene.render(context); }
+    protected render(adapter: GraphicsAdapter) {
+        if (!adapter) throw new Error(`What the heck just happened? There is no graphics adapter!`);
+        if (this._scene) this._scene.render(adapter);
     }
 }

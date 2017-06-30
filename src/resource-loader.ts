@@ -1,5 +1,7 @@
 ﻿import { fillText } from './utils/render';
 import { PreloadStrategy } from './utils/preload-strategy';
+import { GraphicsAdapter } from './graphics/graphics-adapter';
+import { DefaultGraphicsAdapter } from './graphics/default-graphics-adapter';
 
 export class ResourceLoader {
     constructor() {
@@ -79,7 +81,11 @@ export class ResourceLoader {
         else return `${this.baseUrl}/${src}`;
     }
 
-    render(context: CanvasRenderingContext2D) {
+    render(adapter: GraphicsAdapter) {
+        if (adapter instanceof DefaultGraphicsAdapter) this.renderContext2D(adapter.context);
+        else throw new Error(`Not implemented`);
+    }
+    protected renderContext2D(context: CanvasRenderingContext2D) {
         context.fillStyle = 'grey';
         context.fillRect(0, 0, context.canvas.scrollWidth, context.canvas.scrollHeight);
         

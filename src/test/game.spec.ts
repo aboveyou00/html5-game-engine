@@ -39,7 +39,7 @@ describe('Game', () => {
             expect(() => game.start()).to.throw(/game is already running/i);
         });
         it('should update the canvas size', () => {
-            let canvas = (<any>game).canvas = <any>new HTMLCanvasElement();
+            let canvas = (<any>game.graphicsAdapter)._canvas = <any>new HTMLCanvasElement();
             [canvas.scrollWidth, canvas.scrollHeight] = [123, 456];
             expect(game.canvasSize).not.to.deep.eq([123, 456]);
             game.start();
@@ -90,7 +90,7 @@ describe('Game', () => {
             expect(game.canvasSize[0]).not.to.be.NaN;
         });
         it('should be updated any time the window is resized', () => {
-            let canvas = (<any>game).canvas = <any>new HTMLCanvasElement();
+            let canvas = (<any>game.graphicsAdapter)._canvas = <any>new HTMLCanvasElement();
             [canvas.scrollWidth, canvas.scrollHeight] = [123, 456];
             expect(game.canvasSize).not.to.deep.eq([123, 456]);
             document.getElementsByTagName('body')[0].onresize(<any>void (0));
@@ -115,8 +115,6 @@ describe('Game', () => {
             expect(game.eventQueue.enqueue).to.have.been.called;
         });
     });
-
-
 
     describe('.onTick', () => {
         it(`should throw an error if the game hasn't been started yet`, () => {

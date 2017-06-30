@@ -2,6 +2,7 @@
 import { GameObject } from './game-object';
 import { Camera } from './camera';
 import { CollisionMask } from './physics/collision-mask';
+import { GraphicsAdapter } from './graphics/graphics-adapter';
 
 export class GameScene {
     constructor(private _game: Game = null) {
@@ -57,12 +58,12 @@ export class GameScene {
         
     }
     
-    public render(context: CanvasRenderingContext2D) {
+    public render(adapter: GraphicsAdapter) {
         let defaultCamera = this.camera;
         let lastRenderCamera = defaultCamera;
         if (lastRenderCamera) {
-            lastRenderCamera.clear(context);
-            lastRenderCamera.push(context);
+            lastRenderCamera.clear(adapter);
+            lastRenderCamera.push(adapter);
         }
         for (let obj of this._objects) {
             if (obj.shouldRender) {
@@ -70,33 +71,34 @@ export class GameScene {
                                       obj.renderCamera !== 'none' ? obj.renderCamera :
                                                                     null;
                 if (lastRenderCamera != renderCamera) {
-                    if (lastRenderCamera) lastRenderCamera.pop(context);
+                    if (lastRenderCamera) lastRenderCamera.pop(adapter);
                     lastRenderCamera = renderCamera;
-                    if (lastRenderCamera) lastRenderCamera.push(context);
+                    if (lastRenderCamera) lastRenderCamera.push(adapter);
                 }
-                obj.render(context);
+                obj.render(adapter);
             }
         }
-        if (lastRenderCamera) lastRenderCamera.pop(context);
-        if (this.game.renderPhysics) this.renderPhysics(context);
+        
+        if (lastRenderCamera) lastRenderCamera.pop(adapter);
+        if (this.game.renderPhysics) this.renderPhysics(adapter);
     }
-    public renderPhysics(context: CanvasRenderingContext2D) {
+    public renderPhysics(adapter: GraphicsAdapter) {
         let defaultCamera = this.camera;
         let lastRenderCamera = defaultCamera;
-        if (lastRenderCamera) lastRenderCamera.push(context);
+        if (lastRenderCamera) lastRenderCamera.push(adapter);
         for (let collider of this._colliders) {
             let obj = collider.gameObject;
             let renderCamera = obj.renderCamera === 'default' ? defaultCamera :
                                   obj.renderCamera !== 'none' ? obj.renderCamera :
                                                               null;
             if (lastRenderCamera != renderCamera) {
-                if (lastRenderCamera) lastRenderCamera.pop(context);
+                if (lastRenderCamera) lastRenderCamera.pop(adapter);
                 lastRenderCamera = renderCamera;
-                if (lastRenderCamera) lastRenderCamera.push(context);
+                if (lastRenderCamera) lastRenderCamera.push(adapter);
             }
-            collider.render(context);
+            collider.render(adapter);
         }
-        if (lastRenderCamera) lastRenderCamera.pop(context);
+        if (lastRenderCamera) lastRenderCamera.pop(adapter);
     }
 
     private _objects: GameObject[] = [];

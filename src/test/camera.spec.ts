@@ -8,6 +8,7 @@ use(sinonChai);
 import { Camera } from '../camera';
 import { Game } from '../game';
 import { GameScene } from '../game-scene';
+import { DefaultGraphicsAdapter } from '../graphics/default-graphics-adapter';
 
 describe('Camera', () => {
     let game: Game;
@@ -179,73 +180,85 @@ describe('Camera', () => {
     });
 
     describe('.clear', () => {
-        let context: CanvasRenderingContext2D;
-        beforeEach(() => {
-            context = new HTMLCanvasElement().getContext('2d');
-        });
+        describe('when adapter is a DefaultGraphicsAdapter', () => {
+            let context: CanvasRenderingContext2D;
+            let adapter: DefaultGraphicsAdapter;
+            beforeEach(() => {
+                context = new HTMLCanvasElement().getContext('2d');
+                adapter = new DefaultGraphicsAdapter(context);
+            });
 
-        it('should not attempt to fill the screen if no clear color is specified', () => {
-            sinon.stub(context, 'fillRect');
-            camera.clear(context);
-            expect(context.fillRect).not.to.have.been.called;
-        });
-        it('should fill the screen with the clear color if it is specified', () => {
-            sinon.stub(context, 'fillRect');
-            camera.clearColor = 'green';
-            camera.clear(context);
-            expect(context.fillRect).to.have.been.calledOnce;
-            expect(context.fillStyle).to.eq('green');
+            it('should not attempt to fill the screen if no clear color is specified', () => {
+                sinon.stub(context, 'fillRect');
+                camera.clear(adapter);
+                expect(context.fillRect).not.to.have.been.called;
+            });
+            it('should fill the screen with the clear color if it is specified', () => {
+                sinon.stub(context, 'fillRect');
+                camera.clearColor = 'green';
+                camera.clear(adapter);
+                expect(context.fillRect).to.have.been.calledOnce;
+                expect(context.fillStyle).to.eq('green');
+            });
         });
     });
 
     describe('.push', () => {
-        let context: CanvasRenderingContext2D;
-        beforeEach(() => {
-            context = new HTMLCanvasElement().getContext('2d');
-        });
-
-        it('should invoke context.save', () => {
-            sinon.stub(context, 'save');
-            camera.push(context);
-            expect(context.save).to.have.been.calledOnce;
-        });
-        it('should translate further draw calls by the camera center position', () => {
-            game.canvasSize = [0, 0];
-            camera.center = [52, 199];
-            sinon.stub(context, 'translate');
-            camera.push(context);
-            expect(context.translate).to.have.been.calledWith(-52, -199);
-        });
-        it('should translate further draw calls by one half of the canvas size', () => {
-            game.canvasSize = [800, 600];
-            sinon.stub(context, 'translate');
-            camera.push(context);
-            expect(context.translate).to.have.been.calledWith(400, 300);
-        });
-        it('should scale further draw calls by the zoom scale', () => {
-            camera.zoomScale = .25;
-            sinon.stub(context, 'scale');
-            camera.push(context);
-            expect(context.scale).to.have.been.calledWith(.25, .25);
-        });
-        it('should disable image smoothing if the camera has it disabled', () => {
-            camera.enableSmoothing = false;
-            sinon.stub(context, 'scale');
-            camera.push(context);
-            expect(context.imageSmoothingEnabled).to.be.false;
+        describe('when adapter is a DefaultGraphicsAdapter', () => {
+            let context: CanvasRenderingContext2D;
+            let adapter: DefaultGraphicsAdapter;
+            beforeEach(() => {
+                context = new HTMLCanvasElement().getContext('2d');
+                adapter = new DefaultGraphicsAdapter(context);
+            });
+            
+            it('should invoke context.save', () => {
+                sinon.stub(context, 'save');
+                camera.push(adapter);
+                expect(context.save).to.have.been.calledOnce;
+            });
+            it('should translate further draw calls by the camera center position', () => {
+                game.canvasSize = [0, 0];
+                camera.center = [52, 199];
+                sinon.stub(context, 'translate');
+                camera.push(adapter);
+                expect(context.translate).to.have.been.calledWith(-52, -199);
+            });
+            it('should translate further draw calls by one half of the canvas size', () => {
+                game.canvasSize = [800, 600];
+                sinon.stub(context, 'translate');
+                camera.push(adapter);
+                expect(context.translate).to.have.been.calledWith(400, 300);
+            });
+            it('should scale further draw calls by the zoom scale', () => {
+                camera.zoomScale = .25;
+                sinon.stub(context, 'scale');
+                camera.push(adapter);
+                expect(context.scale).to.have.been.calledWith(.25, .25);
+            });
+            it('should disable image smoothing if the camera has it disabled', () => {
+                camera.enableSmoothing = false;
+                sinon.stub(context, 'scale');
+                camera.push(adapter);
+                expect(context.imageSmoothingEnabled).to.be.false;
+            });
         });
     });
 
     describe('.pop', () => {
-        let context: CanvasRenderingContext2D;
-        beforeEach(() => {
-            context = new HTMLCanvasElement().getContext('2d');
-        });
+        describe('when adapter is a DefaultGraphicsAdapter', () => {
+            let context: CanvasRenderingContext2D;
+            let adapter: DefaultGraphicsAdapter;
+            beforeEach(() => {
+                context = new HTMLCanvasElement().getContext('2d');
+                adapter = new DefaultGraphicsAdapter(context);
+            });
 
-        it('should invoke context.restore', () => {
-            sinon.stub(context, 'restore');
-            camera.pop(context);
-            expect(context.restore).to.have.been.calledOnce;
+            it('should invoke context.restore', () => {
+                sinon.stub(context, 'restore');
+                camera.pop(adapter);
+                expect(context.restore).to.have.been.calledOnce;
+            });
         });
     });
 });

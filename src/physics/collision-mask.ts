@@ -1,5 +1,7 @@
 import { GameObject } from '../game-object';
 import { degToRad } from '../utils/math';
+import { GraphicsAdapter } from '../graphics/graphics-adapter';
+import { DefaultGraphicsAdapter } from '../graphics/default-graphics-adapter';
 
 export abstract class CollisionMask {
     constructor(private _gobj: GameObject) { }
@@ -8,7 +10,11 @@ export abstract class CollisionMask {
         return this._gobj;
     }
     
-    render(context: CanvasRenderingContext2D) {
+    render(adapter: GraphicsAdapter) {
+        if (adapter instanceof DefaultGraphicsAdapter) this.renderContext2d(adapter.context);
+        else throw new Error(`Not implemented!`);
+    }
+    protected renderContext2d(context: CanvasRenderingContext2D) {
         context.save();
 
         try {
