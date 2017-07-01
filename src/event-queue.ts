@@ -15,6 +15,8 @@ export class EventQueue {
     }
     private initKeyboard(body: HTMLBodyElement) {
         body.onkeydown = e => {
+            if (e.code === 'F12') return;
+            if (e.code === 'F4' && e.altKey) return;
             e.preventDefault();
             if (this.DEBUG_KEYS) console.log(`Key Pressed: ${e.key}; ${e.code}`);
             if (!this.isKeyDown(e.code)) {

@@ -4,12 +4,22 @@ import { GameScene } from './game-scene';
 import { GraphicsAdapter } from './graphics/graphics-adapter';
 import { DefaultGraphicsAdapter } from './graphics/default-graphics-adapter';
 
+export interface GameOptions {
+    framesPerSecond?: number,
+    graphicsAdapter?: GraphicsAdapter
+};
+
 export class Game {
-    constructor(protected readonly framesPerSecond = 30, public readonly graphicsAdapter: GraphicsAdapter | null = null) {
-        if (!this.graphicsAdapter) this.graphicsAdapter = new DefaultGraphicsAdapter();
-        this.timePerFixedTick = 1 / framesPerSecond;
+    constructor(options?: GameOptions) {
+        if (!options) options = {};
+        this.framesPerSecond = options.framesPerSecond || 30;
+        this.graphicsAdapter = options.graphicsAdapter || new DefaultGraphicsAdapter();
+        this.timePerFixedTick = 1 / this.framesPerSecond;
         this.init();
     }
+    
+    public readonly framesPerSecond: number;
+    public readonly graphicsAdapter: GraphicsAdapter;
 
     private _scene: GameScene = null;
     private _nextScene: GameScene = null;
@@ -135,10 +145,31 @@ export class Game {
         for (let evt of events) {
             if (this._scene) {
                 let handled = this._scene.handleEvent(evt);
-                if (!handled && evt.type === 'keyPressed' && evt.code === 'F5') {
-                    location.reload();
+                if (!handled) {
+                    if (evt.type === 'keyPressed' && evt.code === 'F5') {
+                        location.reload(evt.shiftPressed);
+                    }
+                    else if (evt.type === 'keyPressed' && evt.code === 'F11') {
+                        this.toggleFullscreen();
+                    }
                 }
             }
+        }
+    }
+    private toggleFullscreen() {
+        if (document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement) {
+            //Exit fullscreen
+            if (document.exitFullscreen) document.exitFullscreen();
+            else if ((<any>document).mozExitFullscreen) (<any>document).mozExitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            else if ((<any>document).msExitFullscreen) (<any>document).wskitExitFullscreen();
+        }
+        else {
+            let body = document.getElementsByTagName('body')[0];
+            if (body.requestFullscreen) body.requestFullscreen();
+            else if ((<any>body).mozRequestFullScreen) (<any>body).mozRequestFullScreen();
+            else if (body.webkitRequestFullscreen) body.webkitRequestFullscreen();
+            else if ((<any>body).msRequestFullscreen) (<any>body).msRequestFullscreen();
         }
     }
     private fixedTickDelta = 0;
