@@ -103,4 +103,21 @@ export class Camera {
         ty = Math.floor(cvHeight / 2) - (ty * this._zoomScale);
         adapter.renderTransformed(tx, ty, 0, this._zoomScale, this._zoomScale, act);
     }
+    transformPixelCoordinates(x: number, y: number): [number, number];
+    transformPixelCoordinates(coords: { x: number, y: number }): [number, number];
+    transformPixelCoordinates(x: number | { x: number, y: number }, y?: number): [number, number] {
+        if (typeof x === 'object') {
+            y = x.y;
+            x = x.x;
+        }
+        let [tx, ty] = this._center;
+        if (this.floorCenterPosition) {
+            tx = Math.floor(tx);
+            ty = Math.floor(ty);
+        }
+        let [cvWidth, cvHeight] = this.game.canvasSize;
+        tx = Math.floor(cvWidth / 2) - (tx * this._zoomScale);
+        ty = Math.floor(cvHeight / 2) - (ty * this._zoomScale);
+        return [(x - tx) / this._zoomScale, (y - ty) / this._zoomScale];
+    }
 }

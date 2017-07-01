@@ -258,4 +258,17 @@ export class GameObject {
     protected renderImpl(adapter: GraphicsAdapter) {
         adapter.renderObject(this);
     }
+    
+    transformPixelCoordinates(x: number, y: number): [number, number];
+    transformPixelCoordinates(coords: { x: number, y: number }): [number, number];
+    transformPixelCoordinates(x: number | { x: number, y: number }, y?: number): [number, number] {
+        if (typeof x === 'object') {
+            y = x.y;
+            x = x.x;
+        }
+        let camera = this.renderCamera;
+        if (camera === 'default' || !camera) camera = this.scene.camera;
+        if (camera === 'none' || !camera) return [x, y];
+        else return camera.transformPixelCoordinates(x, y);
+    }
 }
