@@ -75,6 +75,7 @@ export function stubDOM() {
     let previousDocument: any;
     let previousWindow: any;
     let previousCanvas: any;
+    let previousContext: any;
     let previousImage: any;
     let previousAudio: any;
     beforeEach(() => {
@@ -84,6 +85,8 @@ export function stubDOM() {
         global.window = new MockWindow();
         previousCanvas = global.HTMLCanvasElement;
         global.HTMLCanvasElement = MockElement;
+        previousContext = global.CanvasRenderingContext2D;
+        global.CanvasRenderingContext2D = MockContext;
         previousImage = global.HTMLImageElement;
         global.HTMLImageElement = MockImage;
         previousAudio = global.HTMLAudioElement;
@@ -96,6 +99,8 @@ export function stubDOM() {
         if (typeof previousWindow !== 'undefined') global.window = previousWindow;
         delete global.HTMLCanvasElement;
         if (typeof previousCanvas !== 'undefined') global.HTMLCanvasElement = previousCanvas;
+        delete global.CanvasRenderingContext2D;
+        if (typeof previousContext !== 'undefined') global.CanvasRenderingContext2D = previousContext;
         delete global.HTMLImageElement;
         if (typeof previousImage !== 'undefined') global.HTMLImageElement = previousImage;
         delete global.HTMLAudioElement;
