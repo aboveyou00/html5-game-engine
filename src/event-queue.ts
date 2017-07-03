@@ -17,7 +17,7 @@ export class EventQueue {
         body.onkeydown = e => {
             if (e.code === 'F12') return;
             if (e.code === 'F4' && e.altKey) return;
-            e.preventDefault();
+            if (!e.ctrlKey || (e.code !== 'KeyV' && e.code !== 'KeyX' && e.code !== 'KeyC')) e.preventDefault();
             if (this.DEBUG_KEYS) console.log(`Key Pressed: ${e.key}; ${e.code}`);
             if (!this.isKeyDown(e.code)) {
                 this.enqueue({
