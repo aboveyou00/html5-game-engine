@@ -27,6 +27,9 @@ export class Game {
     get scene() {
         return this._scene;
     }
+    get nextScene() {
+        return this._nextScene;
+    }
 
     public changeScene(newScene: GameScene) {
         if (!newScene) { throw new Error("Tried to changeScene to a bad scene!"); }
