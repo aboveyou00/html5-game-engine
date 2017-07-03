@@ -36,8 +36,9 @@ export class GameScene {
 
     public handleEvent(evt) {
         for (let obj of this._objects) {
-            if (obj.shouldTick && obj.handleEvent(evt)) break;
+            if (obj.shouldTick && obj.handleEvent(evt)) return true;
         }
+        return false;
     }
 
     public tick(delta: number) {
