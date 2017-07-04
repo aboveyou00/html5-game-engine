@@ -1,9 +1,12 @@
 import { GameObject } from '../game-object';
 import { CollisionMask } from './collision-mask';
+import { CollisionT } from './collision';
+import { pointDistance, pointDistance2 } from '../utils/math';
 
 export class CircleCollisionMask extends CollisionMask {
-    constructor(gobj: GameObject, private _radius: number, private _offset: [number, number] = [0, 0]) {
+    constructor(gobj: GameObject, private _radius: number, private _offset: [number, number] = [0, 0], mass: number = NaN) {
         super(gobj);
+        this.mass = isNaN(mass) ? Math.PI * this.radius * this.radius : mass;
     }
     
     get radius() {
@@ -14,16 +17,72 @@ export class CircleCollisionMask extends CollisionMask {
     }
     
     get offset() {
-        return [this._radius[0], this._radius[1]];
+        return [this._offset[0], this._offset[1]];
     }
     set offset(val: [number, number]) {
         this._offset = [val[0], val[1]];
     }
     
+    checkForCollision(other: CollisionMask) {
+        if (other instanceof CircleCollisionMask) {
+            let [x, y] = [this.gameObject.x + this._offset[0], this.gameObject.y + this._offset[1]];
+            let [otherx, othery] = [other.gameObject.x + other._offset[0], other.gameObject.y + other._offset[1]];
+            let dist2 = pointDistance2(x, y, otherx, othery);
+            let threshold = Math.pow(this.radius + other.radius, 2);
+            if (dist2 <= 0 || dist2 >= threshold) return null;
+            
+            let dist = Math.sqrt(dist2);
+            let normal: [number, number] = [(otherx - x) / dist, (othery - y) / dist];
+            let penetration = (this.radius + other.radius) - dist;
+            let collision: CollisionT = {
+                first: this,
+                second: other,
+                contactNormal: normal,
+                contactPoint: [x + normal[0] * (this.radius - (penetration / 2)), y + normal[1] * (this.radius - (penetration / 2))],
+                // contactPoint: [x + normal[0] * (dist * .5), y + normal[1] * (dist * .5)],
+                // contactPoint: [((x * other.radius) + (otherx * other.radius)) / threshold, ((y * other.radius) + (othery * other.radius)) / threshold],
+                penetration: penetration
+            };
+            console.log('Adding collision:', collision);
+            this.contacts.push(collision);
+            other.contacts.push(collision);
+            return collision;
+        }
+        else throw new Error('Not implemented');
+    }
+    resolveCollisions() {
+        for (let q = 0; q < this.contacts.length; q++) {
+            let contact = this.contacts[q];
+            if (contact.first !== this) return;
+            let other = contact.second;
+            let relativeMass = this.mass / (this.mass + other.mass);
+            let eAbsorb = 1 - relativeMass;
+            this.gameObject.x -= contact.contactNormal[0] * eAbsorb * contact.penetration;
+            this.gameObject.y -= contact.contactNormal[1] * eAbsorb * contact.penetration;
+            other.gameObject.x += contact.contactNormal[0] * relativeMass * contact.penetration;
+            other.gameObject.y += contact.contactNormal[1] * relativeMass * contact.penetration;
+        }
+    }
+    
     renderImpl(context: CanvasRenderingContext2D) {
-        context.strokeStyle = 'red';
+        context.strokeStyle = this.contacts.length ? 'red' : 'green';
         context.beginPath();
         context.ellipse(this._offset[0], this._offset[1], this.radius, this.radius, 0, 0, 2 * Math.PI);
         context.stroke();
+        
+        context.fillStyle = 'red';
+        let [x, y] = [this._offset[0], this._offset[1]];
+        context.fillRect(x - 5, y - 5, 10, 10);
+        
+        context.strokeStyle = 'purple';
+        for (let q = 0; q < this.contacts.length; q++) {
+            let contact = this.contacts[q];
+            if (contact.first !== this) continue;
+            context.fillRect(contact.contactPoint[0] - 3, contact.contactPoint[1] - 3, 6, 6);
+            context.beginPath();
+            context.moveTo(contact.contactPoint[0] - contact.contactNormal[0] * contact.penetration / 2, contact.contactPoint[1] - contact.contactNormal[1] * contact.penetration / 2);
+            context.lineTo(contact.contactPoint[0] + contact.contactNormal[0] * contact.penetration / 2, contact.contactPoint[1] + contact.contactNormal[1] * contact.penetration / 2);
+            context.stroke();
+        }
     }
 }

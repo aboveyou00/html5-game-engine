@@ -2,13 +2,32 @@ import { GameObject } from '../game-object';
 import { degToRad } from '../utils/math';
 import { GraphicsAdapter } from '../graphics/graphics-adapter';
 import { DefaultGraphicsAdapter } from '../graphics/default-graphics-adapter';
+import { CollisionT } from './collision';
 
 export abstract class CollisionMask {
-    constructor(private _gobj: GameObject) { }
+    constructor(private _gobj: GameObject) {
+        if (!this._gobj) throw new Error(`Collision mask created without a game object!`);
+    }
     
     get gameObject() {
         return this._gobj;
     }
+    
+    private _mass: number = 1;
+    get mass() {
+        return this._mass;
+    }
+    set mass(val: number) {
+        this._mass = val;
+    }
+    
+    contacts: CollisionT[] = [];
+    clearContacts() {
+        this.contacts.length = 0;
+    }
+    
+    abstract checkForCollision(other: CollisionMask);
+    abstract resolveCollisions();
     
     render(adapter: GraphicsAdapter) {
         if (adapter instanceof DefaultGraphicsAdapter) this.renderContext2d(adapter.context);

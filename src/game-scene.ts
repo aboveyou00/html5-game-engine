@@ -56,7 +56,20 @@ export class GameScene {
         this.physicsTick(0);
     }
     public physicsTick(delta: number) {
-        
+        for (let q = 0; q < this._colliders.length; q++) {
+            this._colliders[q].clearContacts();
+        }
+        for (let q = 0; q < this._colliders.length; q++) {
+            let first = this._colliders[q];
+            for (let w = q + 1; w < this._colliders.length; w++) {
+                let second = this._colliders[w];
+                first.checkForCollision(second);
+            }
+        }
+        for (let q = 0; q < this._colliders.length; q++) {
+            let first = this._colliders[q];
+            first.resolveCollisions();
+        }
     }
     
     public render(adapter: GraphicsAdapter) {
