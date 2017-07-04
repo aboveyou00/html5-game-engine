@@ -11,9 +11,18 @@ export class MockContext {
     scale() { }
 
     fillRect() { }
+    strokeRect() { }
     fillText() { }
     measureText() { return { width: 42 } }
     drawImage() { }
+    
+    beginPath() { }
+    moveTo() { }
+    lineTo() { }
+    ellipse() { }
+    endPath() { }
+    stroke() { }
+    fill() { }
 }
 
 export class MockElement {
