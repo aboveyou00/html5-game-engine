@@ -52,7 +52,7 @@ export class CircleCollisionMask extends CollisionMask {
     resolveCollisions() {
         for (let q = 0; q < this.contacts.length; q++) {
             let contact = this.contacts[q];
-            if (contact.first !== this) return;
+            if (contact.first !== this) continue;
             let other = contact.second;
             let relativeMass = this.mass / (this.mass + other.mass);
             let eAbsorb = 1 - relativeMass;

@@ -148,7 +148,7 @@ export class GameObject {
         if (this._dir < 0) this._dir += 360;
         if (this.DEBUG_MOVEMENT) console.log(`  speed: ${this._speed}; direction: ${this._dir}`);
     }
-
+    
     private _mask: CollisionMask;
     get mask() {
         return this._mask;
