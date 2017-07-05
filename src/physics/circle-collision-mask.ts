@@ -57,10 +57,19 @@ export class CircleCollisionMask extends CollisionMask {
             let relativeMass = this.mass / (this.mass + other.mass);
             let eAbsorb = 1 - relativeMass;
             if (this.updatePositions !== false) {
-                this.gameObject.x -= contact.contactNormal[0] * eAbsorb * contact.penetration;
-                this.gameObject.y -= contact.contactNormal[1] * eAbsorb * contact.penetration;
-                other.gameObject.x += contact.contactNormal[0] * relativeMass * contact.penetration;
-                other.gameObject.y += contact.contactNormal[1] * relativeMass * contact.penetration;
+                this.impulsex -= contact.contactNormal[0] * eAbsorb * contact.penetration;
+                this.impulsey -= contact.contactNormal[1] * eAbsorb * contact.penetration;
+                other.impulsex += contact.contactNormal[0] * relativeMass * contact.penetration;
+                other.impulsey += contact.contactNormal[1] * relativeMass * contact.penetration;
+                this.impulseCount++;
+                other.impulseCount++;
+                
+                // let newHspeed = this.speed * Math.cos();
+                
+                // this.gameObject.hspeed = newHspeed;
+                // other.gameObject.hspeed = newHspeedOther;
+                // this.gameObject.vspeed = newVspeed;
+                // other.gameObject.vspeed = newVspeedOther;
             }
         }
         if (this.updatePositions === 'once') this.updatePositions = false;

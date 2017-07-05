@@ -67,8 +67,12 @@ export class GameScene {
             }
         }
         for (let q = 0; q < this._colliders.length; q++) {
-            let first = this._colliders[q];
-            first.resolveCollisions();
+            let collider = this._colliders[q];
+            collider.resolveCollisions();
+        }
+        for (let q = 0; q < this._colliders.length; q++) {
+            let collider = this._colliders[q];
+            collider.resolveImpulses();
         }
     }
     

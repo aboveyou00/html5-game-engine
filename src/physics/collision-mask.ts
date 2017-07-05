@@ -25,6 +25,15 @@ export abstract class CollisionMask {
     clearContacts() {
         this.contacts.length = 0;
     }
+    impulsex = 0;
+    impulsey = 0;
+    impulseCount = 0;
+    resolveImpulses() {
+        if (this.impulseCount == 0) return;
+        this.gameObject.x += this.impulsex / this.impulseCount;
+        this.gameObject.y += this.impulsey / this.impulseCount;
+        this.impulsex = this.impulsey = this.impulseCount = 0;
+    }
     
     abstract checkForCollision(other: CollisionMask);
     abstract resolveCollisions();
