@@ -23,6 +23,8 @@ export class CircleCollisionMask extends CollisionMask {
         this._offset = [val[0], val[1]];
     }
     
+    updatePositions: boolean | 'once' = true;
+    
     checkForCollision(other: CollisionMask) {
         if (other instanceof CircleCollisionMask) {
             let [x, y] = [this.gameObject.x + this._offset[0], this.gameObject.y + this._offset[1]];
@@ -39,11 +41,8 @@ export class CircleCollisionMask extends CollisionMask {
                 second: other,
                 contactNormal: normal,
                 contactPoint: [x + normal[0] * (this.radius - (penetration / 2)), y + normal[1] * (this.radius - (penetration / 2))],
-                // contactPoint: [x + normal[0] * (dist * .5), y + normal[1] * (dist * .5)],
-                // contactPoint: [((x * other.radius) + (otherx * other.radius)) / threshold, ((y * other.radius) + (othery * other.radius)) / threshold],
-                penetration: penetration
+                penetration: penetration + .01
             };
-            console.log('Adding collision:', collision);
             this.contacts.push(collision);
             other.contacts.push(collision);
             return collision;
@@ -57,11 +56,14 @@ export class CircleCollisionMask extends CollisionMask {
             let other = contact.second;
             let relativeMass = this.mass / (this.mass + other.mass);
             let eAbsorb = 1 - relativeMass;
-            this.gameObject.x -= contact.contactNormal[0] * eAbsorb * contact.penetration;
-            this.gameObject.y -= contact.contactNormal[1] * eAbsorb * contact.penetration;
-            other.gameObject.x += contact.contactNormal[0] * relativeMass * contact.penetration;
-            other.gameObject.y += contact.contactNormal[1] * relativeMass * contact.penetration;
+            if (this.updatePositions !== false) {
+                this.gameObject.x -= contact.contactNormal[0] * eAbsorb * contact.penetration;
+                this.gameObject.y -= contact.contactNormal[1] * eAbsorb * contact.penetration;
+                other.gameObject.x += contact.contactNormal[0] * relativeMass * contact.penetration;
+                other.gameObject.y += contact.contactNormal[1] * relativeMass * contact.penetration;
+            }
         }
+        if (this.updatePositions === 'once') this.updatePositions = false;
     }
     
     renderImpl(context: CanvasRenderingContext2D) {
@@ -71,17 +73,16 @@ export class CircleCollisionMask extends CollisionMask {
         context.stroke();
         
         context.fillStyle = 'red';
-        let [x, y] = [this._offset[0], this._offset[1]];
-        context.fillRect(x - 5, y - 5, 10, 10);
+        context.fillRect(this._offset[0] - 3, this._offset[1] - 3, 6, 6);
         
         context.strokeStyle = 'purple';
         for (let q = 0; q < this.contacts.length; q++) {
             let contact = this.contacts[q];
             if (contact.first !== this) continue;
-            context.fillRect(contact.contactPoint[0] - 3, contact.contactPoint[1] - 3, 6, 6);
+            context.fillRect(contact.contactPoint[0] - this.gameObject.x - 1, contact.contactPoint[1] - this.gameObject.y - 1, 2, 2);
             context.beginPath();
-            context.moveTo(contact.contactPoint[0] - contact.contactNormal[0] * contact.penetration / 2, contact.contactPoint[1] - contact.contactNormal[1] * contact.penetration / 2);
-            context.lineTo(contact.contactPoint[0] + contact.contactNormal[0] * contact.penetration / 2, contact.contactPoint[1] + contact.contactNormal[1] * contact.penetration / 2);
+            context.moveTo(contact.contactPoint[0] - this.gameObject.x - contact.contactNormal[0] * contact.penetration / 2, contact.contactPoint[1] - this.gameObject.y - contact.contactNormal[1] * contact.penetration / 2);
+            context.lineTo(contact.contactPoint[0] - this.gameObject.x + contact.contactNormal[0] * contact.penetration / 2, contact.contactPoint[1] - this.gameObject.y + contact.contactNormal[1] * contact.penetration / 2);
             context.stroke();
         }
     }
