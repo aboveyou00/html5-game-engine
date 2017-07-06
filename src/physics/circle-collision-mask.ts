@@ -64,12 +64,18 @@ export class CircleCollisionMask extends CollisionMask {
                 this.impulseCount++;
                 other.impulseCount++;
                 
-                // let newHspeed = this.speed * Math.cos();
+                let a1 = (contact.contactNormal[0] * this.gameObject.hspeed) + ((contact.contactNormal[1] * this.gameObject.vspeed));
+                let a2 = (contact.contactNormal[0] * other.gameObject.hspeed) + ((contact.contactNormal[1] * other.gameObject.vspeed));
+                let optimizedP = (2 * (a1 - a2)) / (this.mass + other.mass);
                 
-                // this.gameObject.hspeed = newHspeed;
-                // other.gameObject.hspeed = newHspeedOther;
-                // this.gameObject.vspeed = newVspeed;
-                // other.gameObject.vspeed = newVspeedOther;
+                [this.gameObject.hspeed, this.gameObject.vspeed] = [
+                    this.gameObject.hspeed - optimizedP * other.mass * contact.contactNormal[0],
+                    this.gameObject.vspeed - optimizedP * other.mass * contact.contactNormal[1]
+                ];
+                [other.gameObject.hspeed, other.gameObject.vspeed] = [
+                    other.gameObject.hspeed + optimizedP * this.mass * contact.contactNormal[0],
+                    other.gameObject.vspeed + optimizedP * this.mass * contact.contactNormal[1]
+                ];
             }
         }
         if (this.updatePositions === 'once') this.updatePositions = false;
