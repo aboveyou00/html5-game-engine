@@ -1,4 +1,5 @@
 ﻿import { ResourceLoader } from './resource-loader';
+import { GameEvent } from './utils/events';
 import { EventQueue } from './event-queue';
 import { GameScene } from './game-scene';
 import { GraphicsAdapter } from './graphics/graphics-adapter';
@@ -150,18 +151,24 @@ export class Game {
     protected sendEvents() {
         let events = this._eventQueue.clearQueue();
         for (let evt of events) {
-            if (this._scene) {
-                let handled = this._scene.handleEvent(evt);
-                if (!handled) {
-                    if (evt.type === 'keyPressed' && evt.code === 'F5') {
-                        location.reload(evt.shiftPressed);
-                    }
-                    else if (evt.type === 'keyPressed' && evt.code === 'F11') {
-                        this.toggleFullscreen();
-                    }
-                }
-            }
+            this.handleEvent(evt);
         }
+    }
+    protected handleEvent(evt: GameEvent) {
+        if (this.sendEvent(evt)) return true;
+        if (evt.type === 'keyPressed' && evt.code === 'F5') {
+            location.reload(evt.shiftPressed);
+            return true;
+        }
+        else if (evt.type === 'keyPressed' && evt.code === 'F11') {
+            this.toggleFullscreen();
+            return true;
+        }
+        return false;
+    }
+    private sendEvent(evt: GameEvent) {
+        if (this._scene) return this._scene.handleEvent(evt);
+        return false;
     }
     private toggleFullscreen() {
         if (document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement) {
