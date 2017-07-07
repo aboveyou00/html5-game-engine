@@ -74,6 +74,7 @@ export class ResourceLoader {
     }
 
     private resolvePath(src: string) {
+        if (!src) throw new Error(`Invalid src: [${src}]`);
         if (src.match(/^[a-z]:\/\//i)) return src;
         if (src.startsWith('/')) return `${this.baseUrl}${src}`;
         else return `${this.baseUrl}/${src}`;

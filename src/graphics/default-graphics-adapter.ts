@@ -108,7 +108,7 @@ export class DefaultGraphicsAdapter extends GraphicsAdapter {
         }
         else {
             //This sprite is a SimpleSpriteT
-            context.drawImage(img, x - pivot.x, y - pivot.y);
+            context.drawImage(img, x - pivot.x, y - pivot.y, img.width, img.height);
         }
     }
 }

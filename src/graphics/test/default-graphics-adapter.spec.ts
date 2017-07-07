@@ -142,7 +142,7 @@ describe('DefaultGraphicsAdapter', () => {
                 adapter.drawSprite(loader, _.merge({ pivot: { x: 5, y: 3 } }, sprite), 13, 28);
                 let subject = expect(context.drawImage).to.have.been;
                 subject.calledOnce;
-                subject.calledWithExactly(any, 8, 25);
+                subject.calledWith(any, 8, 25);
             });
         });
 
