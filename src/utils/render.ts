@@ -8,7 +8,7 @@ export function fillText(context: CanvasRenderingContext2D, text: string, x: num
     let lines = text.split('\n');
     for (let line of lines) {
         context.fillText(line, x, y);
-        y += LINE_HEIGHT;
+        y += Math.floor(parseInt(context.font) * 1.2);
     }
 }
 
