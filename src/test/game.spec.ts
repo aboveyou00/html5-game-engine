@@ -38,13 +38,6 @@ describe('Game', () => {
             game.start();
             expect(() => game.start()).to.throw(/game is already running/i);
         });
-        it('should update the canvas size', () => {
-            let canvas = (<any>game.graphicsAdapter)._canvas = <any>new HTMLCanvasElement();
-            [canvas.scrollWidth, canvas.scrollHeight] = [123, 456];
-            expect(game.canvasSize).not.to.deep.eq([123, 456]);
-            game.start();
-            expect(game.canvasSize).to.deep.eq([123, 456]);
-        });
         it('should begin invoking onTick the requested number of times per second', async () => {
             sinon.stub(game, 'onTick');
             game.start();
@@ -71,12 +64,14 @@ describe('Game', () => {
             expect(game.isRunning).to.be.false;
         });
     });
-
-    describe('.refreshCanvasSize', () => {
-        it(`should not modify canvasSize if the game hasn't been started yet`, () => {
-            let [oldWidth, oldHeight] = game.canvasSize;
-            (<any>game).refreshCanvasSize();
-            expect(game.canvasSize).to.deep.eq([oldWidth, oldHeight]);
+    
+    describe('.bodyResized', () => {
+        it('should update the canvas size', () => {
+            game.start();
+            expect(game.canvasSize).not.to.deep.eq([123, 456]);
+            [(<any>game.canvas).scrollWidth, (<any>game.canvas).scrollHeight] = [123, 456];
+            game.bodyResized.emit(void(0));
+            expect(game.canvasSize).to.deep.eq([123, 456]);
         });
     });
 

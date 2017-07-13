@@ -1,6 +1,7 @@
 ﻿import { ResourceLoader } from './resource-loader';
 import { GameEvent } from './utils/events';
 import { EventQueue } from './event-queue';
+import { EventEmitter } from './utils/event-emitter';
 import { GameScene } from './game-scene';
 import { GraphicsAdapter } from './graphics/graphics-adapter';
 import { DefaultGraphicsAdapter } from './graphics/default-graphics-adapter';
@@ -62,13 +63,13 @@ export class Game {
         this.initResize(body);
     }
 
+    public bodyResized = new EventEmitter();
     private initResize(body: HTMLBodyElement) {
-        body.onresize = e => this.refreshCanvasSize();
-    }
-    private refreshCanvasSize() {
-        if (this.canvas) {
-            [this.canvas.width, this.canvas.height] = this.canvasSize = [this.canvas.scrollWidth, this.canvas.scrollHeight];
-        }
+        body.addEventListener('resize', () => this.bodyResized.emit(void(0)));
+        this.bodyResized.addListener(() => {
+            if (!this.canvas) return;
+            this.canvasSize = [this.canvas.scrollWidth, this.canvas.scrollHeight];
+        });
     }
 
     private _renderPhysics = false;
@@ -105,7 +106,7 @@ export class Game {
         this._isRunning = true;
 
         this.graphicsAdapter.init();
-        this.refreshCanvasSize();
+        document.currentScript.parentElement.insertBefore(this.canvas, document.currentScript);
 
         this._intervalHandle = setInterval(() => this.onTick(), 1000 / this.framesPerSecond);
     }

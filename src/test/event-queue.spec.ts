@@ -318,7 +318,7 @@ describe('EventQueue', () => {
     describe('canvas resize', () => {
         let game: Game;
         beforeEach(() => {
-            game = new Game(30);
+            game = new Game();
             events = game.eventQueue;
         });
         afterEach(() => {

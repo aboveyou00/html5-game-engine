@@ -26,10 +26,19 @@ export class MockContext {
 }
 
 export class MockElement {
+    constructor(private parentElement?: any) { }
+    
     width = 925;
     height = 295;
     scrollWidth = 640;
     scrollHeight = 480;
+
+    addEventListener(type: string, handler: any) {
+        if (this[`on${type}`]) throw new Error(`Not implemented! This element already has a handler for ${type}`);
+        this[`on${type}`] = handler;
+    }
+    
+    insertBefore() { }
 
     //canvas
     getContext() {
@@ -41,6 +50,7 @@ export class MockDocument {
     constructor() { }
 
     private element = new MockElement();
+    currentScript = new MockElement(new MockElement());
 
     createElement(type: string) {
         if (type == 'img') return new MockImage();
