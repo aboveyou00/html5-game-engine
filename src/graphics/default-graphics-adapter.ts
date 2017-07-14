@@ -1,5 +1,6 @@
 import { fillText } from '../utils/render';
 import { GraphicsAdapter } from './graphics-adapter';
+import { Game } from '../game';
 import { GameObject } from '../game-object';
 import { ResourceLoader } from '../resource-loader';
 import { SpriteT, isSingleTileSprite, isAnimationSprite } from '../utils/sprite';
@@ -13,7 +14,7 @@ export class DefaultGraphicsAdapter extends GraphicsAdapter {
     }
     
     private _initialized = false;
-    init() {
+    init(game: Game) {
         if (this._initialized) throw new Error(`Cannot initialize DefaultGraphicsAdapter twice.`);
         this._initialized = true;
         

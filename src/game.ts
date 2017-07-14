@@ -105,7 +105,7 @@ export class Game {
         if (this.isRunning) throw new Error(`This game is already running. You can't run it again.`);
         this._isRunning = true;
 
-        this.graphicsAdapter.init();
+        this.graphicsAdapter.init(this);
         document.currentScript.parentElement.insertBefore(this.canvas, document.currentScript);
 
         this._intervalHandle = setInterval(() => this.onTick(), 1000 / this.framesPerSecond);
@@ -132,14 +132,13 @@ export class Game {
 
     private onTick() {
         if (!this.isRunning) throw new Error(`An error occurred. Game.onTick was invoked although the game is not running.`);
+        let currentTime = new Date();
+        let delta = (this.previousTick == null) ? 0 : (currentTime.valueOf() - this.previousTick.valueOf()) / 1000;
+        if (this.maximumDelta && delta > this.maximumDelta) delta = this.maximumDelta;
+        this.previousTick = currentTime;
+        this.sendEvents(this.scene);
 
         if (this.resourceLoader.isDone) {
-            let currentTime = new Date();
-            let delta = (this.previousTick == null) ? 0 : (currentTime.valueOf() - this.previousTick.valueOf()) / 1000;
-            if (this.maximumDelta && delta > this.maximumDelta) delta = this.maximumDelta;
-            this.previousTick = currentTime;
-
-            this.sendEvents();
             for (let q = 0; q < this.LOGIC_TICKS_PER_RENDER_TICK; q++) {
                 this.tick(delta / this.LOGIC_TICKS_PER_RENDER_TICK);
             }
@@ -149,14 +148,14 @@ export class Game {
             this.resourceLoader.render(this.graphicsAdapter);
         }
     }
-    protected sendEvents() {
+    protected sendEvents(sendTo: GameScene) {
         let events = this._eventQueue.clearQueue();
         for (let evt of events) {
+            if (this.resourceLoader.isDone && this.sendEvent(sendTo, evt)) return true;
             this.handleEvent(evt);
         }
     }
     protected handleEvent(evt: GameEvent) {
-        if (this.sendEvent(evt)) return true;
         if (evt.type === 'keyPressed' && evt.code === 'F5') {
             location.reload(evt.shiftPressed);
             return true;
@@ -167,7 +166,7 @@ export class Game {
         }
         return false;
     }
-    private sendEvent(evt: GameEvent) {
+    protected sendEvent(sendTo: GameScene, evt: GameEvent) {
         if (this._scene) return this._scene.handleEvent(evt);
         return false;
     }

@@ -14,11 +14,12 @@ let nop = () => void(0);
 
 describe('EventQueue', () => {
     let events: EventQueue;
-    beforeEach(() => {
-        events = new EventQueue();
-    });
 
     describe('keyboard input', () => {
+        beforeEach(() => {
+            events = new EventQueue();
+        });
+        
         describe('onkeydown', () => {
             it('should emit a keyPressed and keyTyped event the first time a key is pressed', () => {
                 let body = document.getElementsByTagName('body')[0];
@@ -117,6 +118,10 @@ describe('EventQueue', () => {
     });
 
     describe('mouse input', () => {
+        beforeEach(() => {
+            events = new EventQueue();
+        });
+        
         describe('onmousemove', () => {
             it('should emit a mouseMove event when the mouse is moved', () => {
                 let body = document.getElementsByTagName('body')[0];
@@ -356,6 +361,10 @@ describe('EventQueue', () => {
     });
 
     describe('.enqueue', () => {
+        beforeEach(() => {
+            events = new EventQueue();
+        });
+        
         it('should queue the event to be returned the next time clearQueue is called', () => {
             let e = <any>{ type: 'fish!' };
             events.enqueue(e);
@@ -364,6 +373,10 @@ describe('EventQueue', () => {
     });
 
     describe('.clearQueue', () => {
+        beforeEach(() => {
+            events = new EventQueue();
+        });
+        
         it('should return an empty array if there are no events', () => {
             expect(events.clearQueue()).to.deep.eq([]);
         });
