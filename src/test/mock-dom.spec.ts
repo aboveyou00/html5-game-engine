@@ -82,6 +82,11 @@ export class MockAudio extends MockElement {
 }
 export class MockWindow {
     location = new MockLocation();
+    
+    addEventListener(type: string, handler: any) {
+        if (this[`on${type}`]) throw new Error(`Not implemented! This element already has a handler for ${type}`);
+        this[`on${type}`] = handler;
+    }
 }
 export class MockLocation {
     origin = 'null/C:/agile-html5-game';

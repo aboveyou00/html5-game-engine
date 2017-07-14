@@ -15,7 +15,7 @@ import { MockEventQueue } from './mock-event-queue';
 describe('Game', () => {
     let game: Game;
     beforeEach(() => {
-        game = new Game(30);
+        game = new Game({ framesPerSecond: 30 });
         game.changeScene(new GameScene());
     });
     afterEach(() => {
@@ -88,7 +88,7 @@ describe('Game', () => {
             let canvas = (<any>game.graphicsAdapter)._canvas = <any>new HTMLCanvasElement();
             [canvas.scrollWidth, canvas.scrollHeight] = [123, 456];
             expect(game.canvasSize).not.to.deep.eq([123, 456]);
-            document.getElementsByTagName('body')[0].onresize(<any>void (0));
+            window.onresize(<any>void(0));
             expect(game.canvasSize).to.deep.eq([123, 456]);
         });
     });

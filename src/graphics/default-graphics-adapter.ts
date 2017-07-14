@@ -20,8 +20,12 @@ export class DefaultGraphicsAdapter extends GraphicsAdapter {
         
         if (this._context) throw new Error(`This DefaultGraphicsAdapter was created with a context`);
         
-        if (!this.canvas) this._canvas = new HTMLCanvasElement();
+        if (!this.canvas) this._canvas = document.createElement('canvas');
         this._context = this.canvas.getContext("2d");
+        
+        game.bodyResized.addListener(() => {
+            [this.canvas.width, this.canvas.height] = [window.innerWidth, window.innerHeight];
+        });
     }
     private _canvas: HTMLCanvasElement | null;
     get canvas() {

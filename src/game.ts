@@ -65,7 +65,7 @@ export class Game {
 
     public bodyResized = new EventEmitter();
     private initResize(body: HTMLBodyElement) {
-        body.addEventListener('resize', () => this.bodyResized.emit(void(0)));
+        window.addEventListener('resize', () => this.bodyResized.emit(void(0)));
         this.bodyResized.addListener(() => {
             if (!this.canvas) return;
             this.canvasSize = [this.canvas.scrollWidth, this.canvas.scrollHeight];
@@ -106,6 +106,7 @@ export class Game {
         this._isRunning = true;
 
         this.graphicsAdapter.init(this);
+        this.bodyResized.emit(void(0));
         document.currentScript.parentElement.insertBefore(this.canvas, document.currentScript);
 
         this._intervalHandle = setInterval(() => this.onTick(), 1000 / this.framesPerSecond);
