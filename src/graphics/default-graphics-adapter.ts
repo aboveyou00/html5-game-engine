@@ -1,6 +1,7 @@
 import { fillText } from '../utils/render';
 import { GraphicsAdapter } from './graphics-adapter';
 import { Game } from '../game';
+import { GameScene } from '../game-scene';
 import { GameObject } from '../game-object';
 import { ResourceLoader } from '../resource-loader';
 import { SpriteT, isSingleTileSprite, isAnimationSprite } from '../utils/sprite';
@@ -59,6 +60,9 @@ export class DefaultGraphicsAdapter extends GraphicsAdapter {
         context.textAlign = 'left';
         context.fillStyle = 'black';
         fillText(context, msg, 4, 12);
+    }
+    renderScene(scene: GameScene) {
+        scene.render(this);
     }
     renderObject(obj: GameObject) {
         let context = this.context;

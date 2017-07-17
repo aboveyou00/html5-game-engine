@@ -208,6 +208,6 @@ export class Game {
     }
     protected render(adapter: GraphicsAdapter) {
         if (!adapter) throw new Error(`What the heck just happened? There is no graphics adapter!`);
-        if (this._scene) this._scene.render(adapter);
+        if (this._scene) adapter.renderScene(this._scene);
     }
 }
