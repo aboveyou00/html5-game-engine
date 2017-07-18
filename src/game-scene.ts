@@ -2,6 +2,7 @@
 import { GameObject } from './game-object';
 import { Camera } from './camera';
 import { CollisionMask } from './physics/collision-mask';
+import { ForceGenerator } from './physics/force-generator';
 import { GraphicsAdapter } from './graphics/graphics-adapter';
 
 export class GameScene {
@@ -32,6 +33,19 @@ export class GameScene {
         if (!this.camera) this.initCamera();
     }
     public stop() {
+    }
+
+    private _generators: ForceGenerator[] = [];
+    get forceGenerators() {
+        return this._generators;
+    }
+    addForceGenerator(generator: ForceGenerator) {
+        this._generators.push(generator);
+    }
+    removeForceGenerator(generator: ForceGenerator) {
+        let idx = this._generators.indexOf(generator);
+        if (idx === -1) return;
+        this._generators.splice(idx, 1);
     }
 
     public handleEvent(evt) {
@@ -73,6 +87,10 @@ export class GameScene {
         for (let q = 0; q < this._colliders.length; q++) {
             let collider = this._colliders[q];
             collider.resolveImpulses();
+        }
+        for (let q = 0; q < this._colliders.length; q++) {
+            let collider = this._colliders[q];
+            collider.applyForces(delta);
         }
     }
     

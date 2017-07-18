@@ -3,6 +3,7 @@ import { degToRad } from '../utils/math';
 import { GraphicsAdapter } from '../graphics/graphics-adapter';
 import { DefaultGraphicsAdapter } from '../graphics/default-graphics-adapter';
 import { CollisionT } from './collision';
+import { ForceGenerator } from './force-generator';
 
 export abstract class CollisionMask {
     constructor(private _gobj: GameObject) {
@@ -25,14 +26,50 @@ export abstract class CollisionMask {
     clearContacts() {
         this.contacts.length = 0;
     }
-    impulsex = 0;
-    impulsey = 0;
+    collisionImpulseX = 0;
+    collisionImpulseY = 0;
     impulseCount = 0;
     resolveImpulses() {
         if (this.impulseCount == 0) return;
-        this.gameObject.x += this.impulsex / this.impulseCount;
-        this.gameObject.y += this.impulsey / this.impulseCount;
-        this.impulsex = this.impulsey = this.impulseCount = 0;
+        this.addImpulse(this.collisionImpulseX / this.impulseCount, this.collisionImpulseY / this.impulseCount);
+        this.collisionImpulseX = this.collisionImpulseY = this.impulseCount = 0;
+    }
+    forceAccumX = 0;
+    forceAccumY = 0;
+    impulseAccumX = 0;
+    impulseAccumY = 0;
+    addForce(x: number, y: number) {
+        this.forceAccumX += x;
+        this.forceAccumY += y;
+    }
+    addImpulse(x: number, y: number) {
+        this.impulseAccumX += x;
+        this.impulseAccumY += y;
+    }
+    private _generators: ForceGenerator[] = [];
+    get forceGenerators() {
+        return this._generators;
+    }
+    addForceGenerator(generator: ForceGenerator) {
+        this._generators.push(generator);
+    }
+    removeForceGenerator(generator: ForceGenerator) {
+        let idx = this._generators.indexOf(generator);
+        if (idx === -1) return;
+        this._generators.splice(idx, 1);
+    }
+    applyForces(delta: number) {
+        for (let generator of this.gameObject.scene.forceGenerators) {
+            generator.updateCollider(this, delta);
+        }
+        for (let generator of this._generators) {
+            generator.updateCollider(this, delta);
+        }
+        this.gameObject.hspeed += this.forceAccumX;
+        this.gameObject.vspeed += this.forceAccumY;
+        this.gameObject.x += this.impulseAccumX;
+        this.gameObject.y += this.impulseAccumY;
+        this.forceAccumX = this.forceAccumY = this.impulseAccumX = this.impulseAccumY = 0;
     }
     
     abstract checkForCollision(other: CollisionMask);
