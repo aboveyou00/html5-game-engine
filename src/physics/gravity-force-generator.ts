@@ -24,11 +24,14 @@ export class GravityForceGenerator implements ForceGenerator {
         }
     }
     
+    enabled = true;
+    
     private _towards: CollisionMask | null;
     private _hgravity: number | null;
     private _vgravity: number | null;
     
     updateCollider(collider: CollisionMask, delta: number) {
+        if (!this.enabled) return;
         let hgrav = this._hgravity,
             vgrav = this._vgravity;
         if (this._towards) {
