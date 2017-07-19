@@ -6,9 +6,9 @@ import * as sinonChai from 'sinon-chai';
 use(sinonChai);
 
 import { EventQueue } from '../event-queue';
-import { MouseButton } from '../utils/events';
-import { delay } from '../utils/delay';
-import { Game } from '../game';
+import { MouseButton } from '../events';
+import { delay } from '../../utils/delay';
+import { Game } from '../../game';
 
 let nop = () => void(0);
 

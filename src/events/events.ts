@@ -68,6 +68,17 @@ export interface CanvasResizeEvent {
     size: [number, number]
 }
 
+export interface AbstractButtonPressedEvent {
+    type: 'abstractButtonPressed',
+    name: string,
+    wrappedEvent?: GameEvent
+}
+export interface AbstractButtonReleasedEvent {
+    type: 'abstractButtonReleased',
+    name: string,
+    wrappedEvent?: GameEvent
+}
+
 export type GameEvent = KeyTypedEvent
                       | KeyPressedEvent
                       | KeyReleasedEvent
@@ -75,4 +86,6 @@ export type GameEvent = KeyTypedEvent
                       | MouseButtonPressedEvent
                       | MouseButtonReleasedEvent
                       | MouseWheelEvent
-                      | CanvasResizeEvent;
+                      | CanvasResizeEvent
+                      | AbstractButtonPressedEvent
+                      | AbstractButtonReleasedEvent;

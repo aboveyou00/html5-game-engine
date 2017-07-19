@@ -1,7 +1,7 @@
 ﻿import { ResourceLoader } from './resource-loader';
-import { GameEvent } from './utils/events';
-import { EventQueue } from './event-queue';
-import { EventEmitter } from './utils/event-emitter';
+import { GameEvent } from './events/events';
+import { EventQueue } from './events/event-queue';
+import { EventEmitter } from './events/event-emitter';
 import { GameScene } from './game-scene';
 import { GraphicsAdapter } from './graphics/graphics-adapter';
 import { DefaultGraphicsAdapter } from './graphics/default-graphics-adapter';
@@ -152,8 +152,13 @@ export class Game {
     protected sendEvents(sendTo: GameScene) {
         let events = this._eventQueue.clearQueue();
         for (let evt of events) {
-            if (this.resourceLoader.isDone && this.sendEvent(sendTo, evt)) return true;
-            this.handleEvent(evt);
+            let handled = false;
+            if (this.resourceLoader.isDone && this.sendEvent(sendTo, evt)) handled = true;
+            if (!handled && this.handleEvent(evt)) handled = true;
+            if (!handled && (evt.type === 'abstractButtonPressed' || evt.type === 'abstractButtonReleased') && evt.wrappedEvent) {
+                if (this.resourceLoader.isDone && this.sendEvent(sendTo, evt.wrappedEvent)) handled = true;
+                if (!handled && this.handleEvent(evt.wrappedEvent)) handled = true;
+            }
         }
     }
     protected handleEvent(evt: GameEvent) {

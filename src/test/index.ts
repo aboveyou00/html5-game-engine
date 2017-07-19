@@ -1,4 +1,5 @@
 ﻿
 
-export * from './mock-event-queue';
 export * from './mock-game';
+
+export * from '../events/test';

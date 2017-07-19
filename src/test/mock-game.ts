@@ -1,5 +1,5 @@
 ﻿import { GameScene } from '../game-scene';
-import { EventQueue } from '../event-queue';
+import { EventQueue } from '../events/event-queue';
 import { ResourceLoader } from '../resource-loader';
 
 export class MockGame {

@@ -1,13 +1,13 @@
 ﻿import { degToRad, radToDeg, fmod, pointDirection } from './utils/math';
 import { Rect } from './utils/rect';
 import { Game } from './game';
-import { GameEvent } from './utils/events';
+import { GameEvent } from './events/events';
 import { SpriteT } from './utils/sprite';
 import { measureSprite } from './utils/render';
 import { GameScene } from './game-scene';
 import { Camera } from './camera';
 import { ResourceLoader } from './resource-loader';
-import { EventQueue } from './event-queue';
+import { EventQueue } from './events/event-queue';
 import { CollisionMask } from './physics/collision-mask';
 import { GraphicsAdapter } from './graphics/graphics-adapter';
 
