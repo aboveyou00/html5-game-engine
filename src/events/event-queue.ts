@@ -141,32 +141,36 @@ export class EventQueue {
     private _pageX: number = 0;
     private _pageY: number = 0;
 
-    bindAbstractButton(name: string, key: string) {
-        if (this._abstractButtonKeys.has(key)) throw new Error(`The key '${key}' is already registered to the '${this._abstractButtonKeys.get(key)}' abstract button.`);
-        this._abstractButtonKeys.set(key, name);
-        if (!this._abstractButtons.has(name)) this._abstractButtons.set(name, false);
-        let previous = this._abstractButtons.get(name);
-        let isKeyDown = this.isKeyDown(key);
-        if (previous !== isKeyDown && isKeyDown) {
-            this.enqueue({
-                type: 'abstractButtonPressed',
-                name: name
-            });
-            this._abstractButtons.set(name, true);
+    bindAbstractButton(name: string, ...keys: string[]) {
+        for (let key of keys) {
+            if (this._abstractButtonKeys.has(key)) throw new Error(`The key '${key}' is already registered to the '${this._abstractButtonKeys.get(key)}' abstract button.`);
+            this._abstractButtonKeys.set(key, name);
+            if (!this._abstractButtons.has(name)) this._abstractButtons.set(name, false);
+            let previous = this._abstractButtons.get(name);
+            let isKeyDown = this.isKeyDown(key);
+            if (previous !== isKeyDown && isKeyDown) {
+                this.enqueue({
+                    type: 'abstractButtonPressed',
+                    name: name
+                });
+                this._abstractButtons.set(name, true);
+            }
         }
     }
-    unbindAbstractButton(name: string, key: string) {
-        if (!this._abstractButtonKeys.has(key) || this._abstractButtonKeys.get(key) !== name) throw new Error(`The key '${key}' is not registered to the '${name}' abstract button.`);
-        this._abstractButtonKeys.delete(key);
-        let previous = this._abstractButtons.get(name);
-        let abPressed = this.areAbstractButtonKeysDown(name);
-        if (typeof abPressed === 'undefined') this._abstractButtons.delete(name); //There are no more keys bound to this abstract button
-        else if (previous && !abPressed) {
-            this.enqueue({
-                type: 'abstractButtonReleased',
-                name: name
-            });
-            this._abstractButtons.set(name, false);
+    unbindAbstractButton(name: string, ...keys: string[]) {
+        for (let key of keys) {
+            if (!this._abstractButtonKeys.has(key) || this._abstractButtonKeys.get(key) !== name) throw new Error(`The key '${key}' is not registered to the '${name}' abstract button.`);
+            this._abstractButtonKeys.delete(key);
+            let previous = this._abstractButtons.get(name);
+            let abPressed = this.areAbstractButtonKeysDown(name);
+            if (typeof abPressed === 'undefined') this._abstractButtons.delete(name); //There are no more keys bound to this abstract button
+            else if (previous && !abPressed) {
+                this.enqueue({
+                    type: 'abstractButtonReleased',
+                    name: name
+                });
+                this._abstractButtons.set(name, false);
+            }
         }
     }
     private areAbstractButtonKeysDown(name: string) {
