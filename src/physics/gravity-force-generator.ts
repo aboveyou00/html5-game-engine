@@ -1,5 +1,6 @@
 import { CollisionMask } from './collision-mask';
 import { ForceGenerator } from './force-generator';
+import { pointDistance } from '../utils/math';
 
 export class GravityForceGenerator implements ForceGenerator {
     constructor();
@@ -35,7 +36,9 @@ export class GravityForceGenerator implements ForceGenerator {
         let hgrav = this._hgravity,
             vgrav = this._vgravity;
         if (this._towards) {
-            throw new Error('Not implemented');
+            let dist = pointDistance(collider.gameObject.x, collider.gameObject.y, this._towards.gameObject.x, this._towards.gameObject.y);
+            let gravityCoeff = ((collider.mass * this._towards.mass) / dist) * .00001;
+            [hgrav, vgrav] = [gravityCoeff * (this._towards.gameObject.x - collider.gameObject.x), gravityCoeff * (this._towards.gameObject.y - collider.gameObject.y)];
         }
         collider.addForce(hgrav * delta, vgrav * delta);
     }

@@ -6,7 +6,8 @@ import { DefaultGraphicsAdapter } from './graphics/default-graphics-adapter';
 
 export interface GameOptions {
     framesPerSecond?: number,
-    graphicsAdapter?: GraphicsAdapter
+    graphicsAdapter?: GraphicsAdapter,
+    maximumDelta?: number
 };
 
 export class Game {
@@ -15,6 +16,7 @@ export class Game {
         this.framesPerSecond = options.framesPerSecond || 30;
         this.graphicsAdapter = options.graphicsAdapter || new DefaultGraphicsAdapter();
         this.timePerFixedTick = 1 / this.framesPerSecond;
+        this.maximumDelta = options.maximumDelta || 0;
         this.init();
     }
     
@@ -50,6 +52,7 @@ export class Game {
     }
 
     private LOGIC_TICKS_PER_RENDER_TICK = 3;
+    private maximumDelta = .25;
 
     private init() {
         this._resourceLoader = new ResourceLoader();
@@ -131,6 +134,7 @@ export class Game {
         if (this.resourceLoader.isDone) {
             let currentTime = new Date();
             let delta = (this.previousTick == null) ? 0 : (currentTime.valueOf() - this.previousTick.valueOf()) / 1000;
+            if (this.maximumDelta && delta > this.maximumDelta) delta = this.maximumDelta;
             this.previousTick = currentTime;
 
             this.sendEvents();
