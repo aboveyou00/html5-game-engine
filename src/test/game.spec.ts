@@ -66,10 +66,10 @@ describe('Game', () => {
     });
     
     describe('.bodyResized', () => {
-        it('should update the canvas size', () => {
+        it('should update the canvasSize', () => {
             game.start();
             expect(game.canvasSize).not.to.deep.eq([123, 456]);
-            [(<any>game.canvas).scrollWidth, (<any>game.canvas).scrollHeight] = [123, 456];
+            [(<any>window).innerWidth, (<any>window).innerHeight] = [123, 456];
             game.bodyResized.emit(void(0));
             expect(game.canvasSize).to.deep.eq([123, 456]);
         });
@@ -85,8 +85,7 @@ describe('Game', () => {
             expect(game.canvasSize[0]).not.to.be.NaN;
         });
         it('should be updated any time the window is resized', () => {
-            let canvas = (<any>game.graphicsAdapter)._canvas = <any>new HTMLCanvasElement();
-            [canvas.scrollWidth, canvas.scrollHeight] = [123, 456];
+            [(<any>window).innerWidth, (<any>window).innerHeight] = [123, 456];
             expect(game.canvasSize).not.to.deep.eq([123, 456]);
             window.onresize(<any>void(0));
             expect(game.canvasSize).to.deep.eq([123, 456]);

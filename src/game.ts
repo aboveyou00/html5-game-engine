@@ -67,8 +67,7 @@ export class Game {
     private initResize(body: HTMLBodyElement) {
         window.addEventListener('resize', () => this.bodyResized.emit(void(0)));
         this.bodyResized.addListener(() => {
-            if (!this.canvas) return;
-            this.canvasSize = [this.canvas.scrollWidth, this.canvas.scrollHeight];
+            this.canvasSize = [window.innerWidth, window.innerHeight];
         });
     }
 

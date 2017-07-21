@@ -82,6 +82,8 @@ export class MockAudio extends MockElement {
 }
 export class MockWindow {
     location = new MockLocation();
+    innerWidth = 640;
+    innerHeight = 480;
     
     addEventListener(type: string, handler: any) {
         if (this[`on${type}`]) throw new Error(`Not implemented! This element already has a handler for ${type}`);

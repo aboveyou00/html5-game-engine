@@ -332,8 +332,7 @@ describe('EventQueue', () => {
 
         describe('onresize', () => {
             it('should emit a canvasResize event when the body is resized', () => {
-                let canvas = (<any>game.graphicsAdapter)._canvas = <any>new HTMLCanvasElement();
-                [canvas.scrollWidth, canvas.scrollHeight] = [123, 456];
+                [(<any>window).innerWidth, (<any>window).innerHeight] = [123, 456];
                 window.onresize(<any>void(0));
                 expect(events.clearQueue()).to.deep.eq([{
                     type: 'canvasResize',
@@ -343,10 +342,9 @@ describe('EventQueue', () => {
             });
             it('should emit only one canvasResize event per frame even if multiple are fired', () => {
                 sinon.spy(events, 'enqueue');
-                let canvas = (<any>game.graphicsAdapter)._canvas = <any>new HTMLCanvasElement();
-                [canvas.scrollWidth, canvas.scrollHeight] = [123, 456];
+                [(<any>window).innerWidth, (<any>window).innerHeight] = [123, 456];
                 window.onresize(<any>void(0));
-                [canvas.scrollWidth, canvas.scrollHeight] = [234, 567];
+                [(<any>window).innerWidth, (<any>window).innerHeight] = [234, 567];
                 window.onresize(<any>void(0));
                 expect(events.clearQueue()).to.deep.eq([{
                     type: 'canvasResize',
