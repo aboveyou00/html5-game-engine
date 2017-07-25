@@ -91,6 +91,10 @@ export abstract class CollisionMask {
         finally {
             context.restore();
         }
+        
+        for (let forceGenerator of this.forceGenerators) {
+            forceGenerator.render(this, context);
+        }
     }
     abstract renderImpl(context: CanvasRenderingContext2D);
 }

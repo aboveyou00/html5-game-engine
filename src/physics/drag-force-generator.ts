@@ -1,8 +1,10 @@
 import { CollisionMask } from './collision-mask';
 import { ForceGenerator } from './force-generator';
 
-export class DragForceGenerator implements ForceGenerator {
-    constructor(public k1: number, public k2: number) { }
+export class DragForceGenerator extends ForceGenerator {
+    constructor(public k1: number, public k2: number) {
+        super();
+    }
     
     enabled = true;
     

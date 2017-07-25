@@ -2,12 +2,13 @@ import { CollisionMask } from './collision-mask';
 import { ForceGenerator } from './force-generator';
 import { pointDistance } from '../utils/math';
 
-export class GravityForceGenerator implements ForceGenerator {
+export class GravityForceGenerator extends ForceGenerator {
     constructor();
     constructor(gravityAmount: number);
     constructor(hgravity: number, vgravity: number);
     constructor(towards: CollisionMask);
     constructor(hgravity?: number | CollisionMask, vgravity?: number) {
+        super();
         if (hgravity instanceof CollisionMask) this._towards = hgravity;
         else if (typeof hgravity === 'number') {
             if (typeof vgravity === 'number') {
