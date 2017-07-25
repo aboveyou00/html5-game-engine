@@ -8,6 +8,7 @@ export class SpringForceGenerator extends ForceGenerator {
     }
     
     enabled = true;
+    modifyOther = true;
     
     updateCollider(collider: CollisionMask, delta: number) {
         if (!this.enabled) return;
@@ -20,7 +21,7 @@ export class SpringForceGenerator extends ForceGenerator {
         let [hforce, vforce] = [hdist * magnitude * delta, vdist * magnitude * delta];
         let massRatio = collider.mass / (collider.mass + this.other.mass);
         collider.addForce(hforce * (1 - massRatio), vforce * (1 - massRatio));
-        this.other.addForce(-hforce * massRatio, -vforce * massRatio);
+        if (this.modifyOther) this.other.addForce(-hforce * massRatio, -vforce * massRatio);
     }
     render(collider: CollisionMask, context: CanvasRenderingContext2D) {
         super.render(collider, context);
