@@ -3,7 +3,7 @@ import { ForceGenerator } from './force-generator';
 import { pointDistance, pointDirection, degToRad } from '../utils/math';
 
 export class SpringForceGenerator extends ForceGenerator {
-    constructor(private other: CollisionMask, private springConstant: number, private restLength: number) {
+    constructor(public other: CollisionMask, public springConstant: number, public restLength: number) {
         super();
     }
     
