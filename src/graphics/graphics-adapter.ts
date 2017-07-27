@@ -11,5 +11,5 @@ export abstract class GraphicsAdapter {
     abstract renderScene(scene: GameScene);
     abstract renderObject(obj: GameObject);
     
-    abstract renderTransformed(translateX: number, translateY: number, rotate: number, scaleX: number, scaleY: number, act: () => void);
+    abstract renderTransformed(translateX: number, translateY: number, rotate: number, scaleX: number, scaleY: number, act: () => void, key?: symbol);
 }

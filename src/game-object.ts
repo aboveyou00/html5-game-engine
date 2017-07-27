@@ -249,11 +249,12 @@ export class GameObject {
     }
     fixedTick() { }
     
+    private renderTransformedSymbol = Symbol();
     render(adapter: GraphicsAdapter) {
         if (!this.shouldRender) return;
         adapter.renderTransformed(this.x, this.y, -degToRad(this.imageAngle), 1, 1, () => {
             this.renderImpl(adapter);
-        });
+        }, this.renderTransformedSymbol);
     }
     protected renderImpl(adapter: GraphicsAdapter) {
         adapter.renderObject(this);

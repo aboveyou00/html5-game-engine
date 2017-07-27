@@ -92,6 +92,7 @@ export class Camera {
         if (this._clearColor) adapter.clear(this._clearColor);
     }
 
+    private renderTransformedSymbol = Symbol();
     renderTransformed(adapter: GraphicsAdapter, act: () => void) {
         let [tx, ty] = this._center;
         if (this.floorCenterPosition) {
@@ -101,7 +102,7 @@ export class Camera {
         let [cvWidth, cvHeight] = this.game.canvasSize;
         tx = Math.floor(cvWidth / 2) - (tx * this._zoomScale);
         ty = Math.floor(cvHeight / 2) - (ty * this._zoomScale);
-        adapter.renderTransformed(tx, ty, 0, this._zoomScale, this._zoomScale, act);
+        adapter.renderTransformed(tx, ty, 0, this._zoomScale, this._zoomScale, act, this.renderTransformedSymbol);
     }
     transformPixelCoordinates(x: number, y: number): [number, number];
     transformPixelCoordinates(coords: { x: number, y: number }): [number, number];
