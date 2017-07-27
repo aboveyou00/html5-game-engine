@@ -108,7 +108,7 @@ export class Game {
         this.bodyResized.emit(void(0));
         document.currentScript.parentElement.insertBefore(this.canvas, document.currentScript);
 
-        this._intervalHandle = setInterval(() => this.onTick(), 1000 / this.framesPerSecond);
+        this._intervalHandle = <any>setInterval(() => this.onTick(), 1000 / this.framesPerSecond);
     }
     stop() {
         if (this.isRunning) clearInterval(this._intervalHandle);
