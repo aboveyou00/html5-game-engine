@@ -6,9 +6,9 @@ import * as sinonChai from 'sinon-chai';
 use(sinonChai);
 
 import { AudioSourceObject } from '../audio-source-object';
-import { MockGame } from './mock-game';
-import { Game } from '../game';
-import { GameScene } from '../game-scene';
+import { MockGame } from '../../test/mock-game';
+import { Game } from '../../game';
+import { GameScene } from '../../game-scene';
 
 describe('AudioSourceObject', () => {
     it('should set shouldLoop to true based on passed in Options', () =>{
