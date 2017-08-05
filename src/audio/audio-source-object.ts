@@ -5,7 +5,8 @@ import merge = require('lodash.merge');
 
 export interface AudioSourceObjectOptions extends GameObjectOptions {
     shouldLoop?: boolean,
-    sceneIndependent?: boolean
+    sceneIndependent?: boolean,
+    beginPlay?: boolean
 }
 
 export class AudioSourceObject extends GameObject {
@@ -16,6 +17,7 @@ export class AudioSourceObject extends GameObject {
 
         if (typeof opts.shouldLoop !== 'undefined') this._shouldLoop = opts.shouldLoop;
         if (typeof opts.sceneIndependent !== 'undefined') this._sceneIndependent = opts.sceneIndependent;
+        if (typeof opts.beginPlay !== 'undefined') this._beginPlay = opts.beginPlay;
     }
 
     private _shouldLoop = false;
@@ -27,6 +29,8 @@ export class AudioSourceObject extends GameObject {
     get sceneIndependent() {
         return this._sceneIndependent;
     }
+    
+    private _beginPlay = true;
 
     addToScene(scene: GameScene) {
         super.addToScene(scene);
@@ -38,7 +42,7 @@ export class AudioSourceObject extends GameObject {
             if (this._shouldLoop) this._myAudio.play();
             else this.scene.removeObject(this);
         };
-        if (this.game.scene == scene || this.sceneIndependent) this._myAudio.play();
+        if ((this.game.scene == scene || this.sceneIndependent) && this._beginPlay) this._myAudio.play();
     }
 
     private _myAudio: HTMLAudioElement;
