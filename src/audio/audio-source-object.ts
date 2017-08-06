@@ -40,7 +40,7 @@ export class AudioSourceObject extends GameObject {
         this._myAudio.src = theirAudio.src;
         this._myAudio.onended = () => {
             if (this._shouldLoop) this._myAudio.play();
-            else this.scene.removeObject(this);
+            else if (this.scene) this.scene.removeObject(this);
         };
         if ((this.game.scene == scene || this.sceneIndependent) && this._beginPlay) this._myAudio.play();
     }
