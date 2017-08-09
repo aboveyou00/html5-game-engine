@@ -1,14 +1,16 @@
 ﻿import { GameEvent, MouseButton, InputTypeT, standardGamepadButtonNames, standardGamepadAxisNames, GamepadButtonT } from './events';
+import { AbstractButtonProvider } from './abstract-button-provider';
+import { KeyboardAbstractButtonProvider } from './keyboard-abstract-button-provider';
 
 export class EventQueue {
     constructor() {
         this.init();
     }
 
-    private DEBUG_KEYS = false;
+    private DEBUG_KEYS = true;
     private DEBUG_MOUSE = false;
     private DEBUG_MOUSE_VERBOSE = false;
-    private DEBUG_GAMEPAD = true;
+    private DEBUG_GAMEPAD = false;
     private DEBUG_GAMEPAD_VERBOSE = false;
     private GAMEPAD_AXIS_THRESHOLD = .4;
 
@@ -16,8 +18,10 @@ export class EventQueue {
         let body = document.getElementsByTagName('body')[0];
         this.initKeyboard(body);
         this.initMouse(body);
+        
         this.initGamepad(window);
     }
+    
     private initKeyboard(body: HTMLBodyElement) {
         body.addEventListener('keydown', e => {
             if (e.code === 'F12') return;
@@ -26,6 +30,7 @@ export class EventQueue {
             this.currentInputType = 'keyboard';
             if (this.DEBUG_KEYS) console.log(`Key Pressed: ${e.key}; ${e.code}`);
             if (!this.isKeyDown(e.code)) {
+                this._keys.set(e.code, true);
                 this.enqueue({
                     type: 'keyPressed',
                     code: e.code,
@@ -33,17 +38,6 @@ export class EventQueue {
                     ctrlPressed: !!e.ctrlKey,
                     shiftPressed: !!e.shiftKey
                 });
-                this._keys.set(e.code, true);
-                if (this._abstractButtonKeys.has(e.code)) {
-                    let abName = this._abstractButtonKeys.get(e.code);
-                    if (!this.isAbstractButtonDown(abName)) {
-                        this.enqueue({
-                            type: 'abstractButtonPressed',
-                            name: abName
-                        });
-                        this._abstractButtons.set(abName, true);
-                    }
-                }
             }
             this.enqueue({
                 type: 'keyTyped',
@@ -59,6 +53,7 @@ export class EventQueue {
             this.currentInputType = 'keyboard';
             if (this.DEBUG_KEYS) console.log(`Key Released: ${e.key}; ${e.code}`);
             if (this.isKeyDown(e.code)) {
+                this._keys.set(e.code, false);
                 this.enqueue({
                     type: 'keyReleased',
                     code: e.code,
@@ -66,20 +61,10 @@ export class EventQueue {
                     ctrlPressed: !!e.ctrlKey,
                     shiftPressed: !!e.shiftKey
                 });
-                this._keys.set(e.code, false);
-                if (this._abstractButtonKeys.has(e.code)) {
-                    let abName = this._abstractButtonKeys.get(e.code);
-                    if (this.isAbstractButtonDown(abName) && !this.areAbstractButtonKeysDown(abName)) {
-                        this.enqueue({
-                            type: 'abstractButtonReleased',
-                            name: abName
-                        });
-                        this._abstractButtons.set(abName, false);
-                    }
-                }
             }
         });
     }
+    
     private initMouse(body: HTMLBodyElement) {
         body.addEventListener('mousemove', e => {
             e.preventDefault();
@@ -104,13 +89,13 @@ export class EventQueue {
             if (!this.isMouseButtonDown(e.button)) {
                 if (typeof e.pageX !== 'undefined') this._pageX = e.pageX;
                 if (typeof e.pageY !== 'undefined') this._pageY = e.pageY;
+                this._mouseButtons.set(e.button, true);
                 this.enqueue({
                     type: 'mouseButtonPressed',
                     button: <MouseButton>e.button,
                     pageX: this._pageX,
                     pageY: this._pageY
                 });
-                this._mouseButtons.set(e.button, true);
             }
         });
         body.addEventListener('mouseup', e => {
@@ -120,13 +105,13 @@ export class EventQueue {
             if (this.isMouseButtonDown(e.button)) {
                 if (typeof e.pageX !== 'undefined') this._pageX = e.pageX;
                 if (typeof e.pageY !== 'undefined') this._pageY = e.pageY;
+                this._mouseButtons.set(e.button, false);
                 this.enqueue({
                     type: 'mouseButtonReleased',
                     button: <MouseButton>e.button,
                     pageX: this._pageX,
                     pageY: this._pageY
                 });
-                this._mouseButtons.set(e.button, false);
             }
         });
         body.addEventListener('wheel', e => {
@@ -143,6 +128,7 @@ export class EventQueue {
             });
         });
     }
+    
     private initGamepad(window: Window) {
         window.addEventListener('gamepadconnected', (e: GamepadEvent) => this.connectGamepad(e.gamepad));
         window.addEventListener('gamepaddisconnected', (e: GamepadEvent) => this.disconnectGamepad(e.gamepad));
@@ -152,7 +138,6 @@ export class EventQueue {
             this.connectGamepad(gp);
         }
     }
-    
     private connectGamepad(gp: Gamepad) {
         if (gp.mapping !== 'standard') {
             console.error(`Gamepad connected with invalid mapping: "${gp.mapping}"`);
@@ -277,10 +262,10 @@ export class EventQueue {
     }
 
     private _events: GameEvent[] = [];
+    
     private _keys = new Map<string, boolean>();
+    
     private _mouseButtons = new Map<MouseButton, boolean>();
-    private _abstractButtons = new Map<string, boolean>();
-    private _abstractButtonKeys = new Map<string, string>();
     private _pageX: number = 0;
     private _pageY: number = 0;
     
@@ -288,7 +273,6 @@ export class EventQueue {
     private _gamepadAxes: number[] = [];
     private _gamepadButtonsRaw: boolean[] = [];
     private _gamepadButtons = new Map<string, boolean>();
-    private _abstractButtonGampadButtons = new Map<string, string>();
 
     private _currentInputT: InputTypeT = 'keyboard';
     get currentInputType(): InputTypeT {
@@ -302,62 +286,20 @@ export class EventQueue {
             current: this._currentInputT = val
         });
     }
-
-    bindAbstractButton(name: string, ...keys: string[]) {
-        for (let key of keys) {
-            if (this._abstractButtonKeys.has(key)) throw new Error(`The key '${key}' is already registered to the '${this._abstractButtonKeys.get(key)}' abstract button.`);
-            this._abstractButtonKeys.set(key, name);
-            if (!this._abstractButtons.has(name)) this._abstractButtons.set(name, false);
-            let previous = this._abstractButtons.get(name);
-            let isKeyDown = this.isKeyDown(key);
-            if (previous !== isKeyDown && isKeyDown) {
-                this.enqueue({
-                    type: 'abstractButtonPressed',
-                    name: name
-                });
-                this._abstractButtons.set(name, true);
-            }
-        }
-    }
-    unbindAbstractButton(name: string, ...keys: string[]) {
-        for (let key of keys) {
-            if (!this._abstractButtonKeys.has(key) || this._abstractButtonKeys.get(key) !== name) throw new Error(`The key '${key}' is not registered to the '${name}' abstract button.`);
-            this._abstractButtonKeys.delete(key);
-            let previous = this._abstractButtons.get(name);
-            let abPressed = this.areAbstractButtonKeysDown(name);
-            if (typeof abPressed === 'undefined') this._abstractButtons.delete(name); //There are no more keys bound to this abstract button
-            else if (previous && !abPressed) {
-                this.enqueue({
-                    type: 'abstractButtonReleased',
-                    name: name
-                });
-                this._abstractButtons.set(name, false);
-            }
-        }
-    }
-    private areAbstractButtonKeysDown(name: string) {
-        let abExists = false;
-        for (let key in this._abstractButtonKeys.keys) {
-            if (this._abstractButtonKeys.get(key) === name) {
-                abExists = true;
-                if (this.isKeyDown(key)) return true;
-            }
-        }
-        if (!abExists) return undefined;
-        return false;
+    
+    private _abstractButtonProviders: AbstractButtonProvider[] = [];
+    addAbstractButtonProvider(provider: AbstractButtonProvider) {
+        this._abstractButtonProviders.push(provider);
     }
 
     isKeyDown(code: string) {
         if (!this._keys.has(code)) return false;
         return this._keys.get(code);
     }
+    
     isMouseButtonDown(button: MouseButton) {
         if (!this._mouseButtons.has(button)) return false;
         return this._mouseButtons.get(button);
-    }
-    isAbstractButtonDown(name: string) {
-        if (!this._abstractButtons.has(name)) return false;
-        return this._abstractButtons.get(name);
     }
     get mousePosition() {
         return { x: this._pageX, y: this._pageY };
@@ -370,6 +312,20 @@ export class EventQueue {
     getGamepadAxis(idx: number) {
         if (idx < 0 || idx >= this._gamepadAxes.length) return 0;
         return this._gamepadAxes[idx];
+    }
+
+    abstractButtons = new Map<string, boolean>();
+    isAbstractButtonDown(name: string, manualCheck = false) {
+        if (!this.abstractButtons.has(name)) return false;
+        if (manualCheck) {
+            for (let provider of this._abstractButtonProviders) {
+                if (provider.isAbstractButtonDown(name)) return true;
+            }
+            return false;
+        }
+        else {
+            return this.abstractButtons.get(name);
+        }
     }
 
     enqueue(e: GameEvent) {
@@ -395,11 +351,9 @@ export class EventQueue {
                     return;
                 }
             }
-            else if ((e.type === 'abstractButtonPressed' && lastEvent.type === 'keyPressed') || (e.type === 'abstractButtonReleased' && lastEvent.type === 'keyReleased')) {
-                e.wrappedEvent = lastEvent;
-                this._events[this._events.length - 1] = e;
-                return;
-            }
+        }
+        for (let provider of this._abstractButtonProviders) {
+            e = provider.transformEvent(e) || e;
         }
         this._events.push(e);
     }
