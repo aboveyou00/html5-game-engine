@@ -155,6 +155,7 @@ export class EventQueue {
         this.refreshGamepads();
     }
     private refreshGamepads() {
+        if (!window.navigator) return;
         let axes: number[] = [];
         for (let q = 0; q < this._gamepadAxes.length; q++) {
             axes[q] = 0;
@@ -274,16 +275,16 @@ export class EventQueue {
     private _gamepadButtonsRaw: boolean[] = [];
     private _gamepadButtons = new Map<string, boolean>();
 
-    private _currentInputT: InputTypeT = 'keyboard';
+    private _currentInput: InputTypeT = 'keyboard';
     get currentInputType(): InputTypeT {
-        return this._currentInputT;
+        return this._currentInput;
     }
     set currentInputType(val: InputTypeT) {
-        if (this._currentInputT === val) return;
+        if (this._currentInput === val) return;
         this.enqueue({
             type: 'currentInputTypeChanged',
-            previous: this._currentInputT,
-            current: this._currentInputT = val
+            previous: this._currentInput,
+            current: this._currentInput = val
         });
     }
     

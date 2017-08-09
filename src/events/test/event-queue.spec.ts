@@ -18,6 +18,7 @@ describe('EventQueue', () => {
     describe('keyboard input', () => {
         beforeEach(() => {
             events = new EventQueue();
+            (<any>events)._currentInput = 'keyboard';
         });
         
         describe('onkeydown', () => {
@@ -120,6 +121,7 @@ describe('EventQueue', () => {
     describe('mouse input', () => {
         beforeEach(() => {
             events = new EventQueue();
+            (<any>events)._currentInput = 'mouse';
         });
         
         describe('onmousemove', () => {
@@ -158,11 +160,11 @@ describe('EventQueue', () => {
                 body.onmousemove(<any>{ button: 0, movementX: -13, movementY: 79, preventDefault: nop });
                 expect(events.mousePosition).to.deep.eq({ x: -13, y: 79 });
             });
-            it('should invoke console.log if DEBUG_MOUSE is true', () => {
+            it('should invoke console.log if DEBUG_MOUSE_VERBOSE is true', () => {
                 let stub: sinon.SinonStub;
                 try {
                     stub = sinon.stub(console, 'log');
-                    (<any>events).DEBUG_MOUSE = true;
+                    (<any>events).DEBUG_MOUSE_VERBOSE = true;
                     let body = document.getElementsByTagName('body')[0];
                     body.onmousemove(<any>{ movementX: 0, movementY: 0, preventDefault: nop });
                     expect(console.log).to.have.been.calledWith(sinon.match(/mouse moved/i));
