@@ -305,9 +305,14 @@ export class EventQueue {
         return { x: this._pageX, y: this._pageY };
     }
 
-    isGamepadButtonDown(idx: number) {
-        if (idx < 0 || idx >= this._gamepadButtonsRaw.length) return false;
-        return this._gamepadButtonsRaw[idx];
+    isGamepadButtonDown(idx: number | GamepadButtonT) {
+        if (typeof idx === 'number') {
+            if (idx < 0 || idx >= this._gamepadButtonsRaw.length) return false;
+            return this._gamepadButtonsRaw[idx];
+        }
+        else {
+            return this._gamepadButtons.get(idx) || false;
+        }
     }
     getGamepadAxis(idx: number) {
         if (idx < 0 || idx >= this._gamepadAxes.length) return 0;

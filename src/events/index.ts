@@ -7,3 +7,4 @@ export * from './events';
 
 export * from './abstract-button-provider';
 export * from './keyboard-abstract-button-provider';
+export * from './gamepad-abstract-button-provider';
