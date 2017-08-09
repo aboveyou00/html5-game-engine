@@ -136,6 +136,8 @@ export class Game {
         let delta = (this.previousTick == null) ? 0 : (currentTime.valueOf() - this.previousTick.valueOf()) / 1000;
         if (this.maximumDelta && delta > this.maximumDelta) delta = this.maximumDelta;
         this.previousTick = currentTime;
+        
+        this.eventQueue.tick(delta);
         this.sendEvents(this.scene);
 
         if (this.resourceLoader.isDone) {

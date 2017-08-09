@@ -1,4 +1,4 @@
-﻿
+﻿export type InputTypeT = 'keyboard' | 'mouse' | 'gamepad';
 
 export interface KeyTypedEvent {
     type: 'keyTyped',
@@ -79,6 +79,54 @@ export interface AbstractButtonReleasedEvent {
     wrappedEvent?: GameEvent
 }
 
+export interface CurrentInputTypeChangedEvent {
+    type: 'currentInputTypeChanged',
+    current: InputTypeT,
+    previous: InputTypeT
+}
+
+export type GamepadButtonT = 'A' | 'B' | 'X' | 'Y'
+                           | 'TriggerLeft' | 'TriggerRight' | 'TriggerLeftAlt' | 'TriggerRightAlt'
+                           | 'Back' | 'Start'
+                           | 'LeftStick' | 'RightStick'
+                           | 'DPadUp' | 'DPadDown' | 'DPadLeft' | 'DPadRight'
+                           | 'Center'
+                           
+                           | 'LeftStickLeft' | 'LeftStickRight' | 'LeftStickUp' | 'LeftStickDown'
+                           | 'RightStickLeft' | 'RightStickRight' | 'RightStickUp' | 'RightStickDown';
+
+export const standardGamepadButtonNames: GamepadButtonT[] = [
+    'A', 'B', 'X', 'Y',
+    'TriggerLeft', 'TriggerRight', 'TriggerLeftAlt', 'TriggerRightAlt',
+    'Back', 'Start',
+    'LeftStick', 'RightStick',
+    'DPadUp', 'DPadDown', 'DPadLeft', 'DPadRight',
+    'Center'
+];
+export const standardGamepadAxisNames: [GamepadButtonT, GamepadButtonT][] = [
+    ['LeftStickLeft', 'LeftStickRight'],
+    ['LeftStickUp', 'LeftStickDown'],
+    ['RightStickLeft', 'RightStickRight'],
+    ['RightStickUp', 'RightStickDown'],
+];
+
+export interface GamepadButtonPressedEvent {
+    type: 'gamepadButtonPressed',
+    button: GamepadButtonT
+}
+
+export interface GamepadButtonReleasedEvent {
+    type: 'gamepadButtonReleased',
+    button: GamepadButtonT
+}
+
+export interface GamepadAxisChangedEvent {
+    type: 'gamepadAxisChanged',
+    idx: number,
+    previousValue: number,
+    value: number
+}
+
 export type GameEvent = KeyTypedEvent
                       | KeyPressedEvent
                       | KeyReleasedEvent
@@ -88,4 +136,8 @@ export type GameEvent = KeyTypedEvent
                       | MouseWheelEvent
                       | CanvasResizeEvent
                       | AbstractButtonPressedEvent
-                      | AbstractButtonReleasedEvent;
+                      | AbstractButtonReleasedEvent
+                      | CurrentInputTypeChangedEvent
+                      | GamepadButtonPressedEvent
+                      | GamepadButtonReleasedEvent
+                      | GamepadAxisChangedEvent;
