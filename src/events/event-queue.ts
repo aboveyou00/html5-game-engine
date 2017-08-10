@@ -7,7 +7,7 @@ export class EventQueue {
         this.init();
     }
 
-    private DEBUG_KEYS = true;
+    private DEBUG_KEYS = false;
     private DEBUG_MOUSE = false;
     private DEBUG_MOUSE_VERBOSE = false;
     private DEBUG_GAMEPAD = false;
