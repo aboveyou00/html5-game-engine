@@ -13,6 +13,8 @@ export class EventQueue {
     private DEBUG_GAMEPAD = false;
     private DEBUG_GAMEPAD_VERBOSE = false;
     private GAMEPAD_AXIS_THRESHOLD = .4;
+    private ABSTRACT_BUTTON_TYPE_TIMEOUT = .5;
+    private ABSTRACT_BUTTON_TYPE_REPEAT = 15;
 
     private init() {
         let body = document.getElementsByTagName('body')[0];
@@ -260,6 +262,16 @@ export class EventQueue {
 
     tick(delta: number) {
         this.refreshGamepads();
+        if (this.isAbstractButtonDown(this.mrAbstractButton) && this.ABSTRACT_BUTTON_TYPE_REPEAT !== 0) {
+            this.mrAbstractButtonTimeout -= delta;
+            while (this.mrAbstractButtonTimeout < 0) {
+                this.mrAbstractButtonTimeout += 1 / this.ABSTRACT_BUTTON_TYPE_REPEAT;
+                this.enqueue({
+                    type: 'abstractButtonTyped',
+                    name: this.mrAbstractButton
+                });
+            }
+        }
     }
 
     private _events: GameEvent[] = [];
@@ -321,6 +333,8 @@ export class EventQueue {
     }
 
     abstractButtons = new Map<string, boolean>();
+    private mrAbstractButton: string = '';
+    private mrAbstractButtonTimeout: number;
     isAbstractButtonDown(name: string, manualCheck = false) {
         if (!this.abstractButtons.has(name)) return false;
         if (manualCheck) {
@@ -362,6 +376,15 @@ export class EventQueue {
             e = provider.transformEvent(e) || e;
         }
         this._events.push(e);
+        if (e.type === 'abstractButtonPressed') {
+            this.mrAbstractButton = e.name;
+            this.mrAbstractButtonTimeout = this.ABSTRACT_BUTTON_TYPE_TIMEOUT;
+            this.enqueue({
+                type: 'abstractButtonTyped',
+                name: e.name,
+                wrappedEvent: e.wrappedEvent
+            });
+        }
     }
     clearQueue() {
         return this._events.splice(0);

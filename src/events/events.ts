@@ -78,6 +78,11 @@ export interface AbstractButtonReleasedEvent {
     name: string,
     wrappedEvent?: GameEvent
 }
+export interface AbstractButtonTypedEvent {
+    type: 'abstractButtonTyped',
+    name: string,
+    wrappedEvent?: GameEvent
+}
 
 export interface CurrentInputTypeChangedEvent {
     type: 'currentInputTypeChanged',
@@ -137,6 +142,7 @@ export type GameEvent = KeyTypedEvent
                       | CanvasResizeEvent
                       | AbstractButtonPressedEvent
                       | AbstractButtonReleasedEvent
+                      | AbstractButtonTypedEvent
                       | CurrentInputTypeChangedEvent
                       | GamepadButtonPressedEvent
                       | GamepadButtonReleasedEvent
