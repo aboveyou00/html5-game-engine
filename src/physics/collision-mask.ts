@@ -14,6 +14,14 @@ export abstract class CollisionMask {
         return this._gobj;
     }
     
+    private _isFixed = false;
+    get isFixed() {
+        return this._isFixed;
+    }
+    set isFixed(val: boolean) {
+        this._isFixed = val;
+    }
+    
     private _mass: number = 1;
     get mass() {
         return this._mass;
@@ -39,10 +47,12 @@ export abstract class CollisionMask {
     impulseAccumX = 0;
     impulseAccumY = 0;
     addForce(x: number, y: number) {
+        if (this.isFixed) return;
         this.forceAccumX += x;
         this.forceAccumY += y;
     }
     addImpulse(x: number, y: number) {
+        if (this.isFixed) return;
         this.impulseAccumX += x;
         this.impulseAccumY += y;
     }
@@ -59,6 +69,7 @@ export abstract class CollisionMask {
         this._generators.splice(idx, 1);
     }
     applyForces(delta: number) {
+        if (this.isFixed) return;
         for (let generator of this.gameObject.scene.forceGenerators) {
             generator.updateCollider(this, delta);
         }
