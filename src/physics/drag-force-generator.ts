@@ -10,7 +10,7 @@ export class DragForceGenerator extends ForceGenerator {
     
     updateCollider(collider: CollisionMask, delta: number) {
         if (!this.enabled) return;
-        if (!collider.gameObject.speed) return;
+        if (!collider.gameObject.speed || collider.isFixed) return;
         
         let speed = collider.gameObject.speed / 100;
         let dragCoeff = this.k1 * speed + this.k2 * Math.pow(speed, 2);

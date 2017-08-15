@@ -33,7 +33,7 @@ export class GravityForceGenerator extends ForceGenerator {
     private _vgravity: number | null;
     
     updateCollider(collider: CollisionMask, delta: number) {
-        if (!this.enabled) return;
+        if (!this.enabled || collider.isFixed) return;
         let hgrav = this._hgravity,
             vgrav = this._vgravity;
         if (this._towards) {

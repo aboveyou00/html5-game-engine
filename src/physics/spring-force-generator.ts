@@ -11,7 +11,7 @@ export class SpringForceGenerator extends ForceGenerator {
     modifyOther = true;
     
     updateCollider(collider: CollisionMask, delta: number) {
-        if (!this.enabled) return;
+        if (!this.enabled || (collider.isFixed && (!this.modifyOther || this.other.isFixed))) return;
         
         let [hdist, vdist] = [collider.gameObject.x - this.other.gameObject.x, collider.gameObject.y - this.other.gameObject.y];
         let magnitude = pointDistance(0, 0, hdist, vdist);
