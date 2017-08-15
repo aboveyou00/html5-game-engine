@@ -82,13 +82,19 @@ export class CircleCollisionMask extends CollisionMask {
     }
     
     renderImpl(context: CanvasRenderingContext2D) {
+        let camera = this.gameObject.renderCamera === 'default' ? this.gameObject.scene.camera :
+                        this.gameObject.renderCamera !== 'none' ? this.gameObject.renderCamera :
+                                                                  null;
+        let zoomScale = !!camera ? 1 / camera.zoomScale : 1;
+        
         context.strokeStyle = this.contacts.length ? 'red' : 'green';
+        context.lineWidth = zoomScale;
         context.beginPath();
         context.ellipse(this._offset[0], this._offset[1], this.radius, this.radius, 0, 0, 2 * Math.PI);
         context.stroke();
         
         context.fillStyle = 'red';
-        context.fillRect(this._offset[0] - 3, this._offset[1] - 3, 6, 6);
+        context.fillRect(this._offset[0] - 3 * zoomScale, this._offset[1] - 3 * zoomScale, 6 * zoomScale, 6 * zoomScale);
         
         context.strokeStyle = 'purple';
         for (let q = 0; q < this.contacts.length; q++) {
