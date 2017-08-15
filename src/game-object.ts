@@ -29,6 +29,7 @@ export interface GameObjectOptions {
     animationAge?: number,
     animationSpeed?: number,
     imageAngle?: number,
+    imageScale?: number,
     
     mask?: CollisionMask,
 };
@@ -52,6 +53,7 @@ export class GameObject {
         if (typeof opts.animationAge != 'undefined') this.animationAge = opts.animationAge;
         if (typeof opts.animationSpeed != 'undefined') this.animationSpeed = opts.animationSpeed;
         if (typeof opts.imageAngle != 'undefined') this.imageAngle = opts.imageAngle;
+        if (typeof opts.imageScale != 'undefined') this.imageScale = opts.imageScale;
         
         if (typeof opts.mask != 'undefined') this.mask = opts.mask;
     }
@@ -207,6 +209,14 @@ export class GameObject {
         this._imageAngle = val;
     }
 
+    private _imageScale = 1;
+    get imageScale() {
+        return this._imageScale;
+    }
+    set imageScale(val) {
+        this._imageScale = val;
+    }
+
     private _scene: GameScene;
     get scene(): GameScene {
         if (!this._scene) return null;
@@ -252,7 +262,7 @@ export class GameObject {
     private renderTransformedSymbol = Symbol();
     render(adapter: GraphicsAdapter) {
         if (!this.shouldRender) return;
-        adapter.renderTransformed(this.x, this.y, -degToRad(this.imageAngle), 1, 1, () => {
+        adapter.renderTransformed(this.x, this.y, -degToRad(this.imageAngle), this.imageScale, this.imageScale, () => {
             this.renderImpl(adapter);
         }, this.renderTransformedSymbol);
     }
