@@ -83,7 +83,7 @@ export abstract class CollisionMask {
         this.forceAccumX = this.forceAccumY = this.impulseAccumX = this.impulseAccumY = 0;
     }
     
-    abstract checkForCollision(other: CollisionMask);
+    abstract checkForCollisions(other: CollisionMask): CollisionT[] | null;
     abstract resolveCollisions();
     
     render(adapter: GraphicsAdapter) {

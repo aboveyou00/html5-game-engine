@@ -77,7 +77,7 @@ export class GameScene {
             let first = this._colliders[q];
             for (let w = q + 1; w < this._colliders.length; w++) {
                 let second = this._colliders[w];
-                first.checkForCollision(second);
+                first.checkForCollisions(second);
             }
         }
         for (let q = 0; q < this._colliders.length; q++) {

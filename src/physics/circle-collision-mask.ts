@@ -26,7 +26,7 @@ export class CircleCollisionMask extends CollisionMask {
     updatePositions: boolean | 'once' = true;
     
     private isCheckingCollisions = false;
-    checkForCollision(other: CollisionMask) {
+    checkForCollisions(other: CollisionMask): CollisionT[] | null {
         if (this.isCheckingCollisions) throw new Error(`Already checking collisions!`);
         this.isCheckingCollisions = true;
         try {
@@ -49,10 +49,10 @@ export class CircleCollisionMask extends CollisionMask {
                 };
                 this.contacts.push(collision);
                 other.contacts.push(collision);
-                return collision;
+                return [collision];
             }
             else {
-                return other.checkForCollision(this);
+                return other.checkForCollisions(this);
             }
         }
         finally { this.isCheckingCollisions = false; }
