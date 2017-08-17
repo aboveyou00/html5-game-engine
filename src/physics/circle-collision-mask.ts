@@ -70,11 +70,13 @@ export class CircleCollisionMask extends CollisionMask {
             let eAbsorb = 1 - relativeMass;
             if (this.updatePositions !== false && (!this.isFixed || !other.isFixed)) {
                 if (!this.isFixed) {
+                    if (isNaN(contact.contactNormal[0]) || isNaN(eAbsorb) || isNaN(contact.penetration)) throw new Error(`No bueno!`);
                     this.collisionImpulseX -= contact.contactNormal[0] * eAbsorb * contact.penetration;
                     this.collisionImpulseY -= contact.contactNormal[1] * eAbsorb * contact.penetration;
                     this.impulseCount++;
                 }
                 if (!other.isFixed) {
+                    if (isNaN(contact.contactNormal[0]) || isNaN(eAbsorb) || isNaN(contact.penetration)) throw new Error(`No bueno!`);
                     other.collisionImpulseX += contact.contactNormal[0] * relativeMass * contact.penetration;
                     other.collisionImpulseY += contact.contactNormal[1] * relativeMass * contact.penetration;
                     other.impulseCount++;

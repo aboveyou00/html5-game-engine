@@ -48,11 +48,13 @@ export abstract class CollisionMask {
     impulseAccumY = 0;
     addForce(x: number, y: number) {
         if (this.isFixed) return;
+        if (isNaN(x) || isNaN(y)) throw new Error('Cannot add force with NaN as a component');
         this.forceAccumX += x;
         this.forceAccumY += y;
     }
     addImpulse(x: number, y: number) {
         if (this.isFixed) return;
+        if (isNaN(x) || isNaN(y)) throw new Error('Cannot add impulse with NaN as a component');
         this.impulseAccumX += x;
         this.impulseAccumY += y;
     }
@@ -76,6 +78,7 @@ export abstract class CollisionMask {
         for (let generator of this._generators) {
             generator.updateCollider(this, delta);
         }
+        if (isNaN(this.impulseAccumX)) console.error(`impulseAccumX is NaN`);
         this.gameObject.hspeed += this.forceAccumX;
         this.gameObject.vspeed += this.forceAccumY;
         this.gameObject.x += this.impulseAccumX;
