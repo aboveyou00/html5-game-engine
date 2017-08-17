@@ -120,7 +120,7 @@ export class CircleCollisionMask extends CollisionMask {
         for (let q = 0; q < this.contacts.length; q++) {
             let contact = this.contacts[q];
             if (contact.first !== this) continue;
-            context.fillRect(contact.contactPoint[0] - this.gameObject.x - 1, contact.contactPoint[1] - this.gameObject.y - 1, 2, 2);
+            context.fillRect(contact.contactPoint[0] - this.gameObject.x - 1 * zoomScale, contact.contactPoint[1] - this.gameObject.y - 1 * zoomScale, 2 * zoomScale, 2 * zoomScale);
             context.beginPath();
             context.moveTo(contact.contactPoint[0] - this.gameObject.x - contact.contactNormal[0] * contact.penetration / 2, contact.contactPoint[1] - this.gameObject.y - contact.contactNormal[1] * contact.penetration / 2);
             context.lineTo(contact.contactPoint[0] - this.gameObject.x + contact.contactNormal[0] * contact.penetration / 2, contact.contactPoint[1] - this.gameObject.y + contact.contactNormal[1] * contact.penetration / 2);
