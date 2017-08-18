@@ -246,6 +246,13 @@ export class GameObject {
 
     onSceneEnter() { }
     onSceneExit() { }
+    
+    bringToFront() {
+        this.scene.bringObjectToFront(this);
+    }
+    sendToBack() {
+        this.scene.sendObjectToBack(this);
+    }
 
     handleEvent(evt: GameEvent): boolean | void {
     }
