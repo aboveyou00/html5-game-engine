@@ -37,19 +37,26 @@ export class CircleCollisionMask extends CollisionMask {
                 let threshold = Math.pow(this.radius + other.radius, 2);
                 if (dist2 <= 0 || dist2 >= threshold) return null;
                 
-                let dist = Math.sqrt(dist2);
-                let normal: [number, number] = [(otherx - x) / dist, (othery - y) / dist];
-                let penetration = (this.radius + other.radius) - dist;
-                let collision: CollisionT = {
-                    first: this,
-                    second: other,
-                    contactNormal: normal,
-                    contactPoint: [x + normal[0] * (this.radius - (penetration / 2)), y + normal[1] * (this.radius - (penetration / 2))],
-                    penetration: penetration + .01
-                };
-                this.contacts.push(collision);
-                other.contacts.push(collision);
-                return [collision];
+                if (this.isTrigger || other.isTrigger) {
+                    other.triggers.push(this);
+                    this.triggers.push(other);
+                    return null;
+                }
+                else {
+                    let dist = Math.sqrt(dist2);
+                    let normal: [number, number] = [(otherx - x) / dist, (othery - y) / dist];
+                    let penetration = (this.radius + other.radius) - dist;
+                    let collision: CollisionT = {
+                        first: this,
+                        second: other,
+                        contactNormal: normal,
+                        contactPoint: [x + normal[0] * (this.radius - (penetration / 2)), y + normal[1] * (this.radius - (penetration / 2))],
+                        penetration: penetration + .01
+                    };
+                    this.contacts.push(collision);
+                    other.contacts.push(collision);
+                    return [collision];
+                }
             }
             else {
                 return other.checkForCollisions(this);

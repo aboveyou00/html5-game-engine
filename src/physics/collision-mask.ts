@@ -22,6 +22,14 @@ export abstract class CollisionMask {
         this._isFixed = val;
     }
     
+    private _isTrigger = false;
+    get isTrigger() {
+        return this._isTrigger;
+    }
+    set isTrigger(val: boolean) {
+        this._isTrigger = val;
+    }
+    
     private _mass: number = 1;
     get mass() {
         return this._mass;
@@ -31,8 +39,10 @@ export abstract class CollisionMask {
     }
     
     contacts: CollisionT[] = [];
+    triggers: CollisionMask[] = [];
     clearContacts() {
         this.contacts.length = 0;
+        this.triggers.length = 0;
     }
     collisionImpulseX = 0;
     collisionImpulseY = 0;
