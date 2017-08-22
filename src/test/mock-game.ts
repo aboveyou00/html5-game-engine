@@ -1,6 +1,7 @@
 ﻿import { GameScene } from '../game-scene';
 import { EventQueue } from '../events/event-queue';
 import { ResourceLoader } from '../resource-loader';
+import { AudioController } from '../audio/audio-controller';
 
 export class MockGame {
     constructor(scene: GameScene = null) {
@@ -15,6 +16,7 @@ export class MockGame {
 
     resourceLoader = new ResourceLoader();
     eventQueue = new EventQueue();
+    audioController = new AudioController();
 
     isRunning = true;
 
