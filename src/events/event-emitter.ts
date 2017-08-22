@@ -6,9 +6,13 @@ export class EventEmitter<T> {
 
     private _listeners: ((val: T) => void)[] = [];
 
-    addListener(listener: (val: T) => void) {
+    addListener(listener: (val: T) => void): () => void {
         if (!listener || typeof listener !== 'function') throw new Error(`Listener is not a function: ${listener}`);
         this._listeners.push(listener);
+        return () => {
+            let idx = this._listeners.indexOf(listener);
+            if (idx !== -1) this._listeners.splice(idx, 1);
+        }
     }
 
     private _isEmitting = false;
