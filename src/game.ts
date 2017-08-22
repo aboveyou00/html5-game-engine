@@ -5,6 +5,7 @@ import { EventEmitter } from './events/event-emitter';
 import { GameScene } from './game-scene';
 import { GraphicsAdapter } from './graphics/graphics-adapter';
 import { DefaultGraphicsAdapter } from './graphics/default-graphics-adapter';
+import { AudioController } from './audio/audio-controller';
 
 export interface GameOptions {
     framesPerSecond?: number,
@@ -59,6 +60,7 @@ export class Game {
     private init() {
         this._resourceLoader = new ResourceLoader();
         this._eventQueue = new EventQueue();
+        this._audioController = new AudioController();
         let body = document.getElementsByTagName('body')[0];
         this.initResize(body);
     }
@@ -92,6 +94,11 @@ export class Game {
     private _eventQueue: EventQueue = null;
     get eventQueue() {
         return this._eventQueue;
+    }
+
+    private _audioController: AudioController;
+    get audioController() {
+        return this._audioController;
     }
 
     private _intervalHandle: number;

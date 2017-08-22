@@ -6,7 +6,8 @@ import merge = require('lodash.merge');
 export interface AudioSourceObjectOptions extends GameObjectOptions {
     shouldLoop?: boolean,
     sceneIndependent?: boolean,
-    beginPlay?: boolean
+    beginPlay?: boolean,
+    channel?: string
 }
 
 export class AudioSourceObject extends GameObject {
@@ -18,6 +19,7 @@ export class AudioSourceObject extends GameObject {
         if (typeof opts.shouldLoop !== 'undefined') this._shouldLoop = opts.shouldLoop;
         if (typeof opts.sceneIndependent !== 'undefined') this._sceneIndependent = opts.sceneIndependent;
         if (typeof opts.beginPlay !== 'undefined') this._beginPlay = opts.beginPlay;
+        if (typeof opts.channel !== 'undefined') this._channel = opts.channel;
     }
 
     private _shouldLoop = false;
@@ -30,6 +32,13 @@ export class AudioSourceObject extends GameObject {
         return this._sceneIndependent;
     }
     
+    private _channel: string = '';
+    get channel() {
+        return this._channel;
+    }
+
+    private volumeListener: () => void;
+
     private _beginPlay = true;
 
     addToScene(scene: GameScene) {
@@ -40,9 +49,22 @@ export class AudioSourceObject extends GameObject {
         this._myAudio.src = theirAudio.src;
         this._myAudio.onended = () => {
             if (this._shouldLoop) this._myAudio.play();
-            else if (this.scene) this.scene.removeObject(this);
+            else {
+                if (this.scene) this.scene.removeObject(this);
+                if (this.volumeListener) {
+                    this.volumeListener();
+                    this.volumeListener = null;
+                }
+            }
         };
+        this.volumeListener = this.game.audioController.volumeChanged.addListener(this.onVolumeChanged.bind(this));
         if ((this.game.scene == scene || this.sceneIndependent) && this._beginPlay) this._myAudio.play();
+        this.onVolumeChanged({channel: this.channel, volume: this.game.audioController.getVolume(this.channel)});
+    }
+    private onVolumeChanged({channel, volume}: {channel: string, volume: number}) {
+        if (channel !== this._channel) return;
+        if (!this._myAudio) return;
+        this._myAudio.volume = volume;
     }
 
     private _myAudio: HTMLAudioElement;
