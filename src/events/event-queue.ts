@@ -29,7 +29,7 @@ export class EventQueue {
             if (e.code === 'F12') return;
             if (e.code === 'F4' && e.altKey) return;
             if (!e.ctrlKey || (e.code !== 'KeyV' && e.code !== 'KeyX' && e.code !== 'KeyC')) e.preventDefault();
-            this.currentInputType = 'keyboard';
+            if (!this.isKeyAuxiliary(e.code)) this.currentInputType = 'keyboard';
             if (this.DEBUG_KEYS) console.log(`Key Pressed: ${e.key}; ${e.code}`);
             if (!this.isKeyDown(e.code)) {
                 this._keys.set(e.code, true);
@@ -52,7 +52,7 @@ export class EventQueue {
         });
         body.addEventListener('keyup', e => {
             e.preventDefault();
-            this.currentInputType = 'keyboard';
+            if (!this.isKeyAuxiliary(e.code)) this.currentInputType = 'keyboard';
             if (this.DEBUG_KEYS) console.log(`Key Released: ${e.key}; ${e.code}`);
             if (this.isKeyDown(e.code)) {
                 this._keys.set(e.code, false);
@@ -65,6 +65,11 @@ export class EventQueue {
                 });
             }
         });
+    }
+    
+    private AUXILIARY_KEYS: string[] = ['ShiftLeft', 'ShiftRight', 'ControlLeft', 'ControlRight', 'AltLeft', 'AltRight'];
+    private isKeyAuxiliary(code: string) {
+        return (this.AUXILIARY_KEYS.indexOf(code) !== -1)
     }
     
     private initMouse(body: HTMLBodyElement) {
