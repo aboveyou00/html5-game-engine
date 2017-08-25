@@ -35,6 +35,11 @@ export class GameScene {
     public stop() {
     }
 
+    get cursor(): string[] {
+        let showMouse = this.game && this.game.eventQueue.currentInputType === 'mouse';
+        return showMouse ? ['default'] : ['none'];
+    }
+
     private _generators: ForceGenerator[] = [];
     get forceGenerators() {
         return this._generators;

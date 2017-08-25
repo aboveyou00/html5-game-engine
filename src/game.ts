@@ -147,6 +147,8 @@ export class Game {
         this.eventQueue.tick(delta);
         this.sendEvents(this.scene);
 
+        this.updateCursor();
+
         if (this.resourceLoader.isDone) {
             for (let q = 0; q < this.LOGIC_TICKS_PER_RENDER_TICK; q++) {
                 this.tick(delta / this.LOGIC_TICKS_PER_RENDER_TICK);
@@ -198,6 +200,18 @@ export class Game {
             else if ((<any>body).mozRequestFullScreen) (<any>body).mozRequestFullScreen();
             else if (body.webkitRequestFullscreen) body.webkitRequestFullscreen();
             else if ((<any>body).msRequestFullscreen) (<any>body).msRequestFullscreen();
+        }
+    }
+    private updateCursor() {
+        let cursors = this.scene.cursor;
+        if (!this.canvas || !this.canvas.style) return;
+        for (let q = 0; q < cursors.length; q++) {
+            let cursor = cursors[q];
+            this.canvas.style.cursor = cursor;
+            if (this.canvas.style.cursor === cursor) break;
+            if (q === cursors.length - 1) {
+                console.error(`Invalid set of cursors:`, cursors);
+            }
         }
     }
     private fixedTickDelta = 0;
