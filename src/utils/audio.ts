@@ -1,5 +1,6 @@
 ﻿
 
 export type AudioT = {
-    src: string
+    src: string,
+    relativeVolume?: number
 };

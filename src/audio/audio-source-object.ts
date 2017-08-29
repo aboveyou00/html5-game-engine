@@ -64,7 +64,8 @@ export class AudioSourceObject extends GameObject {
     private onVolumeChanged({channel, volume}: {channel: string, volume: number}) {
         if (channel !== this._channel) return;
         if (!this._myAudio) return;
-        this._myAudio.volume = volume;
+        let relativeVolume = (typeof this.audio.relativeVolume === 'undefined' ? 1 : this.audio.relativeVolume);
+        this._myAudio.volume = volume * relativeVolume;
     }
 
     private _myAudio: HTMLAudioElement;
