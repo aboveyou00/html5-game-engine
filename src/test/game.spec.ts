@@ -116,7 +116,19 @@ describe('Game', () => {
         });
 
         describe('when the resource loader is not done loading', () => {
-            it('should invoke ResourceLoader.render', () => {
+            it('should not invoke ResourceLoader.render if there is a loading scene', () => {
+                game.start();
+                (<any>game)._resourceLoader = { isDone: false, render: () => void (0) };
+                sinon.stub(game.resourceLoader, 'render');
+                sinon.stub(game, 'tick');
+                sinon.stub(game, 'render');
+                game.loadingScene = <any>Symbol();
+                (<any>game).onTick();
+                expect(game.resourceLoader.render).not.to.have.been.calledOnce;
+                expect((<any>game).tick).to.have.been.calledThrice.calledWith(game.loadingScene);
+                expect((<any>game).render).to.have.been.calledOnce.calledWith(game.loadingScene);
+            });
+            it('should invoke ResourceLoader.render if there is no loading scene', () => {
                 game.start();
                 (<any>game)._resourceLoader = { isDone: false, render: () => void (0) };
                 sinon.stub(game.resourceLoader, 'render');
@@ -124,8 +136,8 @@ describe('Game', () => {
                 sinon.stub(game, 'render');
                 (<any>game).onTick();
                 expect(game.resourceLoader.render).to.have.been.calledOnce;
-                expect((<any>game).tick).not.to.have.been.called;
-                expect((<any>game).render).not.to.have.been.called;
+                expect((<any>game).tick).to.have.been.calledWith(null);
+                expect((<any>game).render).to.have.been.calledOnce.calledWith(null);
             });
         });
 
@@ -136,9 +148,7 @@ describe('Game', () => {
                 (<any>game)._resourceLoader = { isDone: true, render: () => void (0) };
                 sinon.stub(game, 'tick');
                 (<any>game).onTick();
-                let subject = expect((<any>game).tick).to.have.been;
-                subject.calledOnce;
-                subject.calledWith(0);
+                expect((<any>game).tick).to.have.been.calledOnce.calledWith(game.scene, 0);
             });
             it('should specify the delta based on the previous tick time if it is not the first tick', async () => {
                 (<any>game)._isRunning = true;
@@ -150,9 +160,7 @@ describe('Game', () => {
                 await delay(50);
                 sinon.stub(game, 'tick');
                 (<any>game).onTick();
-                let subject = expect((<any>game).tick).to.have.been;
-                subject.calledOnce;
-                subject.calledWith(sinon.match(delta => delta >= .03 && delta <= .07));
+                expect((<any>game).tick).to.have.been.calledOnce.calledWith(game.scene, sinon.match(delta => delta >= .03 && delta <= .07));
             });
             it('should invoke tick three times for every one time it calls render when the resource loader is done loading', () => {
                 game.start();
@@ -193,7 +201,7 @@ describe('Game', () => {
         it('should tell the current scene to tick', () => {
             game.start();
             sinon.stub(game.scene, "tick");
-            (<any>game).tick(0.2);
+            (<any>game).tick(game.scene, 0.2);
             expect(game.scene.tick).to.be.calledOnce;
         });
     });
@@ -217,7 +225,7 @@ describe('Game', () => {
         it('should not throw an error if the scene is set in two consecutive ticks', () => {
             game.start();
             expect(game.changeScene(new GameScene())).not.to.throw;
-            (<any>game).tick(0.2);
+            (<any>game).tick(game.scene, 0.2);
             expect(game.changeScene(new GameScene())).not.to.throw;
         });
 
@@ -225,7 +233,7 @@ describe('Game', () => {
             game.start();
             let scene: GameScene = new GameScene();
             expect(game.changeScene(scene)).not.to.throw;
-            (<any>game).tick(0.2);
+            (<any>game).tick(game.scene, 0.2);
             expect(scene.game).to.eql(game);
         });
 
@@ -239,7 +247,7 @@ describe('Game', () => {
             let scene: GameScene = new GameScene();
             game.changeScene(scene);
             sinon.stub(scene, "start");
-            (<any>game).tick(0.2);
+            (<any>game).tick(game.scene, 0.2);
             expect(scene.start).to.be.calledOnce;
         });
     });

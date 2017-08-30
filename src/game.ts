@@ -35,10 +35,12 @@ export class Game {
     get nextScene() {
         return this._nextScene;
     }
+    
+    loadingScene: GameScene | null = null;
 
     public changeScene(newScene: GameScene) {
-        if (!newScene) { throw new Error("Tried to changeScene to a bad scene!"); }
-        if (this._nextScene) { throw new Error("Scene cannot be set more than once per tick!"); }
+        if (!newScene) throw new Error("Tried to changeScene to a bad scene!");
+        if (this._nextScene) throw new Error("Scene cannot be set more than once per tick!");
 
         this._nextScene = newScene;
         if (!this._scene) { this.handleSceneChange(); }
@@ -144,18 +146,20 @@ export class Game {
         if (this.maximumDelta && delta > this.maximumDelta) delta = this.maximumDelta;
         this.previousTick = currentTime;
         
+        let scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
+        
         this.eventQueue.tick(delta);
-        this.sendEvents(this.scene);
+        this.sendEvents(scene);
 
-        this.updateCursor();
-
-        if (this.resourceLoader.isDone) {
-            for (let q = 0; q < this.LOGIC_TICKS_PER_RENDER_TICK; q++) {
-                this.tick(delta / this.LOGIC_TICKS_PER_RENDER_TICK);
-            }
-            this.render(this.graphicsAdapter);
+        for (let q = 0; q < this.LOGIC_TICKS_PER_RENDER_TICK; q++) {
+            this.tick(scene, delta / this.LOGIC_TICKS_PER_RENDER_TICK);
         }
-        else {
+        
+        this.updateCursor(scene);
+        
+        this.render(scene, this.graphicsAdapter);
+        
+        if (!this.resourceLoader.isDone && !scene) {
             this.resourceLoader.render(this.graphicsAdapter);
         }
     }
@@ -202,8 +206,9 @@ export class Game {
             else if ((<any>body).msRequestFullscreen) (<any>body).msRequestFullscreen();
         }
     }
-    private updateCursor() {
-        let cursors = this.scene.cursor;
+    private updateCursor(scene: GameScene | null) {
+        if (!scene) return;
+        let cursors = scene.cursor;
         if (!this.canvas || !this.canvas.style) return;
         for (let q = 0; q < cursors.length; q++) {
             let cursor = cursors[q];
@@ -216,25 +221,25 @@ export class Game {
     }
     private fixedTickDelta = 0;
     private timePerFixedTick = 1;
-    protected tick(delta: number) {
-        if (this._scene) {
-            this._scene.tick(delta);
+    protected tick(scene: GameScene | null, delta: number) {
+        if (scene) {
+            scene.tick(delta);
             this.handleSceneChange();
         }
         this.fixedTickDelta += delta;
         while (this.fixedTickDelta >= this.timePerFixedTick) {
             this.fixedTickDelta -= this.timePerFixedTick;
-            this.fixedTick();
+            this.fixedTick(scene);
         }
     }
-    protected fixedTick() {
-        if (this._scene) {
-            this._scene.fixedTick();
+    protected fixedTick(scene: GameScene | null) {
+        if (scene) {
+            scene.fixedTick();
             this.handleSceneChange();
         }
     }
-    protected render(adapter: GraphicsAdapter) {
+    protected render(scene: GameScene | null, adapter: GraphicsAdapter) {
         if (!adapter) throw new Error(`What the heck just happened? There is no graphics adapter!`);
-        if (this._scene) adapter.renderScene(this._scene);
+        if (scene) adapter.renderScene(scene);
     }
 }

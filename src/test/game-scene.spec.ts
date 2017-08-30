@@ -219,7 +219,7 @@ describe('engine/game-scene', () => {
 
         it('should invoke tick on all game objects', () => {
             game.start();
-            (<any>game).tick();
+            (<any>game).tick(game.scene);
             expect((<any>gobjs[0]).tick).to.have.been.calledOnce;
             expect((<any>gobjs[1]).tick).to.have.been.calledOnce;
             expect((<any>gobjs[2]).tick).to.have.been.calledOnce;
@@ -228,7 +228,7 @@ describe('engine/game-scene', () => {
             game.start();
             scene.camera = new Camera(scene);
             sinon.stub(scene.camera, 'tick');
-            (<any>game).tick(45);
+            (<any>game).tick(game.scene, 45);
             expect(scene.camera.tick).to.have.been.calledOnce.calledWith(45);
         });
     });
@@ -250,11 +250,11 @@ describe('engine/game-scene', () => {
         });
 
         it('should throw an error if no adapter is passed in', () => {
-            expect(() => (<any>game).render(null)).to.throw(/no graphics adapter/i);
+            expect(() => (<any>game).render(game.scene, null)).to.throw(/no graphics adapter/i);
         });
         it('should invoke render on all game objects', () => {
             game.start();
-            (<any>game).render(game.graphicsAdapter);
+            (<any>game).render(game.scene, game.graphicsAdapter);
             expect(gobjs[0].render).to.have.been.calledOnce;
             expect(gobjs[1].render).to.have.been.calledOnce;
             expect(gobjs[2].render).to.have.been.calledOnce;
@@ -264,7 +264,7 @@ describe('engine/game-scene', () => {
             let gobj = new GameObject('name', { shouldRender: false });
             sinon.stub(gobj, 'render');
             scene.addObject(gobj);
-            (<any>game).render(game.graphicsAdapter);
+            (<any>game).render(game.scene, game.graphicsAdapter);
             expect(gobj.render).not.to.have.been.called;
         });
         xit('should invoke push and pop on the camera, if there is one', () => {
@@ -272,7 +272,7 @@ describe('engine/game-scene', () => {
             scene.camera = new Camera(scene);
             sinon.stub(scene.camera, 'push');
             sinon.stub(scene.camera, 'pop');
-            (<any>game).render(game.graphicsAdapter);
+            (<any>game).render(game.scene, game.graphicsAdapter);
             // expect(scene.camera.push).to.have.been.calledOnce.calledBefore(stubs[0]);
             expect(gobjs[0].render).to.have.been.calledOnce;
             expect(gobjs[1].render).to.have.been.calledOnce;
