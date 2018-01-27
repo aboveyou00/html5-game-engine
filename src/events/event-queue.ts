@@ -26,8 +26,7 @@ export class EventQueue {
     
     private initKeyboard(body: HTMLBodyElement) {
         body.addEventListener('keydown', e => {
-            if (e.code === 'F12') return;
-            if (e.code === 'F4' && e.altKey) return;
+            if (this.shouldIgnoreKeyboardEvent(e)) return;
             if (!e.ctrlKey || (e.code !== 'KeyV' && e.code !== 'KeyX' && e.code !== 'KeyC')) e.preventDefault();
             if (!this.isKeyAuxiliary(e.code)) this.currentInputType = 'keyboard';
             if (this.DEBUG_KEYS) console.log(`Key Pressed: ${e.key}; ${e.code}`);
@@ -51,6 +50,7 @@ export class EventQueue {
             });
         });
         body.addEventListener('keyup', e => {
+            if (this.shouldIgnoreKeyboardEvent(e)) return;
             e.preventDefault();
             if (!this.isKeyAuxiliary(e.code)) this.currentInputType = 'keyboard';
             if (this.DEBUG_KEYS) console.log(`Key Released: ${e.key}; ${e.code}`);
@@ -65,11 +65,26 @@ export class EventQueue {
                 });
             }
         });
+        
+        this.addIgnoreKeyboardEvent(e => {
+            if (e.type !== 'keydown') return false;
+            if (e.code === 'F12') return true;
+            if (e.code === 'F4' && e.altKey) return true;
+            return false;
+        });
     }
     
     private AUXILIARY_KEYS: string[] = ['ShiftLeft', 'ShiftRight', 'ControlLeft', 'ControlRight', 'AltLeft', 'AltRight'];
     private isKeyAuxiliary(code: string) {
         return (this.AUXILIARY_KEYS.indexOf(code) !== -1)
+    }
+    
+    private _ignoreKeyboardEventPredicates: ((e: KeyboardEvent) => boolean)[] = [];
+    shouldIgnoreKeyboardEvent(e: KeyboardEvent): boolean {
+        return this._ignoreKeyboardEventPredicates.some(predicate => predicate(e));
+    }
+    addIgnoreKeyboardEvent(predicate: (e: KeyboardEvent) => boolean) {
+        this._ignoreKeyboardEventPredicates.push(predicate);
     }
     
     private initMouse(body: HTMLBodyElement) {
