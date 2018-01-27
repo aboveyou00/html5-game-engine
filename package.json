@@ -1,14 +1,14 @@
 {
   "name": "@aboveyou00/agile-html5-engine",
-  "version": "0.0.1",
-  "description": "ts-webpack-spike",
+  "version": "0.1.0",
+  "description": "HTML5 Game Engine created by students at Neumont College of Computer Science",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "contributors": [
     {
       "name": "Brandon",
       "email": "brandonyoyoslade@gmail.com",
-      "url": "http://www.bestoflies.com"
+      "url": "http://brandonslade.me"
     },
     {
       "name": "Justin",
@@ -53,7 +53,7 @@
     "@types/core-js": "^0.9.41",
     "@types/lodash.merge": "^4.6.2",
     "lodash.merge": "^4.6.0",
-    "typescript": "^2.3.2"
+    "typescript": "^2.6.2"
   },
   "license": "MIT",
   "repository": {
