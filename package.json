@@ -26,9 +26,9 @@
     "test-once": "mocha --require ts-node/register \"src/**/*.spec.ts\"",
     "test-coverage-js": "rimraf dist && tsc && istanbul cover node_modules/mocha/bin/_mocha \"dist/**/*.spec.js\" --dir \"./coverage-js\" --report json",
     "remap-coverage": "node_modules\\.bin\\remap-istanbul -i coverage-js/coverage-final.json -o coverage -t html",
-    "test-coverage": "yarn test-coverage-js -s && yarn remap-coverage -s && rimraf coverage-js",
-    "test": "yarn test-once -s",
-    "travis": "yarn test-once -s"
+    "test-coverage": "yarn test-coverage-js && yarn remap-coverage && rimraf coverage-js",
+    "test": "yarn test-once",
+    "travis": "yarn test-once"
   },
   "devDependencies": {
     "@types/chai": "^3.4.35",

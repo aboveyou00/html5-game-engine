@@ -7,4 +7,4 @@ notifications:
     - jfurtado@student.neumont.edu
     - keima.ayasaki@gmail.com
 script:
-  - yarn travis -s
+  - yarn travis
