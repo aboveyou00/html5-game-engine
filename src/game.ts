@@ -10,7 +10,8 @@ import { AudioController } from './audio/audio-controller';
 export interface GameOptions {
     framesPerSecond?: number,
     graphicsAdapter?: GraphicsAdapter,
-    maximumDelta?: number
+    maximumDelta?: number,
+    moveCanvas?: boolean
 };
 
 export class Game {
@@ -20,6 +21,7 @@ export class Game {
         this.graphicsAdapter = options.graphicsAdapter || new DefaultGraphicsAdapter();
         this.timePerFixedTick = 1 / this.framesPerSecond;
         this.maximumDelta = options.maximumDelta || 0;
+        if (typeof options.moveCanvas !== 'undefined') this._moveCanvas = options.moveCanvas;
         this.init();
     }
     
@@ -28,6 +30,8 @@ export class Game {
     
     private _scene: GameScene | null = null;
     private _nextScene: GameScene | null = null;
+    
+    private _moveCanvas = true;
     
     get scene() {
         return this._scene;
@@ -115,7 +119,7 @@ export class Game {
         
         this.graphicsAdapter.init(this);
         this.bodyResized.emit(void(0));
-        document.currentScript!.parentElement!.insertBefore(this.canvas!, document.currentScript);
+        if (this._moveCanvas) document.currentScript!.parentElement!.insertBefore(this.canvas!, document.currentScript);
         
         this._intervalHandle = <any>setInterval(() => this.onTick(), 1000 / this.framesPerSecond);
     }
