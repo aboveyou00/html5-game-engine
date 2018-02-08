@@ -14,7 +14,7 @@ let nop = () => void(0);
 
 describe('EventQueue', () => {
     let events: EventQueue;
-
+    
     describe('keyboard input', () => {
         beforeEach(() => {
             events = new EventQueue();
@@ -55,7 +55,7 @@ describe('EventQueue', () => {
                 }]);
             });
             it('should invoke console.log if DEBUG_KEYS is true', () => {
-                let stub: sinon.SinonStub;
+                let stub: sinon.SinonStub | null = null;
                 try {
                     stub = sinon.stub(console, 'log');
                     (<any>events).DEBUG_KEYS = true;
@@ -65,7 +65,7 @@ describe('EventQueue', () => {
                 } finally { if (stub) stub.restore(); }
             });
         });
-
+        
         describe('onkeyup', () => {
             it('should emit a keyReleased event when a key is released', () => {
                 let body = document.getElementsByTagName('body')[0];
@@ -89,7 +89,7 @@ describe('EventQueue', () => {
                 expect(events.clearQueue()).to.deep.eq([]);
             });
             it('should invoke console.log if DEBUG_KEYS is true', () => {
-                let stub: sinon.SinonStub;
+                let stub: sinon.SinonStub | null = null;
                 try {
                     stub = sinon.stub(console, 'log');
                     (<any>events).DEBUG_KEYS = true;
@@ -161,7 +161,7 @@ describe('EventQueue', () => {
                 expect(events.mousePosition).to.deep.eq({ x: -13, y: 79 });
             });
             it('should invoke console.log if DEBUG_MOUSE_VERBOSE is true', () => {
-                let stub: sinon.SinonStub;
+                let stub: sinon.SinonStub | null = null;
                 try {
                     stub = sinon.stub(console, 'log');
                     (<any>events).DEBUG_MOUSE_VERBOSE = true;
@@ -196,7 +196,7 @@ describe('EventQueue', () => {
                 expect(events.mousePosition).to.deep.eq({ x: 42, y: 13 });
             });
             it('should invoke console.log if DEBUG_MOUSE is true', () => {
-                let stub: sinon.SinonStub;
+                let stub: sinon.SinonStub | null = null;
                 try {
                     stub = sinon.stub(console, 'log');
                     (<any>events).DEBUG_MOUSE = true;
@@ -235,7 +235,7 @@ describe('EventQueue', () => {
                 expect(events.mousePosition).to.deep.eq({ x: 42, y: 13 });
             });
             it('should invoke console.log if DEBUG_MOUSE is true', () => {
-                let stub: sinon.SinonStub;
+                let stub: sinon.SinonStub | null = null;
                 try {
                     stub = sinon.stub(console, 'log');
                     (<any>events).DEBUG_MOUSE = true;
@@ -276,7 +276,7 @@ describe('EventQueue', () => {
                 expect(events.mousePosition).to.deep.eq({ x: 97, y: 83 });
             });
             it('should invoke console.log if DEBUG_MOUSE is true', () => {
-                let stub: sinon.SinonStub;
+                let stub: sinon.SinonStub | null = null;
                 try {
                     stub = sinon.stub(console, 'log');
                     (<any>events).DEBUG_MOUSE = true;

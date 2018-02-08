@@ -97,10 +97,10 @@ export abstract class CollisionMask {
     }
     
     abstract checkForCollisions(other: CollisionMask): CollisionT[] | null;
-    abstract resolveCollisions();
+    abstract resolveCollisions(): void;
     
     render(adapter: GraphicsAdapter) {
-        if (adapter instanceof DefaultGraphicsAdapter) this.renderContext2d(adapter.context);
+        if (adapter instanceof DefaultGraphicsAdapter) this.renderContext2d(adapter.context!);
         else throw new Error(`Not implemented!`);
     }
     protected renderContext2d(context: CanvasRenderingContext2D) {
@@ -120,5 +120,5 @@ export abstract class CollisionMask {
             forceGenerator.render(this, context);
         }
     }
-    abstract renderImpl(context: CanvasRenderingContext2D);
+    abstract renderImpl(context: CanvasRenderingContext2D): void;
 }

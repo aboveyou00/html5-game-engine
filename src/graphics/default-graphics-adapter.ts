@@ -22,10 +22,10 @@ export class DefaultGraphicsAdapter extends GraphicsAdapter {
         if (this._context) throw new Error(`This DefaultGraphicsAdapter was created with a context`);
         
         if (!this.canvas) this._canvas = document.createElement('canvas');
-        this._context = this.canvas.getContext("2d");
+        this._context = this.canvas!.getContext("2d")!;
         
         game.bodyResized.addListener(() => {
-            [this.canvas.width, this.canvas.height] = [window.innerWidth, window.innerHeight];
+            [this.canvas!.width, this.canvas!.height] = [window.innerWidth, window.innerHeight];
         });
     }
     private _canvas: HTMLCanvasElement | null;
@@ -37,12 +37,12 @@ export class DefaultGraphicsAdapter extends GraphicsAdapter {
     }
     
     clear(color: string) {
-        let context = this.context;
+        let context = this.context!;
         context.fillStyle = color;
-        context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        context.fillRect(0, 0, this.canvas!.width, this.canvas!.height);
     }
     renderResourceLoader(resourcesLoaded: number, totalResources: number, errors?: string) {
-        let context = this.context;
+        let context = this.context!;
         
         context.fillStyle = 'grey';
         context.fillRect(0, 0, context.canvas.scrollWidth, context.canvas.scrollHeight);
@@ -65,14 +65,14 @@ export class DefaultGraphicsAdapter extends GraphicsAdapter {
         scene.render(this);
     }
     renderObject(obj: GameObject) {
-        let context = this.context;
+        let context = this.context!;
         if (obj.sprite) {
             this.drawSprite(obj.resources, obj.sprite, 0, 0, obj.animationAge);
         }
         else {
             context.fillStyle = 'red';
             context.fillRect(0, 0, 16, 16);
-
+            
             context.fillStyle = 'white';
             context.font = '16px Consolas';
             context.textAlign = 'center';
@@ -82,7 +82,7 @@ export class DefaultGraphicsAdapter extends GraphicsAdapter {
     }
     
     renderTransformed(translateX: number, translateY: number, rotate: number, scaleX: number, scaleY: number, act: () => void) {
-        let context = this.context;
+        let context = this.context!;
         context.save();
         try {
             context.translate(translateX, translateY);
@@ -100,8 +100,8 @@ export class DefaultGraphicsAdapter extends GraphicsAdapter {
         if (!sprite || !sprite.src) throw new Error(`Invalid sprite. Cannot render ${sprite}.`);
         let img = loader.loadImage(sprite.src);
         let pivot = sprite.pivot || { x: 0, y: 0 };
-        let context = this.context;
-
+        let context = this.context!;
+        
         if (isAnimationSprite(sprite)) {
             let tileset = sprite.tileset;
             let frames = sprite.frames;

@@ -12,36 +12,36 @@ import { GameObject } from '../game-object';
 
 describe('engine/game-scene', () => {
     let context: CanvasRenderingContext2D;
-
+    
     let game: Game;
     let scene: GameScene;
     beforeEach(() => {
-        context = (new HTMLCanvasElement()).getContext("2d");
+        context = (new HTMLCanvasElement()).getContext("2d")!;
         game = new Game();
         game.changeScene(scene = new GameScene());
     });
     afterEach(() => {
         if (game.isRunning) game.stop();
     });
-
+    
     it('initializes game ref to null', async () => {
         let scene: GameScene = new GameScene();
         expect(scene.game).to.not.be.ok;
     });
-
+    
     it('allows a reference to the game to be set and obtained correctly', async () => {
         let scene: GameScene = new GameScene();
         scene.game = game;
         expect(scene.game).to.be.eql(game);
     });
-
+    
     describe('.camera', () => {
         it('should start with a default camera', () => {
             expect(scene.camera).to.be.ok;
             expect(scene.camera).to.be.an.instanceof(Camera);
         });
     });
-
+    
     describe('.addObject', () => {
         it('should invoke GameObject.addToScene()', () => {
             let gobj = new GameObject('name');
@@ -113,14 +113,14 @@ describe('engine/game-scene', () => {
     describe('.findObject', () => {
         let names = ['one', 'two', 'three'];
         let gobjs = names.map(name => new GameObject(name));
-
+        
         beforeEach(() => {
             gobjs.map(gobj => scene.addObject(gobj));
         });
         afterEach(() => {
             gobjs.map(gobj => scene.removeObject(gobj));
         });
-
+        
         it('should return null if the specified object is not found in this game', () => {
             expect(scene.findObject(() => false)).to.be.null;
         });
@@ -137,14 +137,14 @@ describe('engine/game-scene', () => {
     describe('.findObjects', () => {
         let names = ['one', 'two', 'three'];
         let gobjs = names.map(name => new GameObject(name));
-
+        
         beforeEach(() => {
             gobjs.map(gobj => scene.addObject(gobj));
         });
         afterEach(() => {
             gobjs.map(gobj => scene.removeObject(gobj));
         });
-
+        
         it('should return a clone of the objects array if no predicate is passed in', () => {
             expect(scene.findObjects()).to.deep.eq(gobjs);
         });
@@ -165,12 +165,12 @@ describe('engine/game-scene', () => {
             expect(scene.findObjects(obj => obj.name.indexOf('o') != -1)).to.deep.eq([gobjs[0], gobjs[1]]);
         });
     });
-
+    
     describe('.sendEvents', () => {
         let names = ['one', 'two', 'three'];
         let gobjs = names.map(name => new GameObject(name));
         let stubs: sinon.SinonStub[];
-
+        
         beforeEach(() => {
             stubs = gobjs.map(gobj => {
                 scene.addObject(gobj);
@@ -181,7 +181,7 @@ describe('engine/game-scene', () => {
             gobjs.map(gobj => scene.removeObject(gobj));
             stubs.map(stub => stub.restore());
         });
-
+        
         it('should invoke handleEvent on all game objects if none of them handle the event', () => {
             game.start();
             game.eventQueue.enqueue(<any>{ type: 'fakeEvent' });
@@ -200,12 +200,12 @@ describe('engine/game-scene', () => {
             expect(gobjs[2].handleEvent).not.to.have.been.called;
         });
     });
-
+    
     describe('.tick', () => {
         let names = ['one', 'two', 'three'];
         let gobjs = names.map(name => new GameObject(name));
         let stubs: sinon.SinonStub[];
-
+        
         beforeEach(() => {
             stubs = gobjs.map(gobj => {
                 scene.addObject(gobj);
@@ -216,7 +216,7 @@ describe('engine/game-scene', () => {
             gobjs.map(gobj => scene.removeObject(gobj));
             stubs.map(stub => stub.restore());
         });
-
+        
         it('should invoke tick on all game objects', () => {
             game.start();
             (<any>game).tick(game.scene);
@@ -232,12 +232,12 @@ describe('engine/game-scene', () => {
             expect(scene.camera.tick).to.have.been.calledOnce.calledWith(45);
         });
     });
-
+    
     describe('.render', () => {
         let names = ['one', 'two', 'three'];
         let gobjs = names.map(name => new GameObject(name));
         let stubs: sinon.SinonStub[];
-
+        
         beforeEach(() => {
             stubs = gobjs.map(gobj => {
                 scene.addObject(gobj);
@@ -248,7 +248,7 @@ describe('engine/game-scene', () => {
             gobjs.map(gobj => scene.removeObject(gobj));
             stubs.map(stub => stub.restore());
         });
-
+        
         it('should throw an error if no adapter is passed in', () => {
             expect(() => (<any>game).render(game.scene, null)).to.throw(/no graphics adapter/i);
         });

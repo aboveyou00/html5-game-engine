@@ -19,7 +19,7 @@ describe('GameObject', () => {
         expect(gobj.resources).not.to.be.ok;
         expect(gobj.events).not.to.be.ok;
     });
-
+    
     describe('.constructor', () => {
         it('should set the game object name', () => {
             let gobj = new GameObject('my-name');
@@ -54,21 +54,21 @@ describe('GameObject', () => {
             expect(gobj.imageAngle).to.eq(options.imageAngle);
         });
     });
-
+    
     describe('.shouldTick', () => {
         it('should default to true', () => {
             let gobj = new GameObject('name');
             expect(gobj.shouldTick).to.be.true;
         });
     });
-
+    
     describe('.shouldRender', () => {
         it('should default to true', () => {
             let gobj = new GameObject('name');
             expect(gobj.shouldRender).to.be.true;
         });
     });
-
+    
     describe('.direction', () => {
         it('should modify hspeed and vspeed when it changes', () => {
             let gobj = new GameObject('name', { hspeed: -4, vspeed: 0 });
@@ -87,7 +87,7 @@ describe('GameObject', () => {
             expect(gobj.direction).to.be.closeTo(42, .00001);
         });
         it('should invoke console.log when the setter is called if DEBUG_MOVEMENT is true', () => {
-            let stub: sinon.SinonStub;
+            let stub: sinon.SinonStub | null = null;
             try {
                 stub = sinon.stub(console, 'log');
                 let gobj = new GameObject('name');
@@ -97,7 +97,7 @@ describe('GameObject', () => {
                 expect(console.log).to.have.been.calledWith(sinon.match(/hspeed:.*vspeed:/i));
             } finally { if (stub) stub.restore(); }
         });
-
+        
         it('should be 0 when facing east', () => {
             let gobj = new GameObject('name', { hspeed: 1, vspeed: 0 });
             expect(gobj.direction).to.eql(0);
@@ -170,7 +170,7 @@ describe('GameObject', () => {
             expect(gobj.vspeed).to.be.closeTo(63, .00001);
         });
         it('should invoke console.log when the setter is called if DEBUG_MOVEMENT is true', () => {
-            let stub: sinon.SinonStub;
+            let stub: sinon.SinonStub | null = null;
             try {
                 stub = sinon.stub(console, 'log');
                 let gobj = new GameObject('name');
@@ -199,7 +199,7 @@ describe('GameObject', () => {
             expect(gobj.direction).to.be.closeTo(180, .00001);
         });
         it('should invoke console.log when the setter is called if DEBUG_MOVEMENT is true', () => {
-            let stub: sinon.SinonStub;
+            let stub: sinon.SinonStub | null = null;
             try {
                 stub = sinon.stub(console, 'log');
                 let gobj = new GameObject('name');
@@ -228,7 +228,7 @@ describe('GameObject', () => {
             expect(gobj.direction).to.be.closeTo(270, .00001);
         });
         it('should invoke console.log when the setter is called if DEBUG_MOVEMENT is true', () => {
-            let stub: sinon.SinonStub;
+            let stub: sinon.SinonStub | null = null;
             try {
                 stub = sinon.stub(console, 'log');
                 let gobj = new GameObject('name');
@@ -239,13 +239,13 @@ describe('GameObject', () => {
             } finally { if (stub) stub.restore(); }
         });
     });
-
+    
     describe('.addToScene', () => {
         let testGame: Game = <any>{ resourceLoader: 'fake resource loader!', scene: new GameScene() };
         it(`should populate the 'game,' 'resources,' and 'events' helper properties`, () => {
             let gobj = new GameObject('test');
-            testGame.scene.game = testGame;
-            gobj.addToScene(testGame.scene);
+            testGame.scene!.game = testGame;
+            gobj.addToScene(testGame.scene!);
             expect(gobj.game).to.deep.eq(testGame);
             expect(gobj.resources).to.deep.eq(testGame.resourceLoader);
             expect(gobj.events).to.deep.eq(testGame.eventQueue);
@@ -268,14 +268,14 @@ describe('GameObject', () => {
             expect(gobj.events).not.to.be.ok;
         });
     });
-
+    
     describe('.handleEvent', () => {
         it('should not throw an error', () => {
             let gobj = new GameObject('name', { x: 0, y: 0, hspeed: 0, vspeed: 0 });
             expect(gobj.handleEvent(<any>void(0))).not.to.throw;
         });
     });
-
+    
     describe('.tick', () => {
         it('should not modify the position of the game object if speed == 0', () => {
             let gobj = new GameObject('name', { x: 0, y: 0, hspeed: 0, vspeed: 0 });
@@ -311,11 +311,11 @@ describe('GameObject', () => {
             expect(gobj.animationAge).to.eq(.5 * .3);
         });
     });
-
+    
     describe('.render', () => {
         let adapter: GraphicsAdapter;
         beforeEach(() => {
-            adapter = <any>{ renderTransformed: (tx, ty, r, sx, sy, act) => act() };
+            adapter = <any>{ renderTransformed: (tx: any, ty: any, r: any, sx: any, sy: any, act: any) => act() };
         });
         
         it('should invoke renderTransformed', () => {
@@ -337,7 +337,7 @@ describe('GameObject', () => {
             expect((<any>gobj).renderImpl).not.to.have.been.called;
         });
     });
-
+    
     describe('.renderImpl', () => {
         let adapter: GraphicsAdapter;
         beforeEach(() => {

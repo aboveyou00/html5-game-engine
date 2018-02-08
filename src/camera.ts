@@ -8,14 +8,14 @@ export class Camera {
     constructor(private readonly _scene: GameScene) {
         if (!this._scene) throw new Error(`You must pass in a valid Scene when you create a Camera.`);
     }
-
+    
     get scene(): GameScene {
         return this._scene;
     }
     get game() {
         return this.scene.game;
     }
-
+    
     private _clearColor: string | null = null;
     get clearColor() {
         return this._clearColor;
@@ -39,7 +39,7 @@ export class Camera {
     set floorCenterPosition(val: boolean) {
         this._floorCenterPosition = val;
     }
-
+    
     private _zoomScale = 1;
     get zoomScale() {
         return this._zoomScale;
@@ -48,7 +48,7 @@ export class Camera {
         if (val <= 0) throw new Error(`The zoom scale must be positive`);
         this._zoomScale = clamp(val, this.minZoomScale, this.maxZoomScale);
     }
-
+    
     private _maxZoomScale = 4;
     get maxZoomScale() {
         return this._maxZoomScale;
@@ -59,7 +59,7 @@ export class Camera {
         this._maxZoomScale = val;
         this.zoomScale = this.zoomScale;
     }
-
+    
     private _minZoomScale = .25;
     get minZoomScale() {
         return this._minZoomScale;
@@ -70,7 +70,7 @@ export class Camera {
         this._minZoomScale = val;
         this.zoomScale = this.zoomScale;
     }
-
+    
     get bounds() {
         return this.calculateBounds(this.center, this.zoomScale)
     }
@@ -84,14 +84,14 @@ export class Camera {
             bottom: center[1] - voff
         };
     }
-
+    
     tick(delta: number) { }
     fixedTick() { }
-
+    
     clear(adapter: GraphicsAdapter) {
         if (this._clearColor) adapter.clear(this._clearColor);
     }
-
+    
     private renderTransformedSymbol = Symbol();
     renderTransformed(adapter: GraphicsAdapter, act: () => void) {
         let [tx, ty] = this._center;
@@ -119,6 +119,6 @@ export class Camera {
         let [cvWidth, cvHeight] = this.game.canvasSize;
         tx = Math.floor(cvWidth / 2) - (tx * this._zoomScale);
         ty = Math.floor(cvHeight / 2) - (ty * this._zoomScale);
-        return [(x - tx) / this._zoomScale, (y - ty) / this._zoomScale];
+        return [(x - tx) / this._zoomScale, (y! - ty) / this._zoomScale];
     }
 }

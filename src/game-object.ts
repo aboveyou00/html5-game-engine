@@ -16,13 +16,13 @@ export type RenderCameraT = 'default' | 'none' | Camera;
 export interface GameObjectOptions {
     x?: number,
     y?: number,
-
+    
     shouldTick?: boolean,
     direction?: number,
     speed?: number,
     hspeed?: number,
     vspeed?: number,
-
+    
     shouldRender?: boolean,
     renderCamera?: RenderCameraT,
     sprite?: SpriteT,
@@ -37,16 +37,16 @@ export interface GameObjectOptions {
 export class GameObject {
     constructor(name: string, opts: GameObjectOptions = {}) {
         this._name = name;
-
+        
         if (typeof opts.x != 'undefined') this.x = opts.x;
         if (typeof opts.y != 'undefined') this.y = opts.y;
-
+        
         if (typeof opts.shouldTick != 'undefined') this.shouldTick = opts.shouldTick;
         if (typeof opts.direction != 'undefined') this.direction = opts.direction;
         if (typeof opts.speed != 'undefined') this.speed = opts.speed;
         if (typeof opts.hspeed != 'undefined') this.hspeed = opts.hspeed;
         if (typeof opts.vspeed != 'undefined') this.vspeed = opts.vspeed;
-
+        
         if (typeof opts.shouldRender != 'undefined') this.shouldRender = opts.shouldRender;
         if (typeof opts.renderCamera != 'undefined') this.renderCamera = opts.renderCamera;
         if (typeof opts.sprite != 'undefined') this.sprite = opts.sprite;
@@ -57,18 +57,18 @@ export class GameObject {
         
         if (typeof opts.mask != 'undefined') this.mask = opts.mask;
     }
-
+    
     private DEBUG_MOVEMENT = false;
-
-    private _name;
+    
+    private _name: string;
     get name(): string {
         return this._name;
     }
-
+    
     set name(val: string) {
         this._name = val;
     }
-
+    
     private _x = 0;
     get x() {
         return this._x;
@@ -83,7 +83,7 @@ export class GameObject {
     set y(val) {
         this._y = val;
     }
-
+    
     private _shouldTick = true;
     get shouldTick() {
         return this._shouldTick;
@@ -91,12 +91,12 @@ export class GameObject {
     set shouldTick(val) {
         this._shouldTick = val;
     }
-
+    
     private _dir = 0;
     private _speed = 0;
     private _hspeed = 0;
     private _vspeed = 0;
-
+    
     get direction() {
         return this._dir;
     }
@@ -117,7 +117,7 @@ export class GameObject {
         this._speed = val;
         this.updateHVSpeed();
     }
-
+    
     get hspeed() {
         return this._hspeed;
     }
@@ -136,7 +136,7 @@ export class GameObject {
         this._vspeed = val;
         this.updateDirectionAndSpeed();
     }
-
+    
     private updateHVSpeed() {
         let radians = degToRad(this._dir);
         this._vspeed = -Math.sin(radians) * this._speed;
@@ -161,7 +161,7 @@ export class GameObject {
         this._mask = val;
         if (this._mask && this.scene) this.scene.addCollider(this._mask);
     }
-
+    
     private _shouldRender = true;
     get shouldRender() {
         return this._shouldRender;
@@ -169,7 +169,7 @@ export class GameObject {
     set shouldRender(val) {
         this._shouldRender = val;
     }
-
+    
     private _renderCamera: RenderCameraT = 'default';
     get renderCamera(): RenderCameraT {
         return this._renderCamera;
@@ -177,15 +177,15 @@ export class GameObject {
     set renderCamera(val: RenderCameraT) {
         this._renderCamera = val;
     }
-
-    private _sprite: SpriteT = null;
-    get sprite() {
-        return this._sprite;
+    
+    private _sprite: SpriteT | null = null;
+    get sprite(): SpriteT {
+        return this._sprite!;
     }
-    set sprite(val) {
+    set sprite(val: SpriteT) {
         this._sprite = val;
     }
-
+    
     private _animationAge = 0;
     get animationAge() {
         return this._animationAge;
@@ -200,7 +200,7 @@ export class GameObject {
     set animationSpeed(val) {
         this._animationSpeed = val;
     }
-
+    
     private _imageAngle = 0;
     get imageAngle() {
         return this._imageAngle;
@@ -208,7 +208,7 @@ export class GameObject {
     set imageAngle(val) {
         this._imageAngle = val;
     }
-
+    
     private _imageScale = 1;
     get imageScale() {
         return this._imageScale;
@@ -216,22 +216,22 @@ export class GameObject {
     set imageScale(val) {
         this._imageScale = val;
     }
-
+    
     private _scene: GameScene;
     get scene(): GameScene {
-        if (!this._scene) return null;
+        if (!this._scene) return <any>null;
         return this._scene;
     }
     get game(): Game {
-        if (!this.scene) return null;
+        if (!this.scene) return <any>null;
         return this.scene.game;
     }
     get resources(): ResourceLoader {
-        if (!this.game) return null;
+        if (!this.game) return <any>null;
         return this.game.resourceLoader;
     }
     get events(): EventQueue {
-        if (!this.game) return null;
+        if (!this.game) return <any>null;
         return this.game.eventQueue;
     }
     addToScene(scene: GameScene) {
@@ -241,9 +241,9 @@ export class GameObject {
     }
     removeFromScene() {
         if (this.mask) this.scene.removeCollider(this.mask);
-        this._scene = null;
+        this._scene = <any>null;
     }
-
+    
     onSceneEnter() { }
     onSceneExit() { }
     
@@ -253,13 +253,13 @@ export class GameObject {
     sendToBack() {
         this.scene.sendObjectToBack(this);
     }
-
+    
     handleEvent(evt: GameEvent): boolean | void {
     }
-
+    
     tick(delta: number) {
         if (!this.shouldTick) return;
-
+        
         this.x += this.hspeed * delta;
         this.y += this.vspeed * delta;
         this.animationAge += this.animationSpeed * delta;
@@ -284,9 +284,9 @@ export class GameObject {
             y = x.y;
             x = x.x;
         }
-        let camera = this.renderCamera;
+        let camera: RenderCameraT | null = this.renderCamera;
         if (camera === 'default' || !camera) camera = this.scene.camera;
-        if (camera === 'none' || !camera) return [x, y];
-        else return camera.transformPixelCoordinates(x, y);
+        if (camera === 'none' || !camera) return [x, y!];
+        else return camera.transformPixelCoordinates(x, y!);
     }
 }

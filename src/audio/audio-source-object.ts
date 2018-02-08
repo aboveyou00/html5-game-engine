@@ -21,12 +21,12 @@ export class AudioSourceObject extends GameObject {
         if (typeof opts.beginPlay !== 'undefined') this._beginPlay = opts.beginPlay;
         if (typeof opts.channel !== 'undefined') this._channel = opts.channel;
     }
-
+    
     private _shouldLoop = false;
     get shouldLoop() {
         return this._shouldLoop;
     }
-
+    
     private _sceneIndependent = false;
     get sceneIndependent() {
         return this._sceneIndependent;
@@ -36,14 +36,14 @@ export class AudioSourceObject extends GameObject {
     get channel() {
         return this._channel;
     }
-
-    private volumeListener: () => void;
-
+    
+    private volumeListener: (() => void) | null;
+    
     private _beginPlay = true;
-
+    
     addToScene(scene: GameScene) {
         super.addToScene(scene);
-
+        
         let theirAudio = this.resources.loadAudio(this.audio.src);
         this._myAudio = document.createElement('audio');
         this._myAudio.src = theirAudio.src;
@@ -67,12 +67,12 @@ export class AudioSourceObject extends GameObject {
         let relativeVolume = (typeof this.audio.relativeVolume === 'undefined' ? 1 : this.audio.relativeVolume);
         this._myAudio.volume = volume * relativeVolume;
     }
-
+    
     private _myAudio: HTMLAudioElement;
     get myAudio() {
         return this._myAudio;
     }
-
+    
     onSceneEnter() {
         if (this.myAudio.paused) this._myAudio.play();
     }

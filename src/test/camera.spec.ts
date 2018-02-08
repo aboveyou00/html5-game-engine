@@ -20,31 +20,31 @@ describe('Camera', () => {
         scene = <any>{ game: game };
         camera = new Camera(scene);
     });
-
+    
     describe('.constructor', () => {
         it('should throw an error if game is false', () => {
             expect(() => new Camera(<any>null)).to.throw(/pass in a valid Scene/i);
         });
     });
-
+    
     describe('.scene', () => {
         it('should start as the scene you passed in to the constructor', () => {
             expect(camera.scene).to.eq(scene);
         });
     });
-
+    
     describe('.game', () => {
         it('should start as the game of the scene you passed in to the constructor', () => {
             expect(camera.game).to.eq(game);
         });
     });
-
+    
     describe('.clearColor', () => {
         it('should start as null', () => {
             expect(camera.clearColor).to.be.null;
         });
     });
-
+    
     describe('.center', () => {
         it('should start as [0, 0]', () => {
             expect(camera.center).to.deep.eq([0, 0]);
@@ -63,7 +63,7 @@ describe('Camera', () => {
             expect(camera.center).to.deep.eq([25, 92]);
         });
     });
-
+    
     describe('.zoomScale', () => {
         it('should start at 1', () => {
             expect(camera.zoomScale).to.be.closeTo(1, .00001);
@@ -85,7 +85,7 @@ describe('Camera', () => {
             expect(camera.zoomScale).to.be.closeTo(4, .00001);
         });
     });
-
+    
     describe('.minZoomScale', () => {
         it('should start at .25', () => {
             expect(camera.minZoomScale).to.be.closeTo(.25, .00001);
@@ -107,7 +107,7 @@ describe('Camera', () => {
             expect(camera.zoomScale).to.be.closeTo(2, .00001);
         });
     });
-
+    
     describe('.maxZoomScale', () => {
         it('should start at 4', () => {
             expect(camera.maxZoomScale).to.be.closeTo(4, .00001);
@@ -129,7 +129,7 @@ describe('Camera', () => {
             expect(camera.zoomScale).to.be.closeTo(.5, .00001);
         });
     });
-
+    
     describe('.bounds', () => {
         it('should be centered around the center position', () => {
             camera.center = [10, -10];
@@ -167,19 +167,19 @@ describe('Camera', () => {
             expect(bounds.top - bounds.bottom).to.be.closeTo(game.canvasSize[1] * 2, .00001);
         });
     });
-
+    
     describe('.tick', () => {
         it('should not throw an error', () => {
             expect(() => camera.tick(.02)).not.to.throw;
         });
     });
-
+    
     describe('.clear', () => {
         let adapter: GraphicsAdapter;
         beforeEach(() => {
             adapter = <any>{ clear: () => void(0) };
         });
-
+        
         it('should call adapter.clear', () => {
             sinon.stub(adapter, 'clear');
             camera.clearColor = 'green';
@@ -193,15 +193,15 @@ describe('Camera', () => {
             expect(adapter.clear).not.to.have.been.called;
         });
     });
-
+    
     describe('.renderTransformed', () => {
         let context: CanvasRenderingContext2D;
         let adapter: GraphicsAdapter;
         beforeEach(() => {
-            context = new HTMLCanvasElement().getContext('2d');
+            context = new HTMLCanvasElement().getContext('2d')!;
             adapter = new DefaultGraphicsAdapter(context);
         });
-
+        
         it('should invoke context.save', () => {
             sinon.stub(context, 'save');
             camera.renderTransformed(adapter, () => void(0));

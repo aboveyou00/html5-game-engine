@@ -6,7 +6,7 @@ export class EventQueue {
     constructor() {
         this.init();
     }
-
+    
     private DEBUG_KEYS = false;
     private DEBUG_MOUSE = false;
     private DEBUG_MOUSE_VERBOSE = false;
@@ -15,7 +15,7 @@ export class EventQueue {
     private GAMEPAD_AXIS_THRESHOLD = .4;
     private ABSTRACT_BUTTON_TYPE_TIMEOUT = .5;
     private ABSTRACT_BUTTON_TYPE_REPEAT = 15;
-
+    
     private init() {
         let body = document.getElementsByTagName('body')[0];
         this.initKeyboard(body);

@@ -5,10 +5,10 @@ export class AudioController {
     constructor() { }
     
     private _volumes = new Map<string, number>();
-    getVolume(channel: string) {
+    getVolume(channel: string): number {
         if (typeof channel !== 'string') throw new Error(`Invalid audio channel. Cannot get volume for channel ${channel}`);
         if (!this._volumes.has(channel)) return 1;
-        return this._volumes.get(channel);
+        return this._volumes.get(channel)!;
     }
     setVolume(channel: string, val: number) {
         if (typeof val !== 'number') throw new Error(`Invalid volume. Cannot set volume to ${val}`);

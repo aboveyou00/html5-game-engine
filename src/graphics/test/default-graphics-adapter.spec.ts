@@ -18,10 +18,10 @@ describe('DefaultGraphicsAdapter', () => {
     let context: CanvasRenderingContext2D;
     let adapter: DefaultGraphicsAdapter;
     beforeEach(() => {
-        context = new HTMLCanvasElement().getContext('2d');
+        context = new HTMLCanvasElement().getContext('2d')!;
         adapter = new DefaultGraphicsAdapter(context);
     });
-
+    
     describe('.clear', () => {
         it('should fill the screen with the clear color if it is specified', () => {
             sinon.stub(context, 'fillRect');
@@ -46,7 +46,7 @@ describe('DefaultGraphicsAdapter', () => {
             expect(context.fillRect).to.have.been.calledThrice
                 .calledWith(0, 0, context.canvas.scrollWidth, context.canvas.scrollHeight)
                 .calledWith(any, any, 0, any)
-                .calledWith(any, any, sinon.match(v => typeof v === 'number' && v > 0), any);
+                .calledWith(any, any, sinon.match((v: any) => typeof v === 'number' && v > 0), any);
         });
         it('should render the loaded and total resources as text', () => {
             sinon.stub(context, 'fillText');
@@ -111,13 +111,13 @@ describe('DefaultGraphicsAdapter', () => {
     describe('.drawSprite', () => {
         let img = <any>'this is my image!';
         let loader: ResourceLoader = <any>{ loadImage: () => img };
-
+        
         describe('with an invalid resource loader', () => {
             it('should throw an error', () => {
-                expect(() => adapter.drawSprite(null, { src: 'some-source' })).to.throw(/ResourceLoader/i);
+                expect(() => adapter.drawSprite(<any>null, { src: 'some-source' })).to.throw(/ResourceLoader/i);
             });
         });
-
+        
         describe('with an invalid sprite', () => {
             it('should throw an error if sprite is falsey', () => {
                 expect(() => adapter.drawSprite(loader, <any>null)).to.throw(/invalid sprite/i);
@@ -126,10 +126,10 @@ describe('DefaultGraphicsAdapter', () => {
                 expect(() => adapter.drawSprite(loader, <any>{})).to.throw(/invalid sprite/i);
             });
         });
-
+        
         describe('with a simple sprite', () => {
             let sprite = simpleSprite;
-
+            
             it('should render the image', () => {
                 sinon.stub(context, 'drawImage');
                 adapter.drawSprite(loader, sprite);
@@ -145,10 +145,10 @@ describe('DefaultGraphicsAdapter', () => {
                 subject.calledWith(any, 8, 25);
             });
         });
-
+        
         describe('with a tiled sprite', () => {
             let sprite = tiledSprite;
-
+            
             it('should render the image', () => {
                 sinon.stub(context, 'drawImage');
                 adapter.drawSprite(loader, sprite);
@@ -171,10 +171,10 @@ describe('DefaultGraphicsAdapter', () => {
                 subject.calledWithExactly(any, any, any, any, any, 8, 25, any, any);
             });
         });
-
+        
         describe('with an animated sprite', () => {
             let sprite = animatedSprite;
-
+            
             it('should render the image', () => {
                 sinon.stub(context, 'drawImage');
                 adapter.drawSprite(loader, sprite);

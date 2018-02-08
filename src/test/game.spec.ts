@@ -21,13 +21,13 @@ describe('Game', () => {
     afterEach(() => {
         if (game.isRunning) game.stop();
     });
-
+    
     describe('.isRunning', () => {
         it('should start as false', () => {
             expect(game.isRunning).to.be.false;
         });
     });
-
+    
     describe('.start', () => {
         it('should set isRunning to true', () => {
             game.start();
@@ -140,7 +140,7 @@ describe('Game', () => {
                 expect((<any>game).render).to.have.been.calledOnce.calledWith(null);
             });
         });
-
+        
         describe('when the resource loader is done loading', () => {
             it('should use 0 as the delta if it is the first tick', () => {
                 game.start();
@@ -152,7 +152,7 @@ describe('Game', () => {
             });
             it('should specify the delta based on the previous tick time if it is not the first tick', async () => {
                 (<any>game)._isRunning = true;
-                game.scene.camera = null;
+                game.scene!.camera = null;
                 (<any>game).LOGIC_TICKS_PER_RENDER_TICK = 1;
                 (<any>game)._resourceLoader = { isDone: true, render: () => void (0) };
                 (<any>game).context = new HTMLCanvasElement().getContext('2d');
@@ -160,7 +160,7 @@ describe('Game', () => {
                 await delay(50);
                 sinon.stub(game, 'tick');
                 (<any>game).onTick();
-                expect((<any>game).tick).to.have.been.calledOnce.calledWith(game.scene, sinon.match(delta => delta >= .03 && delta <= .07));
+                expect((<any>game).tick).to.have.been.calledOnce.calledWith(game.scene, sinon.match((delta: number) => delta >= .03 && delta <= .07));
             });
             it('should invoke tick three times for every one time it calls render when the resource loader is done loading', () => {
                 game.start();
@@ -186,49 +186,49 @@ describe('Game', () => {
             });
         });
     });
-
+    
     describe('.sendEvents', () => {
         it('should tell the current scene about events', () => {
             game.start();
             game.eventQueue.enqueue({ type: 'canvasResize', previousSize: [0, 0], size: [0, 0] });
             sinon.stub(game.scene, "handleEvent");
             (<any>game).sendEvents();
-            expect(game.scene.handleEvent).to.be.calledOnce;
+            expect(game.scene!.handleEvent).to.be.calledOnce;
         });
     });
-
+    
     describe('.tick', () => {
         it('should tell the current scene to tick', () => {
             game.start();
             sinon.stub(game.scene, "tick");
             (<any>game).tick(game.scene, 0.2);
-            expect(game.scene.tick).to.be.calledOnce;
+            expect(game.scene!.tick).to.be.calledOnce;
         });
     });
-
+    
     describe('.render', () => {
         it('should tell its scene to render', () => {
             game.start();
             sinon.stub(game.scene, "render");
             (<any>game).onTick();
-            expect(game.scene.render).to.be.calledOnce;
+            expect(game.scene!.render).to.be.calledOnce;
         });
     });
-
+    
     describe('.changeScene', () => {
         it('should throw an error if the scene is set more than once per tick', () => {
             game.start();
             game.changeScene(new GameScene());
             expect(() => game.changeScene(new GameScene())).to.throw(/Scene cannot be set more than once per tick/i);
         });
-
+        
         it('should not throw an error if the scene is set in two consecutive ticks', () => {
             game.start();
             expect(game.changeScene(new GameScene())).not.to.throw;
             (<any>game).tick(game.scene, 0.2);
             expect(game.changeScene(new GameScene())).not.to.throw;
         });
-
+        
         it('should set the scene\'s game reference to the game when the scene is changed', () => {
             game.start();
             let scene: GameScene = new GameScene();
@@ -236,12 +236,12 @@ describe('Game', () => {
             (<any>game).tick(game.scene, 0.2);
             expect(scene.game).to.eql(game);
         });
-
+        
         it('should throw an error if trying to pass an invalid scene', () => {
             game.start();
-            expect(() => game.changeScene(null)).to.throw(/Bad Scene/i);
+            expect(() => game.changeScene(<any>null)).to.throw(/Bad Scene/i);
         });
-
+        
         it('should initialize the scene on swap', () => {
             game.start();
             let scene: GameScene = new GameScene();

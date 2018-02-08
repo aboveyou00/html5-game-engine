@@ -49,38 +49,43 @@ describe('ResourceLoader', () => {
     ];
     resourceTypes.forEach(([methodName, resourceName, returnTypeName, returnType]) => {
         describe(`.${methodName}`, () => {
+            let invokeMethod: (...args: any[]) => any;
+            beforeEach(() => {
+                invokeMethod = ((<any>loader)[methodName]).bind(loader);
+            });
+            
             it(`should increase the total number of ${resourceName} if the requested url was never requested before`, () => {
                 let total = loader.totalResources;
-                loader[methodName]("I_like_chocolate.milk");
+                invokeMethod("I_like_chocolate.milk");
                 expect(loader.totalResources).to.eq(total + 1);
             });
             it(`should not reload a ${resourceName} if it was already requested`, () => {
-                loader[methodName]("I_like_chocolate.milk");
+                invokeMethod("I_like_chocolate.milk");
                 let total = loader.totalResources;
-                loader[methodName]("I_like_chocolate.milk");
+                invokeMethod("I_like_chocolate.milk");
                 expect(loader.totalResources).to.eq(total);
             });
             it(`should return ${returnTypeName}`, () => {
-                let result = loader[methodName]("I_like_chocolate.milk");
+                let result = invokeMethod("I_like_chocolate.milk");
                 let type = returnType();
                 expect(result).to.be.an.instanceOf(type);
             });
             it(`should invoke console.log if DEBUG_RESOURCES is true and the ${resourceName} has not been loaded before`, () => {
-                let stub: sinon.SinonStub;
+                let stub: sinon.SinonStub | null = null;
                 try {
                     stub = sinon.stub(console, 'log');
                     (<any>loader).DEBUG_RESOURCES = true;
-                    loader[methodName]('I_like_chocolate.milk');
+                    invokeMethod('I_like_chocolate.milk');
                     expect(console.log).to.have.been.calledWith(sinon.match(new RegExp(`loading ${resourceName}`, 'i')));
                 } finally { if (stub) stub.restore(); }
             });
             it(`should not invoke console.log if DEBUG_RESOURCES is true but the ${resourceName} has been loaded before`, () => {
-                let stub: sinon.SinonStub;
+                let stub: sinon.SinonStub | null = null;
                 try {
                     stub = sinon.stub(console, 'log');
-                    loader[methodName]('I_like_chocolate.milk');
+                    invokeMethod('I_like_chocolate.milk');
                     (<any>loader).DEBUG_RESOURCES = true;
-                    loader[methodName]('I_like_chocolate.milk');
+                    invokeMethod('I_like_chocolate.milk');
                     expect(console.log).not.to.have.been.called;
                 } finally { if (stub) stub.restore(); }
             });

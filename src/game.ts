@@ -25,10 +25,10 @@ export class Game {
     
     public readonly framesPerSecond: number;
     public readonly graphicsAdapter: GraphicsAdapter;
-
-    private _scene: GameScene = null;
-    private _nextScene: GameScene = null;
-
+    
+    private _scene: GameScene | null = null;
+    private _nextScene: GameScene | null = null;
+    
     get scene() {
         return this._scene;
     }
@@ -37,15 +37,15 @@ export class Game {
     }
     
     loadingScene: GameScene | null = null;
-
+    
     public changeScene(newScene: GameScene) {
         if (!newScene) throw new Error("Tried to changeScene to a bad scene!");
         if (this._nextScene) throw new Error("Scene cannot be set more than once per tick!");
-
+        
         this._nextScene = newScene;
         if (!this._scene) { this.handleSceneChange(); }
     }
-
+    
     private handleSceneChange() {
         if (this._nextScene) {
             if (this._scene) this._scene.onExit();
@@ -55,10 +55,10 @@ export class Game {
             this._nextScene = null;
         }
     }
-
+    
     private LOGIC_TICKS_PER_RENDER_TICK = 3;
     private maximumDelta = .25;
-
+    
     private init() {
         this._resourceLoader = new ResourceLoader();
         this._eventQueue = new EventQueue();
@@ -66,15 +66,15 @@ export class Game {
         let body = document.getElementsByTagName('body')[0];
         this.initResize(body);
     }
-
-    public bodyResized = new EventEmitter();
+    
+    public bodyResized = new EventEmitter<void>();
     private initResize(body: HTMLBodyElement) {
         window.addEventListener('resize', () => this.bodyResized.emit(void(0)));
         this.bodyResized.addListener(() => {
             this.canvasSize = [window.innerWidth, window.innerHeight];
         });
     }
-
+    
     private _renderPhysics = false;
     get renderPhysics() {
         return this._renderPhysics;
@@ -82,48 +82,48 @@ export class Game {
     set renderPhysics(val: boolean) {
         this._renderPhysics = val;
     }
-
+    
     get canvas() {
         return this.graphicsAdapter.canvas;
     }
-    private previousTick: Date = null;
-
-    private _resourceLoader: ResourceLoader = null;
+    private previousTick: Date | null = null;
+    
+    private _resourceLoader: ResourceLoader | null = null;
     get resourceLoader() {
-        return this._resourceLoader;
+        return this._resourceLoader!;
     }
-
-    private _eventQueue: EventQueue = null;
+    
+    private _eventQueue: EventQueue | null = null;
     get eventQueue() {
-        return this._eventQueue;
+        return this._eventQueue!;
     }
-
+    
     private _audioController: AudioController;
     get audioController() {
-        return this._audioController;
+        return this._audioController!;
     }
-
+    
     private _intervalHandle: number;
     private _isRunning = false;
     get isRunning() {
         return this._isRunning;
     }
-
+    
     start() {
         if (this.isRunning) throw new Error(`This game is already running. You can't run it again.`);
         this._isRunning = true;
-
+        
         this.graphicsAdapter.init(this);
         this.bodyResized.emit(void(0));
-        document.currentScript.parentElement.insertBefore(this.canvas, document.currentScript);
-
+        document.currentScript!.parentElement!.insertBefore(this.canvas!, document.currentScript);
+        
         this._intervalHandle = <any>setInterval(() => this.onTick(), 1000 / this.framesPerSecond);
     }
     stop() {
         if (this.isRunning) clearInterval(this._intervalHandle);
         this._isRunning = false;
     }
-
+    
     private _size: [number, number] = [640, 480];
     get canvasSize(): [number, number] {
         return [this._size[0], this._size[1]];
@@ -138,7 +138,7 @@ export class Game {
             size: [newWidth, newHeight]
         });
     }
-
+    
     private onTick() {
         if (!this.isRunning) throw new Error(`An error occurred. Game.onTick was invoked although the game is not running.`);
         let currentTime = new Date();
@@ -149,8 +149,8 @@ export class Game {
         let scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
         
         this.eventQueue.tick(delta);
-        this.sendEvents(scene);
-
+        this.sendEvents(scene!);
+        
         for (let q = 0; q < this.LOGIC_TICKS_PER_RENDER_TICK; q++) {
             this.tick(scene, delta / this.LOGIC_TICKS_PER_RENDER_TICK);
         }
@@ -164,7 +164,7 @@ export class Game {
         }
     }
     protected sendEvents(sendTo: GameScene) {
-        let events = this._eventQueue.clearQueue();
+        let events = this.eventQueue.clearQueue();
         for (let evt of events) {
             let handled = false;
             if (this.resourceLoader.isDone && this.sendEvent(sendTo, evt)) handled = true;

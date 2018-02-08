@@ -4,18 +4,19 @@ import { Camera } from './camera';
 import { CollisionMask } from './physics/collision-mask';
 import { ForceGenerator } from './physics/force-generator';
 import { GraphicsAdapter } from './graphics/graphics-adapter';
+import { GameEvent } from './events/events';
 
 export class GameScene {
-    constructor(private _game: Game = null) {
+    constructor(private _game: Game | null = null) {
     }
     
     get game() {
-        return this._game;
+        return this._game!;
     }
     set game(val: Game) {
         this._game = val;
     }
-
+    
     public onEnter() {
         this.start();
         for (let obj of this._objects) {
@@ -28,18 +29,18 @@ export class GameScene {
             obj.onSceneExit();
         }
     }
-
+    
     public start() {
         if (!this.camera) this.initCamera();
     }
     public stop() {
     }
-
+    
     get cursor(): string[] {
         let showMouse = this.game && this.game.eventQueue.currentInputType === 'mouse';
         return showMouse ? ['default'] : ['none'];
     }
-
+    
     private _generators: ForceGenerator[] = [];
     get forceGenerators() {
         return this._generators;
@@ -52,14 +53,14 @@ export class GameScene {
         if (idx === -1) return;
         this._generators.splice(idx, 1);
     }
-
-    public handleEvent(evt) {
+    
+    public handleEvent(evt: GameEvent) {
         for (let obj of this._objects) {
             if (obj.shouldTick && obj.handleEvent(evt)) return true;
         }
         return false;
     }
-
+    
     public tick(delta: number) {
         for (let obj of this._objects) {
             if (obj.shouldTick) obj.tick(delta);
@@ -102,7 +103,7 @@ export class GameScene {
     public render(adapter: GraphicsAdapter) {
         let defaultCamera = this.camera;
         if (defaultCamera) defaultCamera.clear(adapter);
-
+        
         for (let obj of this._objects) {
             if (obj.shouldRender) {
                 let renderCamera = obj.renderCamera === 'default' ? defaultCamera :
@@ -112,7 +113,7 @@ export class GameScene {
                 else renderCamera.renderTransformed(adapter, () => obj.render(adapter));
             }
         }
-
+        
         if (this.game.renderPhysics) this.renderPhysics(adapter);
     }
     public renderPhysics(adapter: GraphicsAdapter) {
@@ -127,7 +128,7 @@ export class GameScene {
             else renderCamera.renderTransformed(adapter, () => collider.render(adapter));
         }
     }
-
+    
     private _objects: GameObject[] = [];
     addObject(obj: GameObject) {
         this._objects.push(obj);
@@ -176,7 +177,7 @@ export class GameScene {
         this._objects.splice(idx, 1);
         this._objects.unshift(obj);
     }
-
+    
     private _colliders: CollisionMask[] = [];
     removeCollider(mask: CollisionMask) {
         let idx = this._colliders.indexOf(mask);
@@ -185,11 +186,11 @@ export class GameScene {
     addCollider(mask: CollisionMask) {
         this._colliders.push(mask);
     }
-
+    
     private initCamera() {
         this.camera = new Camera(this);
     }
-
+    
     private _camera: Camera | null = null;
     get camera(): Camera | null {
         return this._camera;

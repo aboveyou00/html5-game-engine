@@ -4,11 +4,11 @@ import { ResourceLoader } from '../resource-loader';
 import { AudioController } from '../audio/audio-controller';
 
 export class MockGame {
-    constructor(scene: GameScene = null) {
+    constructor(scene: GameScene | null = null) {
         if (scene) this.changeScene(scene);
     }
 
-    scene = null;
+    scene: GameScene | null = null;
     changeScene(scene: GameScene) {
         this.scene = scene;
         scene.game = <any>this;

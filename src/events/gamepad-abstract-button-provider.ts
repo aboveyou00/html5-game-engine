@@ -11,7 +11,7 @@ export class GamepadAbstractButtonProvider implements AbstractButtonProvider {
     bindAbstractButton(name: string, ...buttons: GamepadButtonT[]) {
         for (let button of buttons) {
             if (!this._buttons.has(button)) this._buttons.set(button, []);
-            this._buttons.get(button).push(name);
+            this._buttons.get(button)!.push(name);
             if (!this.queue.abstractButtons.has(name)) this.queue.abstractButtons.set(name, false);
             let previous = this.queue.abstractButtons.get(name);
             let current = this.queue.isGamepadButtonDown(button);
@@ -27,7 +27,7 @@ export class GamepadAbstractButtonProvider implements AbstractButtonProvider {
     unbindAbstractButton(name: string, ...buttons: GamepadButtonT[]) {
         for (let button of buttons) {
             if (!this._buttons.has(button)) throw new Error(`The gamepad button '${button}' is not registered to the '${name}' abstract button.`);
-            let abstractButtons = this._buttons.get(button);
+            let abstractButtons = this._buttons.get(button)!;
             let abidx = abstractButtons.indexOf(name);
             if (abidx === -1) throw new Error(`The gamepad button '${button}' is not registered to the '${name}' abstract button.`);
             abstractButtons.splice(abidx);
@@ -47,7 +47,7 @@ export class GamepadAbstractButtonProvider implements AbstractButtonProvider {
     transformEvent(e: GameEvent): GameEvent | null {
         if (e.type === 'gamepadButtonPressed') {
             if (this._buttons.has(e.button)) {
-                let abNames = this._buttons.get(e.button);
+                let abNames = this._buttons.get(e.button)!;
                 for (let abName of abNames) {
                     if (!this.queue.isAbstractButtonDown(abName)) {
                         this.queue.abstractButtons.set(abName, true);
@@ -62,7 +62,7 @@ export class GamepadAbstractButtonProvider implements AbstractButtonProvider {
         }
         else if (e.type === 'gamepadButtonReleased') {
             if (this._buttons.has(e.button)) {
-                let abNames = this._buttons.get(e.button);
+                let abNames = this._buttons.get(e.button)!;
                 for (let abName of abNames) {
                     if (this.queue.isAbstractButtonDown(abName) && !this.queue.isAbstractButtonDown(abName, true)) {
                         this.queue.abstractButtons.set(abName, false);
@@ -75,12 +75,12 @@ export class GamepadAbstractButtonProvider implements AbstractButtonProvider {
                 }
             }
         }
-        else return null;
+        return null;
     }
     
     isAbstractButtonDown(name: string) {
         for (let button of <any>this._buttons.keys()) {
-            let abstractButtons = this._buttons.get(button);
+            let abstractButtons = this._buttons.get(button)!;
             if (abstractButtons.indexOf(name) !== -1) {
                 if (this.queue.isGamepadButtonDown(button)) return true;
             }

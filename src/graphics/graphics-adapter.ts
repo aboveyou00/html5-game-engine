@@ -3,13 +3,13 @@ import { GameObject } from '../game-object';
 import { GameScene } from '../game-scene';
 
 export abstract class GraphicsAdapter {
-    abstract init(game: Game);
-    abstract readonly canvas: HTMLCanvasElement;
+    abstract init(game: Game): void;
+    abstract readonly canvas: HTMLCanvasElement | null;
     
-    abstract clear(color: string);
-    abstract renderResourceLoader(resourcesLoaded: number, totalResources: number, errors?: string);
-    abstract renderScene(scene: GameScene);
-    abstract renderObject(obj: GameObject);
+    abstract clear(color: string): void;
+    abstract renderResourceLoader(resourcesLoaded: number, totalResources: number, errors?: string): void;
+    abstract renderScene(scene: GameScene): void;
+    abstract renderObject(obj: GameObject): void;
     
-    abstract renderTransformed(translateX: number, translateY: number, rotate: number, scaleX: number, scaleY: number, act: () => void, key?: symbol);
+    abstract renderTransformed(translateX: number, translateY: number, rotate: number, scaleX: number, scaleY: number, act: () => void, key?: symbol): void;
 }

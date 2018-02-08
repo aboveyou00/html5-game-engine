@@ -41,6 +41,6 @@ export class GravityForceGenerator extends ForceGenerator {
             let gravityCoeff = ((collider.mass * this._towards.mass) / dist) * .00001;
             [hgrav, vgrav] = [gravityCoeff * (this._towards.gameObject.x - collider.gameObject.x), gravityCoeff * (this._towards.gameObject.y - collider.gameObject.y)];
         }
-        collider.addForce(hgrav * delta, vgrav * delta);
+        collider.addForce(hgrav! * delta, vgrav! * delta);
     }
 }

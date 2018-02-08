@@ -32,14 +32,14 @@ export class MockElement {
     height = 295;
     scrollWidth = 640;
     scrollHeight = 480;
-
+    
     addEventListener(type: string, handler: any) {
-        if (this[`on${type}`]) throw new Error(`Not implemented! This element already has a handler for ${type}`);
-        this[`on${type}`] = handler;
+        if ((<any>this)[`on${type}`]) throw new Error(`Not implemented! This element already has a handler for ${type}`);
+        (<any>this)[`on${type}`] = handler;
     }
     
     insertBefore() { }
-
+    
     //canvas
     getContext() {
         return new MockContext(this);
@@ -67,8 +67,8 @@ export class MockDocument {
 export class MockImage extends MockElement {
     constructor(width?: number, height?: number) {
         super();
-        this.width = width;
-        this.height = height;
+        if (typeof width !== 'undefined') this.width = width;
+        if (typeof height !== 'undefined') this.height = height;
     }
 }
 export class MockAudio extends MockElement {
@@ -86,8 +86,8 @@ export class MockWindow {
     innerHeight = 480;
     
     addEventListener(type: string, handler: any) {
-        if (this[`on${type}`]) throw new Error(`Not implemented! This element already has a handler for ${type}`);
-        this[`on${type}`] = handler;
+        if ((<any>this)[`on${type}`]) throw new Error(`Not implemented! This element already has a handler for ${type}`);
+        (<any>this)[`on${type}`] = handler;
     }
 }
 export class MockLocation {
