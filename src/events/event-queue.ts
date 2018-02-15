@@ -3,9 +3,7 @@ import { AbstractButtonProvider } from './abstract-button-provider';
 import { KeyboardAbstractButtonProvider } from './keyboard-abstract-button-provider';
 
 export class EventQueue {
-    constructor() {
-        this.init();
-    }
+    constructor() { }
     
     private DEBUG_KEYS = false;
     private DEBUG_MOUSE = false;
@@ -16,16 +14,26 @@ export class EventQueue {
     private ABSTRACT_BUTTON_TYPE_TIMEOUT = .5;
     private ABSTRACT_BUTTON_TYPE_REPEAT = 15;
     
-    private init() {
+    init() {
         let body = document.getElementsByTagName('body')[0];
         this.initKeyboard(body);
         this.initMouse(body);
         
         this.initGamepad(window);
     }
+    cleanUp() {
+        let body = document.getElementsByTagName('body')[0];
+        this.cleanUpKeyboard(body);
+        this.cleanUpMouse(body);
+        
+        this.cleanUpGamepad(window);
+    }
+    
+    private keyDownListener: (e: KeyboardEvent) => void;
+    private keyUpListener: (e: KeyboardEvent) => void;
     
     private initKeyboard(body: HTMLBodyElement) {
-        body.addEventListener('keydown', e => {
+        this.keyDownListener = (e: KeyboardEvent) => {
             if (this.shouldIgnoreKeyboardEvent(e)) return;
             if (!e.ctrlKey || (e.code !== 'KeyV' && e.code !== 'KeyX' && e.code !== 'KeyC')) e.preventDefault();
             if (!this.isKeyAuxiliary(e.code)) this.currentInputType = 'keyboard';
@@ -48,8 +56,8 @@ export class EventQueue {
                 ctrlPressed: !!e.ctrlKey,
                 shiftPressed: !!e.shiftKey
             });
-        });
-        body.addEventListener('keyup', e => {
+        };
+        this.keyUpListener = e => {
             if (this.shouldIgnoreKeyboardEvent(e)) return;
             e.preventDefault();
             if (!this.isKeyAuxiliary(e.code)) this.currentInputType = 'keyboard';
@@ -64,14 +72,25 @@ export class EventQueue {
                     shiftPressed: !!e.shiftKey
                 });
             }
-        });
+        };
+        
+        body.addEventListener('keydown', this.keyDownListener);
+        body.addEventListener('keyup', this.keyUpListener);
         
         this.addIgnoreKeyboardEvent(e => {
             if (e.type !== 'keydown') return false;
             if (e.code === 'F12') return true;
+            if (e.code === 'F5') return true;
+            if ((e.code === 'ArrowLeft' || e.code === 'ArrowRight') && e.altKey) return true;
             if (e.code === 'F4' && e.altKey) return true;
             return false;
         });
+    }
+    private cleanUpKeyboard(body: HTMLBodyElement) {
+        body.removeEventListener('keydown', this.keyDownListener);
+        body.removeEventListener('keyup', this.keyUpListener);
+        
+        this._ignoreKeyboardEventPredicates = [];
     }
     
     private AUXILIARY_KEYS: string[] = ['ShiftLeft', 'ShiftRight', 'ControlLeft', 'ControlRight', 'AltLeft', 'AltRight'];
@@ -87,8 +106,13 @@ export class EventQueue {
         this._ignoreKeyboardEventPredicates.push(predicate);
     }
     
+    private mouseMoveListener: (e: MouseEvent) => void;
+    private mouseDownListener: (e: MouseEvent) => void;
+    private mouseUpListener: (e: MouseEvent) => void;
+    private wheelListener: (e: WheelEvent) => void;
+    
     private initMouse(body: HTMLBodyElement) {
-        body.addEventListener('mousemove', e => {
+        this.mouseMoveListener = e => {
             e.preventDefault();
             this.currentInputType = 'mouse';
             if (this.DEBUG_MOUSE_VERBOSE) console.log(`Mouse moved. Movement: ${e.movementX}, ${e.movementY}; Position: ${e.pageX}, ${e.pageY}`);
@@ -103,8 +127,8 @@ export class EventQueue {
                 pageX: this._pageX,
                 pageY: this._pageY
             });
-        });
-        body.addEventListener('mousedown', e => {
+        };
+        this.mouseDownListener = e => {
             e.preventDefault();
             this.currentInputType = 'mouse';
             if (this.DEBUG_MOUSE) console.log(`Mouse button pressed. Button: ${e.button}; Position: ${e.pageX}, ${e.pageY}`);
@@ -119,8 +143,8 @@ export class EventQueue {
                     pageY: this._pageY
                 });
             }
-        });
-        body.addEventListener('mouseup', e => {
+        };
+        this.mouseUpListener = e => {
             e.preventDefault();
             this.currentInputType = 'mouse';
             if (this.DEBUG_MOUSE) console.log(`Mouse button released. Button: ${e.button}; Position: ${e.pageX}, ${e.pageY}`);
@@ -135,8 +159,8 @@ export class EventQueue {
                     pageY: this._pageY
                 });
             }
-        });
-        body.addEventListener('wheel', e => {
+        };
+        this.wheelListener = e => {
             e.preventDefault();
             this.currentInputType = 'mouse';
             if (this.DEBUG_MOUSE) console.log(`Mouse wheel. delta: ${e.deltaY}; Position: ${e.pageX}, ${e.pageY}`);
@@ -148,17 +172,39 @@ export class EventQueue {
                 pageX: this._pageX,
                 pageY: this._pageY
             });
-        });
+        };
+        
+        body.addEventListener('mousemove', this.mouseMoveListener);
+        body.addEventListener('mousedown', this.mouseDownListener);
+        body.addEventListener('mouseup', this.mouseUpListener);
+        body.addEventListener('wheel', this.wheelListener);
+    }
+    private cleanUpMouse(body: HTMLBodyElement) {
+        body.removeEventListener('mousemove', this.mouseMoveListener);
+        body.removeEventListener('mousedown', this.mouseDownListener);
+        body.removeEventListener('mouseup', this.mouseUpListener);
+        body.removeEventListener('wheel', this.wheelListener);
     }
     
+    private gamepadConnectedListener: (e: GamepadEvent) => void;
+    private gamepadDisconnectedListener: (e: GamepadEvent) => void;
+    
     private initGamepad(window: Window) {
-        window.addEventListener('gamepadconnected', (e: GamepadEvent) => this.connectGamepad(e.gamepad));
-        window.addEventListener('gamepaddisconnected', (e: GamepadEvent) => this.disconnectGamepad(e.gamepad));
+        this.gamepadConnectedListener = (e: GamepadEvent) => this.connectGamepad(e.gamepad);
+        this.gamepadDisconnectedListener = (e: GamepadEvent) => this.disconnectGamepad(e.gamepad);
+        
+        window.addEventListener('gamepadconnected', this.gamepadConnectedListener);
+        window.addEventListener('gamepaddisconnected', this.gamepadDisconnectedListener);
+        
         if (!window.navigator) return;
         for (let gp of navigator.getGamepads()) {
             if (!gp || !gp.connected) continue;
             this.connectGamepad(gp);
         }
+    }
+    private cleanUpGamepad(window: Window) {
+        window.removeEventListener('gamepadconnected', this.gamepadConnectedListener);
+        window.removeEventListener('gamepaddisconnected', this.gamepadDisconnectedListener);
     }
     private connectGamepad(gp: Gamepad) {
         if (gp.mapping !== 'standard') {
@@ -279,7 +325,7 @@ export class EventQueue {
             this._gamepadButtonsRaw[q] = buttons[q];
         }
     }
-
+    
     tick(delta: number) {
         this.refreshGamepads();
         if (this.isAbstractButtonDown(this.mrAbstractButton) && this.ABSTRACT_BUTTON_TYPE_REPEAT !== 0) {
@@ -293,7 +339,7 @@ export class EventQueue {
             }
         }
     }
-
+    
     private _events: GameEvent[] = [];
     
     private _keys = new Map<string, boolean>();
@@ -306,7 +352,7 @@ export class EventQueue {
     private _gamepadAxes: number[] = [];
     private _gamepadButtonsRaw: boolean[] = [];
     private _gamepadButtons = new Map<string, boolean>();
-
+    
     private _currentInput: InputTypeT = 'keyboard';
     get currentInputType(): InputTypeT {
         return this._currentInput;
@@ -324,7 +370,7 @@ export class EventQueue {
     addAbstractButtonProvider(provider: AbstractButtonProvider) {
         this._abstractButtonProviders.push(provider);
     }
-
+    
     isKeyDown(code: string) {
         if (!this._keys.has(code)) return false;
         return this._keys.get(code);
@@ -337,7 +383,7 @@ export class EventQueue {
     get mousePosition() {
         return { x: this._pageX, y: this._pageY };
     }
-
+    
     isGamepadButtonDown(idx: number | GamepadButtonT) {
         if (typeof idx === 'number') {
             if (idx < 0 || idx >= this._gamepadButtonsRaw.length) return false;
@@ -351,7 +397,7 @@ export class EventQueue {
         if (idx < 0 || idx >= this._gamepadAxes.length) return 0;
         return this._gamepadAxes[idx];
     }
-
+    
     abstractButtons = new Map<string, boolean>();
     private mrAbstractButton: string = '';
     private mrAbstractButtonTimeout: number;
@@ -367,7 +413,7 @@ export class EventQueue {
             return this.abstractButtons.get(name);
         }
     }
-
+    
     enqueue(e: GameEvent) {
         let lastEvent = this._events[this._events.length - 1];
         if (lastEvent) {

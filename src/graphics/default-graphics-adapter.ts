@@ -15,19 +15,40 @@ export class DefaultGraphicsAdapter extends GraphicsAdapter {
     }
     
     private _initialized = false;
+    private _cleanupCanvas = false;
+    private game: Game;
+    private cleanupBodyListener: () => void;
     init(game: Game) {
         if (this._initialized) throw new Error(`Cannot initialize DefaultGraphicsAdapter twice.`);
         this._initialized = true;
         
+        this.game = game;
+        
         if (this._context) throw new Error(`This DefaultGraphicsAdapter was created with a context`);
         
-        if (!this.canvas) this._canvas = document.createElement('canvas');
+        if (!this.canvas) {
+            this._canvas = document.createElement('canvas');
+            this._cleanupCanvas = true;
+        }
         this._context = this.canvas!.getContext("2d")!;
         
-        game.bodyResized.addListener(() => {
+        this.cleanupBodyListener = game.bodyResized.addListener(() => {
             [this.canvas!.width, this.canvas!.height] = [window.innerWidth, window.innerHeight];
         });
     }
+    cleanUp() {
+        if (!this._initialized) return;
+        this._initialized = false;
+        
+        if (this._cleanupCanvas) {
+            this._context = null;
+            this._canvas!.parentElement!.removeChild(this._canvas!);
+            this._canvas = null;
+        }
+        
+        this.cleanupBodyListener();
+    }
+    
     private _canvas: HTMLCanvasElement | null;
     get canvas() {
         return this._canvas;

@@ -4,6 +4,8 @@ import { GameScene } from '../game-scene';
 
 export abstract class GraphicsAdapter {
     abstract init(game: Game): void;
+    abstract cleanUp(): void;
+    
     abstract readonly canvas: HTMLCanvasElement | null;
     
     abstract clear(color: string): void;

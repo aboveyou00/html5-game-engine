@@ -22,7 +22,10 @@ export class Game {
         this.timePerFixedTick = 1 / this.framesPerSecond;
         this.maximumDelta = options.maximumDelta || 0;
         if (typeof options.moveCanvas !== 'undefined') this._moveCanvas = options.moveCanvas;
-        this.init();
+        
+        this._resourceLoader = new ResourceLoader();
+        this._eventQueue = new EventQueue();
+        this._audioController = new AudioController();
     }
     
     public readonly framesPerSecond: number;
@@ -64,19 +67,41 @@ export class Game {
     private maximumDelta = .25;
     
     private init() {
-        this._resourceLoader = new ResourceLoader();
-        this._eventQueue = new EventQueue();
-        this._audioController = new AudioController();
         let body = document.getElementsByTagName('body')[0];
         this.initResize(body);
+        
+        this.eventQueue.init();
+        
+        this.graphicsAdapter.init(this);
+        this.bodyResized.emit(void(0));
+        if (this._moveCanvas) document.currentScript!.parentElement!.insertBefore(this.canvas!, document.currentScript);
+        
+        this._intervalHandle = <any>setInterval(() => this.onTick(), 1000 / this.framesPerSecond);
+        this._isRunning = true;
+    }
+    private cleanUp() {
+        this.cleanUpResize();
+        
+        this.eventQueue.cleanUp();
+        
+        this.graphicsAdapter.cleanUp();
+        if (this._moveCanvas) this.canvas!.parentElement!.removeChild(this.canvas!);
+        
+        clearInterval(this._intervalHandle);
+        this._intervalHandle = null;
+        this._isRunning = false;
     }
     
     public bodyResized = new EventEmitter<void>();
+    private cleanupBodyResized: () => void;
     private initResize(body: HTMLBodyElement) {
         window.addEventListener('resize', () => this.bodyResized.emit(void(0)));
-        this.bodyResized.addListener(() => {
+        this.cleanupBodyResized = this.bodyResized.addListener(() => {
             this.canvasSize = [window.innerWidth, window.innerHeight];
         });
+    }
+    private cleanUpResize() {
+        this.cleanupBodyResized();
     }
     
     private _renderPhysics = false;
@@ -107,7 +132,7 @@ export class Game {
         return this._audioController!;
     }
     
-    private _intervalHandle: number;
+    private _intervalHandle: any;
     private _isRunning = false;
     get isRunning() {
         return this._isRunning;
@@ -115,17 +140,11 @@ export class Game {
     
     start() {
         if (this.isRunning) throw new Error(`This game is already running. You can't run it again.`);
-        this._isRunning = true;
-        
-        this.graphicsAdapter.init(this);
-        this.bodyResized.emit(void(0));
-        if (this._moveCanvas) document.currentScript!.parentElement!.insertBefore(this.canvas!, document.currentScript);
-        
-        this._intervalHandle = <any>setInterval(() => this.onTick(), 1000 / this.framesPerSecond);
+        this.init();
     }
     stop() {
-        if (this.isRunning) clearInterval(this._intervalHandle);
-        this._isRunning = false;
+        if (!this.isRunning) return;
+        this.cleanUp();
     }
     
     private _size: [number, number] = [640, 480];
