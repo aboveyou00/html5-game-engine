@@ -86,18 +86,23 @@ export class DefaultGraphicsAdapter extends GraphicsAdapter {
     }
     renderObject(obj: GameObject) {
         let context = this.context!;
-        if (obj.sprite) {
-            this.drawSprite(obj.resources, obj.sprite, 0, 0, obj.animationAge);
+        if (typeof (<any>obj).renderImplContext2d === 'function') {
+            (<any>obj).renderImplContext2d(context);
         }
         else {
-            context.fillStyle = 'red';
-            context.fillRect(0, 0, 16, 16);
-            
-            context.fillStyle = 'white';
-            context.font = '16px Consolas';
-            context.textAlign = 'center';
-            context.textBaseline = 'middle';
-            context.fillText('?', 0 + 8, 0 + 8);
+            if (obj.sprite) {
+                this.drawSprite(obj.resources, obj.sprite, 0, 0, obj.animationAge);
+            }
+            else {
+                context.fillStyle = 'red';
+                context.fillRect(0, 0, 16, 16);
+                
+                context.fillStyle = 'white';
+                context.font = '16px Consolas';
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
+                context.fillText('?', 0 + 8, 0 + 8);
+            }
         }
     }
     
