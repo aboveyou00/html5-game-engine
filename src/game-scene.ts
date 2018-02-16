@@ -37,6 +37,9 @@ export class GameScene {
     }
     
     get cursor(): string[] {
+        return this.getCursor();
+    }
+    getCursor(): string[] {
         let showMouse = this.game && this.game.eventQueue.currentInputType === 'mouse';
         return showMouse ? ['default'] : ['none'];
     }
