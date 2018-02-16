@@ -373,12 +373,12 @@ export class EventQueue {
     
     isKeyDown(code: string) {
         if (!this._keys.has(code)) return false;
-        return this._keys.get(code);
+        return this._keys.get(code)!;
     }
     
     isMouseButtonDown(button: MouseButton) {
         if (!this._mouseButtons.has(button)) return false;
-        return this._mouseButtons.get(button);
+        return this._mouseButtons.get(button)!;
     }
     get mousePosition() {
         return { x: this._pageX, y: this._pageY };
@@ -410,7 +410,7 @@ export class EventQueue {
             return false;
         }
         else {
-            return this.abstractButtons.get(name);
+            return this.abstractButtons.get(name)!;
         }
     }
     
