@@ -76,6 +76,10 @@ describe('Game', () => {
     });
 
     describe('.canvasSize', () => {
+        beforeEach(() => {
+            game.start();
+        });
+        
         it('should start as [640, 480]', () => {
             expect(game.canvasSize).to.deep.eq([640, 480]);
         });

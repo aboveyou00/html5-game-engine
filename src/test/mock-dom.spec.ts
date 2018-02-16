@@ -37,6 +37,10 @@ export class MockElement {
         if ((<any>this)[`on${type}`]) throw new Error(`Not implemented! This element already has a handler for ${type}`);
         (<any>this)[`on${type}`] = handler;
     }
+    removeEventListener(type: string, handler: any) {
+        if ((<any>this)[`on${type}`] !== handler) throw new Error(`Not implemented! This element's handler for ${type} is not the one passed in`);
+        delete (<any>this)[`on${type}`];
+    }
     
     insertBefore() { }
     
@@ -88,6 +92,10 @@ export class MockWindow {
     addEventListener(type: string, handler: any) {
         if ((<any>this)[`on${type}`]) throw new Error(`Not implemented! This element already has a handler for ${type}`);
         (<any>this)[`on${type}`] = handler;
+    }
+    removeEventListener(type: string, handler: any) {
+        if ((<any>this)[`on${type}`] !== handler) throw new Error(`Not implemented! This element's handler for ${type} is not the one passed in`);
+        delete (<any>this)[`on${type}`];
     }
 }
 export class MockLocation {

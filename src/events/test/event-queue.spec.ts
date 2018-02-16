@@ -18,6 +18,7 @@ describe('EventQueue', () => {
     describe('keyboard input', () => {
         beforeEach(() => {
             events = new EventQueue();
+            events.init();
             (<any>events)._currentInput = 'keyboard';
         });
         
@@ -121,6 +122,7 @@ describe('EventQueue', () => {
     describe('mouse input', () => {
         beforeEach(() => {
             events = new EventQueue();
+            events.init();
             (<any>events)._currentInput = 'mouse';
         });
         
@@ -206,7 +208,7 @@ describe('EventQueue', () => {
                 } finally { if (stub) stub.restore(); }
             });
         });
-
+        
         describe('onmouseup', () => {
             it('should emit a mouseButtonReleased event when a mouse button is released', () => {
                 let body = document.getElementsByTagName('body')[0];
@@ -286,7 +288,7 @@ describe('EventQueue', () => {
                 } finally { if (stub) stub.restore(); }
             });
         });
-
+        
         describe('.isMouseButtonDown', () => {
             it('should return false before the mouse button has been pressed', () => {
                 expect(events.isMouseButtonDown(MouseButton.Left)).to.be.false;
@@ -327,11 +329,12 @@ describe('EventQueue', () => {
         beforeEach(() => {
             game = new Game();
             events = game.eventQueue;
+            game.start();
         });
         afterEach(() => {
             if (game.isRunning) game.stop();
         });
-
+        
         describe('onresize', () => {
             it('should emit a canvasResize event when the body is resized', () => {
                 [(<any>window).innerWidth, (<any>window).innerHeight] = [123, 456];

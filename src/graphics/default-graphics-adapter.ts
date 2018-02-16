@@ -42,7 +42,6 @@ export class DefaultGraphicsAdapter extends GraphicsAdapter {
         
         if (this._cleanupCanvas) {
             this._context = null;
-            this._canvas!.parentElement!.removeChild(this._canvas!);
             this._canvas = null;
         }
         

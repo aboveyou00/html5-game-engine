@@ -85,7 +85,10 @@ export class Game {
         this.eventQueue.cleanUp();
         
         this.graphicsAdapter.cleanUp();
-        if (this._moveCanvas) this.canvas!.parentElement!.removeChild(this.canvas!);
+        if (this._moveCanvas && this.canvas) {
+            let parent = this.canvas!.parentElement;
+            if (parent) parent.removeChild(this.canvas!);
+        }
         
         clearInterval(this._intervalHandle);
         this._intervalHandle = null;
@@ -101,7 +104,7 @@ export class Game {
         });
     }
     private cleanUpResize() {
-        this.cleanupBodyResized();
+        if (this.cleanupBodyResized) this.cleanupBodyResized();
     }
     
     private _renderPhysics = false;
