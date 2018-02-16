@@ -24,7 +24,7 @@ describe('AudioSourceObject', () => {
     it('should call play on its audio on scene enter', () => {
         let audio: AudioSourceObject = new AudioSourceObject('test audio', { src: 'test audio' }, { shouldLoop: false });
         let game: Game = <any>(new MockGame(new GameScene()));
-        audio.addToScene(game.scene!);
+        (<any>audio).addToScene(game.scene!);
         audio.onSceneExit();
         let stub = sinon.stub(audio.myAudio, 'play');
         audio.onSceneEnter();
@@ -34,7 +34,7 @@ describe('AudioSourceObject', () => {
     it('should call pause on its audio on scene enter', () => {
         let audio: AudioSourceObject = new AudioSourceObject('test audio', { src: 'test audio' }, { shouldLoop: false });
         let game: Game = <any>(new MockGame(new GameScene()));
-        audio.addToScene(game.scene!);
+        (<any>audio).addToScene(game.scene!);
         audio.onSceneEnter();
         let stub = sinon.stub(audio.myAudio, 'pause');
         audio.onSceneExit();
@@ -44,7 +44,7 @@ describe('AudioSourceObject', () => {
     it('should call play for a looping audio when it ends', () => {
         let audio: AudioSourceObject = new AudioSourceObject('test audio', { src: 'test audio' }, { shouldLoop: true });
         let game: Game = <any>(new MockGame(new GameScene()));
-        audio.addToScene(game.scene!);
+        (<any>audio).addToScene(game.scene!);
         
         let stub = sinon.stub(audio.myAudio, 'play');
         audio.myAudio.onended(<any>{});
@@ -54,7 +54,7 @@ describe('AudioSourceObject', () => {
     it('should remove a non-looping audio game object when it ends', () => {
         let audio: AudioSourceObject = new AudioSourceObject('test audio', { src: 'test audio' }, { shouldLoop: false });
         let game: Game = <any>(new MockGame(new GameScene()));
-        audio.addToScene(game.scene!);
+        (<any>audio).addToScene(game.scene!);
         
         let stub = sinon.stub(game.scene, 'removeObject');
         audio.myAudio.onended(<any>{});

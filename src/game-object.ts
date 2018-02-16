@@ -234,15 +234,20 @@ export class GameObject {
         if (!this.game) return <any>null;
         return this.game.eventQueue;
     }
-    addToScene(scene: GameScene) {
+    private addToScene(scene: GameScene) {
         if (this._scene) throw new Error('This game object is already added to a scene!');
         this._scene = scene;
         if (this.mask) this.scene.addCollider(this.mask);
+        this.onAddToScene();
     }
-    removeFromScene() {
+    private removeFromScene() {
         if (this.mask) this.scene.removeCollider(this.mask);
         this._scene = <any>null;
+        this.onRemoveFromScene();
     }
+    
+    onAddToScene() { }
+    onRemoveFromScene() { }
     
     onSceneEnter() { }
     onSceneExit() { }

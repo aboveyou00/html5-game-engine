@@ -41,8 +41,8 @@ export class AudioSourceObject extends GameObject {
     
     private _beginPlay = true;
     
-    addToScene(scene: GameScene) {
-        super.addToScene(scene);
+    onAddToScene() {
+        super.onAddToScene();
         
         let theirAudio = this.resources.loadAudio(this.audio.src);
         this._myAudio = document.createElement('audio');
@@ -58,7 +58,7 @@ export class AudioSourceObject extends GameObject {
             }
         };
         this.volumeListener = this.game.audioController.volumeChanged.addListener(this.onVolumeChanged.bind(this));
-        if ((this.game.scene == scene || this.sceneIndependent) && this._beginPlay) this._myAudio.play();
+        if ((this.game.scene == this.scene || this.sceneIndependent) && this._beginPlay) this._myAudio.play();
         this.onVolumeChanged({channel: this.channel, volume: this.game.audioController.getVolume(this.channel)});
     }
     private onVolumeChanged({channel, volume}: {channel: string, volume: number}) {

@@ -47,7 +47,7 @@ describe('engine/game-scene', () => {
             let gobj = new GameObject('name');
             sinon.stub(gobj, 'addToScene');
             scene.addObject(gobj);
-            expect(gobj.addToScene).to.have.been.calledOnce;
+            expect((<any>gobj).addToScene).to.have.been.calledOnce;
         });
         it('should invoke GameObject.tick and GameObject.render the next time onTick is called and the resource loader is done', () => {
             let gobj = new GameObject('name');
@@ -80,7 +80,7 @@ describe('engine/game-scene', () => {
             sinon.stub(gobj, 'removeFromScene');
             scene.addObject(gobj);
             scene.removeObject(gobj);
-            expect(gobj.removeFromScene).to.have.been.calledOnce;
+            expect((<any>gobj).removeFromScene).to.have.been.calledOnce;
         });
         it('should throw an error if the game object is not in the game', () => {
             let gobj = new GameObject('name');

@@ -245,24 +245,24 @@ describe('GameObject', () => {
         it(`should populate the 'game,' 'resources,' and 'events' helper properties`, () => {
             let gobj = new GameObject('test');
             testGame.scene!.game = testGame;
-            gobj.addToScene(testGame.scene!);
+            (<any>gobj).addToScene(testGame.scene!);
             expect(gobj.game).to.deep.eq(testGame);
             expect(gobj.resources).to.deep.eq(testGame.resourceLoader);
             expect(gobj.events).to.deep.eq(testGame.eventQueue);
         });
         it('should throw an error if the game object is already added to a game', () => {
             let gobj = new GameObject('test');
-            gobj.addToScene(new GameScene());
-            expect(() => gobj.addToScene(new GameScene())).to.throw(/already added to a scene/i);
+            (<any>gobj).addToScene(new GameScene());
+            expect(() => (<any>gobj).addToScene(new GameScene())).to.throw(/already added to a scene/i);
         });
     });
-
+    
     describe('.removeFromScene', () => {
         let testGame: Game = <any>{ resourceLoader: 'fake resource loader!' };
         it(`should depopulate the 'game,' 'resources,' and 'events' helper properties`, () => {
             let gobj = new GameObject('test');
-            gobj.addToScene(new GameScene());
-            gobj.removeFromScene();
+            (<any>gobj).addToScene(new GameScene());
+            (<any>gobj).removeFromScene();
             expect(gobj.game).not.to.be.ok;
             expect(gobj.resources).not.to.be.ok;
             expect(gobj.events).not.to.be.ok;

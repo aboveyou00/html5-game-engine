@@ -135,13 +135,13 @@ export class GameScene {
     private _objects: GameObject[] = [];
     addObject(obj: GameObject) {
         this._objects.push(obj);
-        obj.addToScene(this);
+        (<any>obj).addToScene(this);
     }
     removeObject(obj: GameObject) {
         let idx = this._objects.indexOf(obj);
         if (idx == -1) throw new Error(`Cannot remove game object '${obj.name}': it has not been added.`);
         this._objects.splice(idx, 1);
-        obj.removeFromScene();
+        (<any>obj).removeFromScene();
     }
     findObject(predicate: (obj: GameObject) => boolean): GameObject | null;
     findObject<T extends GameObject>(predicate: (obj: GameObject) => obj is T): T | null;
