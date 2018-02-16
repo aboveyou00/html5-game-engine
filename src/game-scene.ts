@@ -107,7 +107,9 @@ export class GameScene {
         let defaultCamera = this.camera;
         if (defaultCamera) defaultCamera.clear(adapter);
         
-        for (let obj of this._objects) {
+        this.verifyRenderOrder();
+        
+        for (let obj of this._renderOrder) {
             if (obj.shouldRender) {
                 let renderCamera = obj.renderCamera === 'default' ? defaultCamera :
                                       obj.renderCamera !== 'none' ? obj.renderCamera :
@@ -132,15 +134,33 @@ export class GameScene {
         }
     }
     
+    private verifyRenderOrder() {
+        this._renderOrder.forEach(obj => {
+            (<any>obj).__sceneIndex = this._objects.indexOf(obj);
+        });
+        this._renderOrder.sort((lhs, rhs) => {
+            if (lhs.renderDepth > rhs.renderDepth) return -1;
+            else if (lhs.renderDepth < rhs.renderDepth) return 1;
+            else if ((<any>lhs).__sceneIndex < (<any>rhs).__sceneIndex) return -1;
+            else return 1;
+        });
+    }
+    
     private _objects: GameObject[] = [];
+    private _renderOrder: GameObject[] = [];
     addObject(obj: GameObject) {
         this._objects.push(obj);
+        this._renderOrder.push(obj);
         (<any>obj).addToScene(this);
     }
     removeObject(obj: GameObject) {
         let idx = this._objects.indexOf(obj);
-        if (idx == -1) throw new Error(`Cannot remove game object '${obj.name}': it has not been added.`);
+        if (idx === -1) throw new Error(`Cannot remove game object '${obj.name}': it has not been added.`);
         this._objects.splice(idx, 1);
+        
+        idx = this._renderOrder.indexOf(obj);
+        if (idx !== -1) this._renderOrder.splice(idx, 1);
+        
         (<any>obj).removeFromScene();
     }
     findObject(predicate: (obj: GameObject) => boolean): GameObject | null;

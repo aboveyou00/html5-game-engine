@@ -25,6 +25,7 @@ export interface GameObjectOptions {
     
     shouldRender?: boolean,
     renderCamera?: RenderCameraT,
+    renderDepth?: number,
     sprite?: SpriteT,
     animationAge?: number,
     animationSpeed?: number,
@@ -48,6 +49,7 @@ export class GameObject {
         if (typeof opts.vspeed != 'undefined') this.vspeed = opts.vspeed;
         
         if (typeof opts.shouldRender != 'undefined') this.shouldRender = opts.shouldRender;
+        if (typeof opts.renderDepth != 'undefined') this.renderDepth = opts.renderDepth;
         if (typeof opts.renderCamera != 'undefined') this.renderCamera = opts.renderCamera;
         if (typeof opts.sprite != 'undefined') this.sprite = opts.sprite;
         if (typeof opts.animationAge != 'undefined') this.animationAge = opts.animationAge;
@@ -176,6 +178,15 @@ export class GameObject {
     }
     set renderCamera(val: RenderCameraT) {
         this._renderCamera = val;
+    }
+    
+    private _renderDepth: number = 0;
+    get renderDepth(): number {
+        return this._renderDepth;
+    }
+    set renderDepth(val: number) {
+        if (val === this._renderDepth) return;
+        this._renderDepth = val;
     }
     
     private _sprite: SpriteT | null = null;
