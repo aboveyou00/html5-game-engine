@@ -165,6 +165,8 @@ export class Game {
         });
     }
     
+    private fixedTickDelta = 0;
+    private timePerFixedTick = 1 / 30;
     private onTick() {
         if (!this.isRunning) throw new Error(`An error occurred. Game.onTick was invoked although the game is not running.`);
         let currentTime = new Date();
@@ -181,19 +183,22 @@ export class Game {
         
         for (let q = 0; q < this.LOGIC_TICKS_PER_RENDER_TICK; q++) {
             scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
-            this.tick(scene, delta / this.LOGIC_TICKS_PER_RENDER_TICK);
+            if (scene) this.tick(scene, delta / this.LOGIC_TICKS_PER_RENDER_TICK);
+            
+            this.fixedTickDelta += delta;
+            while (this.fixedTickDelta >= this.timePerFixedTick) {
+                this.fixedTickDelta -= this.timePerFixedTick;
+                scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
+                if (scene) this.fixedTick(scene);
+            }
         }
         
         scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
         this.updateCursor(scene);
         
         scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
-        this.render(scene, this.graphicsAdapter);
-        
-        scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
-        if (!this.resourceLoader.isDone && !scene) {
-            this.resourceLoader.render(this.graphicsAdapter);
-        }
+        if (scene) this.render(scene, this.graphicsAdapter);
+        else this.resourceLoader.render(this.graphicsAdapter);
     }
     protected sendEvents(sendTo: GameScene) {
         let events = this.eventQueue.clearQueue();
@@ -251,27 +256,16 @@ export class Game {
             }
         }
     }
-    private fixedTickDelta = 0;
-    private timePerFixedTick = 1;
-    protected tick(scene: GameScene | null, delta: number) {
-        if (scene) {
-            scene.tick(delta);
-            this.handleSceneChange();
-        }
-        this.fixedTickDelta += delta;
-        while (this.fixedTickDelta >= this.timePerFixedTick) {
-            this.fixedTickDelta -= this.timePerFixedTick;
-            this.fixedTick(scene);
-        }
+    protected tick(scene: GameScene, delta: number) {
+        scene.tick(delta);
+        this.handleSceneChange();
     }
-    protected fixedTick(scene: GameScene | null) {
-        if (scene) {
-            scene.fixedTick();
-            this.handleSceneChange();
-        }
+    protected fixedTick(scene: GameScene) {
+        scene.fixedTick();
+        this.handleSceneChange();
     }
-    protected render(scene: GameScene | null, adapter: GraphicsAdapter) {
+    protected render(scene: GameScene, adapter: GraphicsAdapter) {
         if (!adapter) throw new Error(`What the heck just happened? There is no graphics adapter!`);
-        if (scene) adapter.renderScene(scene);
+        adapter.renderScene(scene);
     }
 }

@@ -113,12 +113,12 @@ describe('Game', () => {
             expect(game.eventQueue.enqueue).to.have.been.called;
         });
     });
-
+    
     describe('.onTick', () => {
         it(`should throw an error if the game hasn't been started yet`, () => {
             expect(() => (<any>game).onTick()).to.throw(/game is not running/i);
         });
-
+        
         describe('when the resource loader is not done loading', () => {
             it('should not invoke ResourceLoader.render if there is a loading scene', () => {
                 game.start();
@@ -140,8 +140,8 @@ describe('Game', () => {
                 sinon.stub(game, 'render');
                 (<any>game).onTick();
                 expect(game.resourceLoader.render).to.have.been.calledOnce;
-                expect((<any>game).tick).to.have.been.calledWith(null);
-                expect((<any>game).render).to.have.been.calledOnce.calledWith(null);
+                expect((<any>game).tick).not.to.have.been.called;
+                expect((<any>game).render).not.to.have.been.called;
             });
         });
         
