@@ -177,7 +177,7 @@ export class Game {
         this.eventQueue.tick(delta);
         
         scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
-        this.sendEvents(scene!);
+        if (scene) this.sendEvents(scene);
         
         for (let q = 0; q < this.LOGIC_TICKS_PER_RENDER_TICK; q++) {
             scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
@@ -228,7 +228,7 @@ export class Game {
             if (document.exitFullscreen) document.exitFullscreen();
             else if ((<any>document).mozExitFullscreen) (<any>document).mozExitFullscreen();
             else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-            else if ((<any>document).msExitFullscreen) (<any>document).wskitExitFullscreen();
+            else if ((<any>document).msExitFullscreen) (<any>document).msExitFullscreen();
         }
         else {
             let body = document.getElementsByTagName('body')[0];
