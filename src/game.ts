@@ -172,19 +172,25 @@ export class Game {
         if (this.maximumDelta && delta > this.maximumDelta) delta = this.maximumDelta;
         this.previousTick = currentTime;
         
-        let scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
+        let scene: GameScene | null;
         
         this.eventQueue.tick(delta);
+        
+        scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
         this.sendEvents(scene!);
         
         for (let q = 0; q < this.LOGIC_TICKS_PER_RENDER_TICK; q++) {
+            scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
             this.tick(scene, delta / this.LOGIC_TICKS_PER_RENDER_TICK);
         }
         
+        scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
         this.updateCursor(scene);
         
+        scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
         this.render(scene, this.graphicsAdapter);
         
+        scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
         if (!this.resourceLoader.isDone && !scene) {
             this.resourceLoader.render(this.graphicsAdapter);
         }
