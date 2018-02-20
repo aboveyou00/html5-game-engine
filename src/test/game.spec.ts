@@ -166,6 +166,18 @@ describe('Game', () => {
                 (<any>game).onTick();
                 expect((<any>game).tick).to.have.been.calledOnce.calledWith(game.scene, sinon.match((delta: number) => delta >= .03 && delta <= .07));
             });
+            it('should invoke fixedTick the same amount regardless of LOGIC_TICKS_PER_RENDER_TICK', async () => {
+                (<any>game)._isRunning = true;
+                game.scene!.camera = null;
+                (<any>game).LOGIC_TICKS_PER_RENDER_TICK = 200;
+                (<any>game)._resourceLoader = { isDone: true, render: () => void (0) };
+                (<any>game).context = new HTMLCanvasElement().getContext('2d');
+                (<any>game).onTick();
+                await delay(Math.ceil(1000 / 30) + 2);
+                sinon.stub(game, 'fixedTick');
+                (<any>game).onTick();
+                expect((<any>game).fixedTick).to.have.been.calledOnce.calledWith(game.scene);
+            });
             it('should invoke tick three times for every one time it calls render when the resource loader is done loading', () => {
                 game.start();
                 (<any>game)._resourceLoader = { isDone: true, render: () => void (0) };

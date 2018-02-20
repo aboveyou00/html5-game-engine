@@ -182,10 +182,12 @@ export class Game {
         if (scene) this.sendEvents(scene);
         
         for (let q = 0; q < this.LOGIC_TICKS_PER_RENDER_TICK; q++) {
-            scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
-            if (scene) this.tick(scene, delta / this.LOGIC_TICKS_PER_RENDER_TICK);
+            let miniDelta = delta / this.LOGIC_TICKS_PER_RENDER_TICK;
             
-            this.fixedTickDelta += delta;
+            scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
+            if (scene) this.tick(scene, miniDelta);
+            
+            this.fixedTickDelta += miniDelta;
             while (this.fixedTickDelta >= this.timePerFixedTick) {
                 this.fixedTickDelta -= this.timePerFixedTick;
                 scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
