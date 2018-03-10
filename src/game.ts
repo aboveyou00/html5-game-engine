@@ -80,6 +80,15 @@ export class Game {
         this._isRunning = true;
     }
     private cleanUp() {
+        clearInterval(this._intervalHandle);
+        this._intervalHandle = null;
+        this._isRunning = false;
+        
+        if (this.scene) {
+            if (this._scene) this._scene.onExit();
+            this._scene = null;
+        }
+        
         this.cleanUpResize();
         
         this.eventQueue.cleanUp();
@@ -89,10 +98,6 @@ export class Game {
             let parent = this.canvas!.parentElement;
             if (parent) parent.removeChild(this.canvas!);
         }
-        
-        clearInterval(this._intervalHandle);
-        this._intervalHandle = null;
-        this._isRunning = false;
     }
     
     public bodyResized = new EventEmitter<void>();
