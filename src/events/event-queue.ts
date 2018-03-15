@@ -10,7 +10,7 @@ export class EventQueue {
     private DEBUG_MOUSE_VERBOSE = false;
     private DEBUG_GAMEPAD = false;
     private DEBUG_GAMEPAD_VERBOSE = false;
-    private GAMEPAD_AXIS_THRESHOLD = .4;
+    private GAMEPAD_AXIS_THRESHOLD = .5;
     private ABSTRACT_BUTTON_TYPE_TIMEOUT = .5;
     private ABSTRACT_BUTTON_TYPE_REPEAT = 15;
     
@@ -207,7 +207,7 @@ export class EventQueue {
         window.removeEventListener('gamepaddisconnected', this.gamepadDisconnectedListener);
     }
     private connectGamepad(gp: Gamepad) {
-        if (gp.mapping !== 'standard') {
+        if (gp.mapping !== 'standard' && gp.mapping !== '') {
             console.error(`Gamepad connected with invalid mapping: "${gp.mapping}"`);
             return;
         }
@@ -247,7 +247,7 @@ export class EventQueue {
         }
         for (let q = 0; q < axes.length; q++) {
             if (Math.abs(axes[q]) > 1) axes[q] = Math.sign(axes[q]);
-            if (axes[q] !== 0) this.currentInputType = 'gamepad';
+            if (Math.abs(axes[q]) > this.GAMEPAD_AXIS_THRESHOLD) this.currentInputType = 'gamepad';
             if (typeof this._gamepadAxes[q] === 'undefined') this._gamepadAxes[q] = 0;
             if (this._gamepadAxes[q] !== axes[q]) {
                 if (this.DEBUG_GAMEPAD_VERBOSE) console.log(`Gamepad axis changed. Idx: ${q}, Value: ${axes[q]}; Previous: ${this._gamepadAxes[q]}`);
