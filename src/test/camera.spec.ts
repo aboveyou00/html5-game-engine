@@ -47,25 +47,26 @@ describe('Camera', () => {
         });
     });
     describe('.zoomScale=', () => {
-        it('should throw an error if a nonnegative value is passed in', () => {
+        it('should throw an error if a negative or zero value is passed in', () => {
             expect(() => camera.zoomScale = -25).to.throw(/must be positive/i);
             expect(() => camera.zoomScale = 0).to.throw(/must be positive/i);
         });
         it('should update the zoom scale if a valid value is passed in', () => {
-            camera.zoomScale = .5;
-            expect(camera.zoomScale).to.be.closeTo(.5, .00001);
+            camera.zoomScale = 2.13;
+            expect(camera.zoomScale).to.be.closeTo(2.13, .00001);
         });
         it('should clamp the zoom scale to between the min and max zoom scales', () => {
+            camera.minZoomScale = .25;
             camera.zoomScale = .1;
             expect(camera.zoomScale).to.be.closeTo(.25, .00001);
-            camera.zoomScale = 5;
-            expect(camera.zoomScale).to.be.closeTo(4, .00001);
+            camera.zoomScale = 200;
+            expect(camera.zoomScale).to.be.closeTo(64, .00001);
         });
     });
     
     describe('.minZoomScale', () => {
-        it('should start at .25', () => {
-            expect(camera.minZoomScale).to.be.closeTo(.25, .00001);
+        it('should start at 1', () => {
+            expect(camera.minZoomScale).to.be.closeTo(1, .00001);
         });
     });
     describe('.minZoomScale=', () => {
@@ -74,7 +75,7 @@ describe('Camera', () => {
             expect(() => camera.minZoomScale = 0).to.throw(/must be positive/i);
         });
         it('should throw an error if the value passed in is greater than the max zoom scale', () => {
-            expect(() => camera.minZoomScale = 5).to.throw(/max zoom scale is less than .*min zoom scale/i);
+            expect(() => camera.minZoomScale = 200).to.throw(/max zoom scale is less than .*min zoom scale/i);
         });
         it('should not throw an error if the value passed in is the max zoom scale', () => {
             expect(() => camera.minZoomScale = 4).not.to.throw;
@@ -86,8 +87,8 @@ describe('Camera', () => {
     });
     
     describe('.maxZoomScale', () => {
-        it('should start at 4', () => {
-            expect(camera.maxZoomScale).to.be.closeTo(4, .00001);
+        it('should start at 64', () => {
+            expect(camera.maxZoomScale).to.be.closeTo(64, .00001);
         });
     });
     describe('.maxZoomScale=', () => {
@@ -102,6 +103,7 @@ describe('Camera', () => {
             expect(() => camera.maxZoomScale = .25).not.to.throw;
         });
         it('should clamp the zoom scale to the new max zoom scale', () => {
+            camera.minZoomScale = .25;
             camera.maxZoomScale = .5;
             expect(camera.zoomScale).to.be.closeTo(.5, .00001);
         });
@@ -141,6 +143,7 @@ describe('Camera', () => {
         });
         it('should be twice the size of the canvas if zoomScale is .5', () => {
             camera.center = [10, -10];
+            camera.minZoomScale = .25;
             camera.zoomScale = .5;
             let canvasSize: [number, number] = [640, 480];
             let bounds = camera.getBounds(canvasSize);
@@ -210,10 +213,11 @@ describe('Camera', () => {
             expect(context.translate).to.have.been.calledWith(400, 300);
         });
         it('should scale further draw calls by the zoom scale', () => {
-            camera.zoomScale = .25;
+            let expectedScale = 2.45;
+            camera.zoomScale = expectedScale;
             sinon.stub(context, 'scale');
             camera.renderTransformed(adapter, () => void(0));
-            expect(context.scale).to.have.been.calledWith(.25, .25);
+            expect(context.scale).to.have.been.calledWith(expectedScale, expectedScale);
         });
         it('should invoke context.restore', () => {
             sinon.stub(context, 'restore');

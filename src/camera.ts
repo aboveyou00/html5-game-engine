@@ -46,7 +46,7 @@ export class Camera {
         this._zoomScale = clamp(val, this.minZoomScale, this.maxZoomScale);
     }
     
-    private _maxZoomScale = 4;
+    private _maxZoomScale = 64;
     get maxZoomScale() {
         return this._maxZoomScale;
     }
@@ -57,7 +57,7 @@ export class Camera {
         this.zoomScale = this.zoomScale;
     }
     
-    private _minZoomScale = .25;
+    private _minZoomScale = 1;
     get minZoomScale() {
         return this._minZoomScale;
     }
