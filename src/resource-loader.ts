@@ -2,9 +2,9 @@
 import { GraphicsAdapter } from './graphics/graphics-adapter';
 
 export class ResourceLoader {
-    constructor() {
-        let pathParts = window.location.pathname.split('/');
-        this._baseUrl = window.location.origin + (pathParts[pathParts.length - 1] == 'index.html' ? pathParts.slice(0, pathParts.length - 1) : pathParts).join('/');
+    constructor(private _document: HTMLDocument = document, private _window: Window = window) {
+        let pathParts = this._window.location.pathname.split('/');
+        this._baseUrl = this._window.location.origin + (pathParts[pathParts.length - 1] == 'index.html' ? pathParts.slice(0, pathParts.length - 1) : pathParts).join('/');
         if (this._baseUrl.startsWith('null/')) this._baseUrl = 'file:///' + this._baseUrl.slice(5);
     }
     
@@ -43,7 +43,7 @@ export class ResourceLoader {
         
         this._resourcesLoading++;
         if (this.DEBUG_RESOURCES) console.log(`Loading image: '${src}'`);
-        let img = document.createElement('img');
+        let img = this._document.createElement('img');
         this._images.set(src, img);
         img.onload = () => {
             this._resourcesLoaded++;
@@ -61,7 +61,7 @@ export class ResourceLoader {
         
         this._resourcesLoading++;
         if (this.DEBUG_RESOURCES) console.log(`Loading audio: '${src}'`);
-        let aud = document.createElement('audio');
+        let aud = this._document.createElement('audio');
         this._audio.set(src, aud);
         aud.onloadeddata = () => {
             this._resourcesLoaded++;

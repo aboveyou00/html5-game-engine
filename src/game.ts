@@ -8,7 +8,10 @@ import { AudioController } from './audio/audio-controller';
 export interface GameOptions {
     graphicsAdapter?: GraphicsAdapter,
     framesPerSecond?: number,
-    maximumDelta?: number
+    maximumDelta?: number,
+    document?: HTMLDocument,
+    eventElement?: HTMLElement,
+    window?: Window
 };
 
 export class Game {
@@ -19,14 +22,22 @@ export class Game {
         this.graphicsAdapter = options.graphicsAdapter || new DefaultGraphicsAdapter();
         this.timePerFixedTick = 1 / this.framesPerSecond;
         this.maximumDelta = options.maximumDelta || 0;
+        this.document = options.document || document;
+        this.window = options.window || window;
         
-        this._resourceLoader = new ResourceLoader();
-        this._eventQueue = new EventQueue();
+        this._resourceLoader = new ResourceLoader(this.document, this.window);
+        this._eventQueue = new EventQueue(options.eventElement || this.body, this.window);
         this._audioController = new AudioController();
     }
     
     public readonly framesPerSecond: number;
     public readonly graphicsAdapter: GraphicsAdapter;
+    
+    public readonly document: HTMLDocument;
+    get body() {
+        return this.document.getElementsByTagName('body')[0];
+    }
+    public readonly window: Window;
     
     private _scene: GameScene | null = null;
     private _nextScene: GameScene | null = null;
@@ -189,6 +200,7 @@ export class Game {
         return false;
     }
     private toggleFullscreen() {
+        let document = this.document;
         if (document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement) {
             //Exit fullscreen
             if (document.exitFullscreen) document.exitFullscreen();
@@ -197,7 +209,7 @@ export class Game {
             else if ((<any>document).msExitFullscreen) (<any>document).msExitFullscreen();
         }
         else {
-            let body = document.getElementsByTagName('body')[0];
+            let body = this.body;
             if (body.requestFullscreen) body.requestFullscreen();
             else if ((<any>body).mozRequestFullScreen) (<any>body).mozRequestFullScreen();
             else if (body.webkitRequestFullscreen) body.webkitRequestFullscreen();

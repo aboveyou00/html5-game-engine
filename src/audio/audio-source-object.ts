@@ -45,7 +45,7 @@ export class AudioSourceObject extends GameObject {
         super.onAddToScene();
         
         let theirAudio = this.resources.loadAudio(this.audio.src);
-        this._myAudio = document.createElement('audio');
+        this._myAudio = this.game.document.createElement('audio');
         this._myAudio.src = theirAudio.src;
         this._myAudio.onended = () => {
             if (this._shouldLoop) this._myAudio.play();

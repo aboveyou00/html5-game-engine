@@ -45,11 +45,12 @@ export class Context2dGraphicsAdapter extends GraphicsAdapter {
         
         this._game = game;
         
+        let document = this.game.document;
         if (!this.canvas) this._canvas = document.createElement('canvas');
         if (this._moveCanvas) document.currentScript!.parentElement!.insertBefore(this.canvas!, document.currentScript);
         this._context = this.canvas!.getContext("2d")!;
         
-        let body = document.getElementsByTagName('body')[0];
+        let body = game.body;
         this.initResize(body);
     }
     cleanUp() {
@@ -68,6 +69,8 @@ export class Context2dGraphicsAdapter extends GraphicsAdapter {
     private bodyResized = new EventEmitter<void>();
     private cleanupBodyResized: (() => void) | null = null;
     private initResize(body: HTMLBodyElement) {
+        let window = this.game.window;
+        
         let resizeEventHandler = () => {
             this.canvasSize = [window.innerWidth, window.innerHeight];
         };

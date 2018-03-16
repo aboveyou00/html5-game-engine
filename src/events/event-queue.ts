@@ -1,9 +1,18 @@
 ﻿import { GameEvent, MouseButton, InputTypeT, standardGamepadButtonNames, standardGamepadAxisNames, GamepadButtonT } from './events';
 import { AbstractButtonProvider } from './abstract-button-provider';
 import { KeyboardAbstractButtonProvider } from './keyboard-abstract-button-provider';
+import { Game } from '../game';
 
 export class EventQueue {
-    constructor() { }
+    constructor(eventElement: HTMLElement | null = null, windowInst: Window | null = null) {
+        if (!eventElement) eventElement = document.getElementsByTagName('body')[0];
+        this._eventElement = eventElement;
+        if (!windowInst) windowInst = window;
+        this._window = windowInst;
+    }
+    
+    private _eventElement: HTMLElement;
+    private _window: Window;
     
     private DEBUG_KEYS = false;
     private DEBUG_MOUSE = false;
@@ -15,24 +24,22 @@ export class EventQueue {
     private ABSTRACT_BUTTON_TYPE_REPEAT = 15;
     
     init() {
-        let body = document.getElementsByTagName('body')[0];
-        this.initKeyboard(body);
-        this.initMouse(body);
+        this.initKeyboard(this._eventElement);
+        this.initMouse(this._eventElement);
         
-        this.initGamepad(window);
+        this.initGamepad(this._window);
     }
     cleanUp() {
-        let body = document.getElementsByTagName('body')[0];
-        this.cleanUpKeyboard(body);
-        this.cleanUpMouse(body);
+        this.cleanUpKeyboard(this._eventElement);
+        this.cleanUpMouse(this._eventElement);
         
-        this.cleanUpGamepad(window);
+        this.cleanUpGamepad(this._window);
     }
     
     private keyDownListener: (e: KeyboardEvent) => void;
     private keyUpListener: (e: KeyboardEvent) => void;
     
-    private initKeyboard(body: HTMLBodyElement) {
+    private initKeyboard(eventElement: HTMLElement) {
         this.keyDownListener = (e: KeyboardEvent) => {
             if (this.shouldIgnoreKeyboardEvent(e)) return;
             if (!e.ctrlKey || (e.code !== 'KeyV' && e.code !== 'KeyX' && e.code !== 'KeyC')) e.preventDefault();
@@ -74,8 +81,8 @@ export class EventQueue {
             }
         };
         
-        body.addEventListener('keydown', this.keyDownListener);
-        body.addEventListener('keyup', this.keyUpListener);
+        eventElement.addEventListener('keydown', this.keyDownListener);
+        eventElement.addEventListener('keyup', this.keyUpListener);
         
         this.addIgnoreKeyboardEvent(e => {
             if (e.type !== 'keydown') return false;
@@ -86,9 +93,9 @@ export class EventQueue {
             return false;
         });
     }
-    private cleanUpKeyboard(body: HTMLBodyElement) {
-        body.removeEventListener('keydown', this.keyDownListener);
-        body.removeEventListener('keyup', this.keyUpListener);
+    private cleanUpKeyboard(eventElement: HTMLElement) {
+        eventElement.removeEventListener('keydown', this.keyDownListener);
+        eventElement.removeEventListener('keyup', this.keyUpListener);
         
         this._ignoreKeyboardEventPredicates = [];
     }
@@ -111,7 +118,7 @@ export class EventQueue {
     private mouseUpListener: (e: MouseEvent) => void;
     private wheelListener: (e: WheelEvent) => void;
     
-    private initMouse(body: HTMLBodyElement) {
+    private initMouse(eventElement: HTMLElement) {
         this.mouseMoveListener = e => {
             e.preventDefault();
             this.currentInputType = 'mouse';
@@ -174,16 +181,16 @@ export class EventQueue {
             });
         };
         
-        body.addEventListener('mousemove', this.mouseMoveListener);
-        body.addEventListener('mousedown', this.mouseDownListener);
-        body.addEventListener('mouseup', this.mouseUpListener);
-        body.addEventListener('wheel', this.wheelListener);
+        eventElement.addEventListener('mousemove', this.mouseMoveListener);
+        eventElement.addEventListener('mousedown', this.mouseDownListener);
+        eventElement.addEventListener('mouseup', this.mouseUpListener);
+        eventElement.addEventListener('wheel', this.wheelListener);
     }
-    private cleanUpMouse(body: HTMLBodyElement) {
-        body.removeEventListener('mousemove', this.mouseMoveListener);
-        body.removeEventListener('mousedown', this.mouseDownListener);
-        body.removeEventListener('mouseup', this.mouseUpListener);
-        body.removeEventListener('wheel', this.wheelListener);
+    private cleanUpMouse(eventElement: HTMLElement) {
+        eventElement.removeEventListener('mousemove', this.mouseMoveListener);
+        eventElement.removeEventListener('mousedown', this.mouseDownListener);
+        eventElement.removeEventListener('mouseup', this.mouseUpListener);
+        eventElement.removeEventListener('wheel', this.wheelListener);
     }
     
     private gamepadConnectedListener: (e: GamepadEvent) => void;
