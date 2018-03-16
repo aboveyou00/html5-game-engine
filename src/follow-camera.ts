@@ -26,6 +26,8 @@ export class FollowCamera extends Camera {
     
     clampLeft = -Infinity;
     clampRight = Infinity;
+    clampBottom = -Infinity;
+    clampTop = Infinity;
     
     //TODO: add beforeRender lifecycle hook; use that hook to avoid calling this method multiple times in one render cycle
     renderTransformed(adapter: GraphicsAdapter, act: () => void) {
@@ -36,6 +38,8 @@ export class FollowCamera extends Camera {
         let bounds = this.getBounds(adapter);
         if (bounds.right > this.clampRight) this.center = [this.center[0] - (bounds.right - this.clampRight), this.center[1]];
         if (bounds.left < this.clampLeft) this.center = [this.center[0] + (this.clampLeft - bounds.left), this.center[1]];
+        if (bounds.top > this.clampTop) this.center = [this.center[0], this.center[1] - (bounds.top - this.clampTop)];
+        if (bounds.bottom < this.clampBottom) this.center = [this.center[0], this.center[1] + (this.clampBottom - bounds.bottom)];
         super.renderTransformed(adapter, act);
     }
 }
