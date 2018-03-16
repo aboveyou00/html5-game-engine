@@ -41,7 +41,7 @@ describe('FollowCamera', () => {
         let adapter: GraphicsAdapter;
         let superStub: sinon.SinonStub;
         beforeEach(() => {
-            adapter = <any>null;
+            adapter = <any>{ canvasSize: [640, 480] };
             superStub = sinon.stub(Camera.prototype, 'renderTransformed');;
         });
         afterEach(() => {

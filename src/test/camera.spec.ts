@@ -8,6 +8,7 @@ use(sinonChai);
 import { Camera } from '../camera';
 import { GraphicsAdapter } from '../graphics/graphics-adapter';
 import { Context2dGraphicsAdapter } from '../graphics/context2d-graphics-adapter';
+import { Game } from '../game';
 
 describe('Camera', () => {
     let camera: Camera;
@@ -175,11 +176,19 @@ describe('Camera', () => {
     });
     
     describe('.renderTransformed', () => {
+        let canvas: HTMLCanvasElement;
         let context: CanvasRenderingContext2D;
         let adapter: Context2dGraphicsAdapter;
+        let game: Game;
         beforeEach(() => {
-            context = new HTMLCanvasElement().getContext('2d')!;
-            adapter = new Context2dGraphicsAdapter(context);
+            canvas = new HTMLCanvasElement();
+            adapter = new Context2dGraphicsAdapter(canvas);
+            game = new Game({ graphicsAdapter: adapter });
+            game.start();
+            context = adapter.context!;
+        });
+        afterEach(() => {
+            if (game.isRunning) game.stop();
         });
         
         it('should invoke context.save', () => {

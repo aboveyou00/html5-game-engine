@@ -8,6 +8,7 @@ export abstract class GraphicsAdapter {
     abstract init(game: Game): void;
     abstract cleanUp(): void;
     
+    abstract readonly game: Game;
     abstract readonly canvasSize: [number, number];
     
     abstract updateCursor(fallbacks: string[]): boolean;

@@ -17,244 +17,246 @@ let any = sinon.match.any;
 declare let global: any;
 
 describe('Context2dGraphicsAdapter', () => {
-    let context: CanvasRenderingContext2D;
-    let adapter: Context2dGraphicsAdapter;
-    let game: Game;
-    beforeEach(() => {
-        let canvas = new HTMLCanvasElement();
-        adapter = new Context2dGraphicsAdapter(canvas);
-        game = new Game({ graphicsAdapter: adapter });
-        adapter.init(game);
-        context = adapter.context!;
-    });
-    afterEach(() => {
-        adapter.cleanUp();
-    });
+    sharedGraphicsAdapterTests(true, () => new Context2dGraphicsAdapter(), adapter => adapter.cleanUp());
     
-    sharedGraphicsAdapterTests(() => [adapter, game]);
-    
-    describe('.canvasSize=', () => {
-        it('should short-circuit without sending an event if the new size is the same as the last one', () => {
-            sinon.stub(game.eventQueue, 'enqueue');
-            adapter.canvasSize = [640, 480];
-            expect(game.eventQueue.enqueue).not.to.have.been.called;
+    describe('specific Context2dGraphicsAdapter behavior', () => {
+        let context: CanvasRenderingContext2D;
+        let adapter: Context2dGraphicsAdapter;
+        let game: Game;
+        beforeEach(() => {
+            let canvas = new HTMLCanvasElement();
+            adapter = new Context2dGraphicsAdapter(canvas);
+            game = new Game({ graphicsAdapter: adapter });
+            adapter.init(game);
+            context = adapter.context!;
         });
-        it('should copy the values to prevent further changes to the object modifying the follow offset', () => {
-            let newCanvasSize: [number, number] = [25, 92];
-            adapter.canvasSize = newCanvasSize;
-            newCanvasSize[0] = NaN;
-            expect(adapter.canvasSize).to.deep.eq([25, 92]);
+        afterEach(() => {
+            adapter.cleanUp();
         });
-        it(`should queue a 'canvasResize' event in the EventQueue`, () => {
-            sinon.stub(game.eventQueue, 'enqueue');
-            adapter.canvasSize = [123, 987];
-            expect(game.eventQueue.enqueue).to.have.been.called;
-        });
-    });
-    
-    describe('.clear', () => {
-        it('should fill the screen with the clear color if it is specified', () => {
-            sinon.stub(context, 'fillRect');
-            (<any>adapter)._canvas = { width: 400, height: 400 };
-            adapter.clear('green');
-            expect(context.fillRect).to.have.been.calledOnce;
-            expect(context.fillStyle).to.eq('green');
-        });
-    });
-    
-    describe('.renderResourceLoader', () => {
-        it('should not throw an error', () => {
-            expect(() => adapter.renderResourceLoader(0, 0)).not.to.throw;
-        });
-        it('should fill the canvas with a solid color', () => {
-            sinon.stub(context, 'fillRect');
-            adapter.renderResourceLoader(0, 0);
-            expect(context.fillRect).to.have.been.calledOnce.calledWith(0, 0, context.canvas.scrollWidth, context.canvas.scrollHeight);
-        });
-        it('should render a progress bar if totalResources > 0', () => {
-            sinon.stub(context, 'fillRect');
-            adapter.renderResourceLoader(0, 1);
-            expect(context.fillRect).to.have.been.calledThrice
-                .calledWith(0, 0, context.canvas.scrollWidth, context.canvas.scrollHeight)
-                .calledWith(any, any, 0, any)
-                .calledWith(any, any, sinon.match((v: any) => typeof v === 'number' && v > 0), any);
-        });
-        it('should render the loaded and total resources as text', () => {
-            sinon.stub(context, 'fillText');
-            adapter.renderResourceLoader(0, 0);
-            expect(context.fillText).to.have.been.calledOnce.calledWith('0/0');
-        });
-        it('should render the loaded and total resources as text even if not all resources are loaded', () => {
-            sinon.stub(context, 'fillText');
-            adapter.renderResourceLoader(0, 1);
-            expect(context.fillText).to.have.been.calledOnce.calledWith('0/1');
-        });
-        it('should render any errors that occur as text', () => {
-            sinon.stub(context, 'fillText');
-            adapter.renderResourceLoader(0, 0, 'FISH and CHIPS');
-            expect(context.fillText).to.have.been.calledTwice
-                .calledWith(sinon.match(/0\/0/))
-                .calledWith(sinon.match(/FISH and CHIPS/));
-        });
-    });
-    
-    describe('.renderObject', () => {
-        it('should render the sprite if the game object has one', () => {
-            sinon.stub(adapter, 'drawSprite');
-            let sprite = { src: 'blah' };
-            let gobj = new GameObject('name', { sprite: sprite, animationAge: 14.3 });
-            adapter.renderObject(gobj);
-            expect(adapter.drawSprite).to.have.been.calledOnce.calledWith(any, sprite, 0, 0, 14.3);
-        });
-        it('should render a rect and a question mark if the game object has no sprite', () => {
-            sinon.stub(context, 'fillRect');
-            sinon.stub(context, 'fillText');
-            let gobj = new GameObject('name');
-            adapter.renderObject(gobj);
-            expect(context.fillRect).to.have.been.calledOnce;
-            expect(context.fillText).to.have.been.calledOnce.calledWith('?');
-        });
-    });
-    
-    describe('.renderTransformed', () => {
-        it('should save and restore the context state', () => {
-            sinon.stub(context, 'save');
-            sinon.stub(context, 'restore');
-            adapter.renderTransformed(0, 0, 0, 1, 1, () => void(0));
-            expect(context.save).to.have.been.calledOnce;
-            expect(context.restore).to.have.been.calledOnce.calledAfter(<any>context.save);
-        });
-        it('should translate, rotate, and scale the image based on the arguments', () => {
-            sinon.stub(context, 'translate');
-            sinon.stub(context, 'rotate');
-            sinon.stub(context, 'scale');
-            adapter.renderTransformed(13, -27, -Math.PI, 3, 2, () => void(0));
-            expect(context.translate).to.have.been.calledOnce.calledWith(13, -27);
-            expect(context.rotate).to.have.been.calledOnce.calledWith(-Math.PI).calledAfter(<any>context.translate);
-            expect(context.scale).to.have.been.calledOnce.calledWith(3, 2).calledAfter(<any>context.rotate);
-        });
-        it('should invoke the callback function', () => {
-            let invoked = false;
-            adapter.renderTransformed(13, -27, -Math.PI, 3, 2, () => invoked = true);
-            expect(invoked).to.be.true;
-        });
-    });
-    
-    describe('.drawSprite', () => {
-        let img = <any>'this is my image!';
-        let loader: ResourceLoader = <any>{ loadImage: () => img };
         
-        describe('with an invalid resource loader', () => {
-            it('should throw an error', () => {
-                expect(() => adapter.drawSprite(<any>null, { src: 'some-source' })).to.throw(/ResourceLoader/i);
+        describe('.canvasSize=', () => {
+            it('should short-circuit without sending an event if the new size is the same as the last one', () => {
+                sinon.stub(game.eventQueue, 'enqueue');
+                adapter.canvasSize = [640, 480];
+                expect(game.eventQueue.enqueue).not.to.have.been.called;
+            });
+            it('should copy the values to prevent further changes to the object modifying the follow offset', () => {
+                let newCanvasSize: [number, number] = [25, 92];
+                adapter.canvasSize = newCanvasSize;
+                newCanvasSize[0] = NaN;
+                expect(adapter.canvasSize).to.deep.eq([25, 92]);
+            });
+            it(`should queue a 'canvasResize' event in the EventQueue`, () => {
+                sinon.stub(game.eventQueue, 'enqueue');
+                adapter.canvasSize = [123, 987];
+                expect(game.eventQueue.enqueue).to.have.been.called;
             });
         });
         
-        describe('with an invalid sprite', () => {
-            it('should throw an error if sprite is falsey', () => {
-                expect(() => adapter.drawSprite(loader, <any>null)).to.throw(/invalid sprite/i);
-            });
-            it('should throw an error if sprite has no src', () => {
-                expect(() => adapter.drawSprite(loader, <any>{})).to.throw(/invalid sprite/i);
+        describe('.clear', () => {
+            it('should fill the screen with the clear color if it is specified', () => {
+                sinon.stub(context, 'fillRect');
+                (<any>adapter)._canvas = { width: 400, height: 400 };
+                adapter.clear('green');
+                expect(context.fillRect).to.have.been.calledOnce;
+                expect(context.fillStyle).to.eq('green');
             });
         });
         
-        describe('with a simple sprite', () => {
-            let sprite = simpleSprite;
+        describe('.renderResourceLoader', () => {
+            it('should not throw an error', () => {
+                expect(() => adapter.renderResourceLoader(0, 0)).not.to.throw;
+            });
+            it('should fill the canvas with a solid color', () => {
+                sinon.stub(context, 'fillRect');
+                adapter.renderResourceLoader(0, 0);
+                expect(context.fillRect).to.have.been.calledOnce.calledWith(0, 0, context.canvas.scrollWidth, context.canvas.scrollHeight);
+            });
+            it('should render a progress bar if totalResources > 0', () => {
+                sinon.stub(context, 'fillRect');
+                adapter.renderResourceLoader(0, 1);
+                expect(context.fillRect).to.have.been.calledThrice
+                    .calledWith(0, 0, context.canvas.scrollWidth, context.canvas.scrollHeight)
+                    .calledWith(any, any, 0, any)
+                    .calledWith(any, any, sinon.match((v: any) => typeof v === 'number' && v > 0), any);
+            });
+            it('should render the loaded and total resources as text', () => {
+                sinon.stub(context, 'fillText');
+                adapter.renderResourceLoader(0, 0);
+                expect(context.fillText).to.have.been.calledOnce.calledWith('0/0');
+            });
+            it('should render the loaded and total resources as text even if not all resources are loaded', () => {
+                sinon.stub(context, 'fillText');
+                adapter.renderResourceLoader(0, 1);
+                expect(context.fillText).to.have.been.calledOnce.calledWith('0/1');
+            });
+            it('should render any errors that occur as text', () => {
+                sinon.stub(context, 'fillText');
+                adapter.renderResourceLoader(0, 0, 'FISH and CHIPS');
+                expect(context.fillText).to.have.been.calledTwice
+                    .calledWith(sinon.match(/0\/0/))
+                    .calledWith(sinon.match(/FISH and CHIPS/));
+            });
+        });
+        
+        describe('.renderObject', () => {
+            it('should render the sprite if the game object has one', () => {
+                sinon.stub(adapter, 'drawSprite');
+                let sprite = { src: 'blah' };
+                let gobj = new GameObject('name', { sprite: sprite, animationAge: 14.3 });
+                adapter.renderObject(gobj);
+                expect(adapter.drawSprite).to.have.been.calledOnce.calledWith(any, sprite, 0, 0, 14.3);
+            });
+            it('should render a rect and a question mark if the game object has no sprite', () => {
+                sinon.stub(context, 'fillRect');
+                sinon.stub(context, 'fillText');
+                let gobj = new GameObject('name');
+                adapter.renderObject(gobj);
+                expect(context.fillRect).to.have.been.calledOnce;
+                expect(context.fillText).to.have.been.calledOnce.calledWith('?');
+            });
+        });
+        
+        describe('.renderTransformed', () => {
+            it('should save and restore the context state', () => {
+                sinon.stub(context, 'save');
+                sinon.stub(context, 'restore');
+                adapter.renderTransformed(0, 0, 0, 1, 1, () => void(0));
+                expect(context.save).to.have.been.calledOnce;
+                expect(context.restore).to.have.been.calledOnce.calledAfter(<any>context.save);
+            });
+            it('should translate, rotate, and scale the image based on the arguments', () => {
+                sinon.stub(context, 'translate');
+                sinon.stub(context, 'rotate');
+                sinon.stub(context, 'scale');
+                adapter.renderTransformed(13, -27, -Math.PI, 3, 2, () => void(0));
+                expect(context.translate).to.have.been.calledOnce.calledWith(13, -27);
+                expect(context.rotate).to.have.been.calledOnce.calledWith(-Math.PI).calledAfter(<any>context.translate);
+                expect(context.scale).to.have.been.calledOnce.calledWith(3, 2).calledAfter(<any>context.rotate);
+            });
+            it('should invoke the callback function', () => {
+                let invoked = false;
+                adapter.renderTransformed(13, -27, -Math.PI, 3, 2, () => invoked = true);
+                expect(invoked).to.be.true;
+            });
+        });
+        
+        describe('.drawSprite', () => {
+            let img = <any>'this is my image!';
+            let loader: ResourceLoader = <any>{ loadImage: () => img };
             
-            it('should render the image', () => {
-                sinon.stub(context, 'drawImage');
-                adapter.drawSprite(loader, sprite);
-                let subject = expect(context.drawImage).to.have.been;
-                subject.calledOnce;
-                subject.calledWith(img);
+            describe('with an invalid resource loader', () => {
+                it('should throw an error', () => {
+                    expect(() => adapter.drawSprite(<any>null, { src: 'some-source' })).to.throw(/ResourceLoader/i);
+                });
             });
-            it('should render the image offset by x, y, and the sprite pivot', () => {
-                sinon.stub(context, 'drawImage');
-                adapter.drawSprite(loader, _.merge({ pivot: { x: 5, y: 3 } }, sprite), 13, 28);
-                let subject = expect(context.drawImage).to.have.been;
-                subject.calledOnce;
-                subject.calledWith(any, 8, 25);
-            });
-        });
-        
-        describe('with a tiled sprite', () => {
-            let sprite = tiledSprite;
             
-            it('should render the image', () => {
-                sinon.stub(context, 'drawImage');
-                adapter.drawSprite(loader, sprite);
-                let subject = expect(context.drawImage).to.have.been;
-                subject.calledOnce;
-                subject.calledWith(img);
+            describe('with an invalid sprite', () => {
+                it('should throw an error if sprite is falsey', () => {
+                    expect(() => adapter.drawSprite(loader, <any>null)).to.throw(/invalid sprite/i);
+                });
+                it('should throw an error if sprite has no src', () => {
+                    expect(() => adapter.drawSprite(loader, <any>{})).to.throw(/invalid sprite/i);
+                });
             });
-            it('should render only the tile specified in sprite.tileset', () => {
-                sinon.stub(context, 'drawImage');
-                adapter.drawSprite(loader, sprite);
-                let subject = expect(context.drawImage).to.have.been;
-                subject.calledOnce;
-                subject.calledWithExactly(any, 32, 32, 32, 32, any, any, 32, 32);
-            });
-            it('should render the image offset by x, y, and the sprite pivot', () => {
-                sinon.stub(context, 'drawImage');
-                adapter.drawSprite(loader, _.merge({ pivot: { x: 5, y: 3 } }, sprite), 13, 28);
-                let subject = expect(context.drawImage).to.have.been;
-                subject.calledOnce;
-                subject.calledWithExactly(any, any, any, any, any, 8, 25, any, any);
-            });
-        });
-        
-        describe('with an animated sprite', () => {
-            let sprite = animatedSprite;
             
-            it('should render the image', () => {
-                sinon.stub(context, 'drawImage');
-                adapter.drawSprite(loader, sprite);
-                let subject = expect(context.drawImage).to.have.been;
-                subject.calledOnce;
-                subject.calledWith(img);
+            describe('with a simple sprite', () => {
+                let sprite = simpleSprite;
+                
+                it('should render the image', () => {
+                    sinon.stub(context, 'drawImage');
+                    adapter.drawSprite(loader, sprite);
+                    let subject = expect(context.drawImage).to.have.been;
+                    subject.calledOnce;
+                    subject.calledWith(img);
+                });
+                it('should render the image offset by x, y, and the sprite pivot', () => {
+                    sinon.stub(context, 'drawImage');
+                    adapter.drawSprite(loader, _.merge({ pivot: { x: 5, y: 3 } }, sprite), 13, 28);
+                    let subject = expect(context.drawImage).to.have.been;
+                    subject.calledOnce;
+                    subject.calledWith(any, 8, 25);
+                });
             });
-            it('should render only the tile specified in sprite.tileset and sprite.frames', () => {
-                sinon.stub(context, 'drawImage');
-                adapter.drawSprite(loader, sprite, 0, 0, 0 / 30, 30);
-                let subject = expect(context.drawImage).to.have.been;
-                subject.calledOnce;
-                subject.calledWithExactly(any, 0, 0, 32, 32, any, any, 32, 32);
+            
+            describe('with a tiled sprite', () => {
+                let sprite = tiledSprite;
+                
+                it('should render the image', () => {
+                    sinon.stub(context, 'drawImage');
+                    adapter.drawSprite(loader, sprite);
+                    let subject = expect(context.drawImage).to.have.been;
+                    subject.calledOnce;
+                    subject.calledWith(img);
+                });
+                it('should render only the tile specified in sprite.tileset', () => {
+                    sinon.stub(context, 'drawImage');
+                    adapter.drawSprite(loader, sprite);
+                    let subject = expect(context.drawImage).to.have.been;
+                    subject.calledOnce;
+                    subject.calledWithExactly(any, 32, 32, 32, 32, any, any, 32, 32);
+                });
+                it('should render the image offset by x, y, and the sprite pivot', () => {
+                    sinon.stub(context, 'drawImage');
+                    adapter.drawSprite(loader, _.merge({ pivot: { x: 5, y: 3 } }, sprite), 13, 28);
+                    let subject = expect(context.drawImage).to.have.been;
+                    subject.calledOnce;
+                    subject.calledWithExactly(any, any, any, any, any, 8, 25, any, any);
+                });
             });
-            it('should render the correct frame when an image index is passed in', () => {
-                sinon.stub(context, 'drawImage');
-                adapter.drawSprite(loader, sprite, 0, 0, 1 / 30, 30);
-                let subject = expect(context.drawImage).to.have.been;
-                subject.calledOnce;
-                subject.calledWithExactly(any, 32, 0, 32, 32, any, any, 32, 32);
-            });
-            it('should wrap the image index around the number of frames', () => {
-                sinon.stub(context, 'drawImage');
-                adapter.drawSprite(loader, sprite, 0, 0, 5 / 30, 30);
-                let subject = expect(context.drawImage).to.have.been;
-                subject.calledOnce;
-                subject.calledWithExactly(any, 64, 0, 32, 32, any, any, 32, 32);
-            });
-            it('should allow negative image indexes', () => {
-                sinon.stub(context, 'drawImage');
-                adapter.drawSprite(loader, sprite, 0, 0, -2 / 30, 30);
-                let subject = expect(context.drawImage).to.have.been;
-                subject.calledOnce;
-                subject.calledWithExactly(any, 32, 0, 32, 32, any, any, 32, 32);
-            });
-            it('should round down when the image index is not a evenly divisible by the sprite fps', () => {
-                sinon.stub(context, 'drawImage');
-                adapter.drawSprite(loader, sprite, 0, 0, .8 / 30, 30);
-                let subject = expect(context.drawImage).to.have.been;
-                subject.calledOnce;
-                subject.calledWithExactly(any, 0, 0, 32, 32, any, any, 32, 32);
-            });
-            it('should render the image offset by x, y, and the sprite pivot', () => {
-                sinon.stub(context, 'drawImage');
-                adapter.drawSprite(loader, _.merge({ pivot: { x: 5, y: 3 } }, sprite), 13, 28);
-                let subject = expect(context.drawImage).to.have.been;
-                subject.calledOnce;
-                subject.calledWithExactly(any, any, any, any, any, 8, 25, any, any);
+            
+            describe('with an animated sprite', () => {
+                let sprite = animatedSprite;
+                
+                it('should render the image', () => {
+                    sinon.stub(context, 'drawImage');
+                    adapter.drawSprite(loader, sprite);
+                    let subject = expect(context.drawImage).to.have.been;
+                    subject.calledOnce;
+                    subject.calledWith(img);
+                });
+                it('should render only the tile specified in sprite.tileset and sprite.frames', () => {
+                    sinon.stub(context, 'drawImage');
+                    adapter.drawSprite(loader, sprite, 0, 0, 0 / 30, 30);
+                    let subject = expect(context.drawImage).to.have.been;
+                    subject.calledOnce;
+                    subject.calledWithExactly(any, 0, 0, 32, 32, any, any, 32, 32);
+                });
+                it('should render the correct frame when an image index is passed in', () => {
+                    sinon.stub(context, 'drawImage');
+                    adapter.drawSprite(loader, sprite, 0, 0, 1 / 30, 30);
+                    let subject = expect(context.drawImage).to.have.been;
+                    subject.calledOnce;
+                    subject.calledWithExactly(any, 32, 0, 32, 32, any, any, 32, 32);
+                });
+                it('should wrap the image index around the number of frames', () => {
+                    sinon.stub(context, 'drawImage');
+                    adapter.drawSprite(loader, sprite, 0, 0, 5 / 30, 30);
+                    let subject = expect(context.drawImage).to.have.been;
+                    subject.calledOnce;
+                    subject.calledWithExactly(any, 64, 0, 32, 32, any, any, 32, 32);
+                });
+                it('should allow negative image indexes', () => {
+                    sinon.stub(context, 'drawImage');
+                    adapter.drawSprite(loader, sprite, 0, 0, -2 / 30, 30);
+                    let subject = expect(context.drawImage).to.have.been;
+                    subject.calledOnce;
+                    subject.calledWithExactly(any, 32, 0, 32, 32, any, any, 32, 32);
+                });
+                it('should round down when the image index is not a evenly divisible by the sprite fps', () => {
+                    sinon.stub(context, 'drawImage');
+                    adapter.drawSprite(loader, sprite, 0, 0, .8 / 30, 30);
+                    let subject = expect(context.drawImage).to.have.been;
+                    subject.calledOnce;
+                    subject.calledWithExactly(any, 0, 0, 32, 32, any, any, 32, 32);
+                });
+                it('should render the image offset by x, y, and the sprite pivot', () => {
+                    sinon.stub(context, 'drawImage');
+                    adapter.drawSprite(loader, _.merge({ pivot: { x: 5, y: 3 } }, sprite), 13, 28);
+                    let subject = expect(context.drawImage).to.have.been;
+                    subject.calledOnce;
+                    subject.calledWithExactly(any, any, any, any, any, 8, 25, any, any);
+                });
             });
         });
     });

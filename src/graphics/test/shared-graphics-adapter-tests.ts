@@ -8,12 +8,15 @@ use(sinonChai);
 import { GraphicsAdapter } from '../graphics-adapter';
 import { Game } from '../../game';
 
-export function sharedGraphicsAdapterTests(getObjects: () => [GraphicsAdapter, Game]) {
+export function sharedGraphicsAdapterTests<T extends GraphicsAdapter>(isFullscreen: boolean, factory: () => T, cleanUp: (adapter: T) => void) {
     describe('shared GraphicsAdapter behavior', () => {
-        let adapter: GraphicsAdapter;
-        let game: Game;
+        let adapter: T;
         beforeEach(() => {
-            [adapter, game] = getObjects();
+            adapter = factory();
+        });
+        afterEach(() => {
+            if (adapter.game && adapter.game.isRunning) adapter.game.stop();
+            cleanUp(adapter);
         });
         
         describe('.canvasSize', () => {
@@ -25,11 +28,22 @@ export function sharedGraphicsAdapterTests(getObjects: () => [GraphicsAdapter, G
                 offset[0] = NaN;
                 expect(adapter.canvasSize[0]).not.to.be.NaN;
             });
-            it('should be updated any time the window is resized', () => {
-                [(<any>window).innerWidth, (<any>window).innerHeight] = [123, 456];
-                expect(adapter.canvasSize).not.to.deep.eq([123, 456]);
-                window.onresize(<any>void(0));
-                expect(adapter.canvasSize).to.deep.eq([123, 456]);
+            
+            describe('when the game is started', () => {
+                let game: Game;
+                beforeEach(() => {
+                    game = new Game({ graphicsAdapter: adapter });
+                    game.start();
+                });
+                
+                if (isFullscreen) {
+                    it('should be updated any time the window is resized', () => {
+                        [(<any>window).innerWidth, (<any>window).innerHeight] = [123, 456];
+                        expect(adapter.canvasSize).not.to.deep.eq([123, 456]);
+                        window.onresize(<any>void(0));
+                        expect(adapter.canvasSize).to.deep.eq([123, 456]);
+                    });
+                }
             });
         });
     });

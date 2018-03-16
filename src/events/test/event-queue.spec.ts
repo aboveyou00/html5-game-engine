@@ -118,7 +118,7 @@ describe('EventQueue', () => {
             });
         });
     });
-
+    
     describe('mouse input', () => {
         beforeEach(() => {
             events = new EventQueue();
@@ -323,7 +323,7 @@ describe('EventQueue', () => {
             });
         });
     });
-
+    
     describe('canvas resize', () => {
         let game: Game;
         beforeEach(() => {
@@ -341,8 +341,9 @@ describe('EventQueue', () => {
                 window.onresize(<any>void(0));
                 expect(events.clearQueue()).to.deep.eq([{
                     type: 'canvasResize',
-                    previousSize: [640, 480],
-                    size: [123, 456]
+                    previousSize: [0, 0],
+                    size: [123, 456],
+                    adapter: game.graphicsAdapter
                 }]);
             });
             it('should emit only one canvasResize event per frame even if multiple are fired', () => {
@@ -353,14 +354,15 @@ describe('EventQueue', () => {
                 window.onresize(<any>void(0));
                 expect(events.clearQueue()).to.deep.eq([{
                     type: 'canvasResize',
-                    previousSize: [640, 480],
-                    size: [234, 567]
+                    previousSize: [0, 0],
+                    size: [234, 567],
+                    adapter: game.graphicsAdapter
                 }]);
                 expect(events.enqueue).to.have.been.calledTwice;
             });
         });
     });
-
+    
     describe('.enqueue', () => {
         beforeEach(() => {
             events = new EventQueue();
@@ -372,7 +374,7 @@ describe('EventQueue', () => {
             expect(events.clearQueue()).to.deep.eq([e]);
         });
     });
-
+    
     describe('.clearQueue', () => {
         beforeEach(() => {
             events = new EventQueue();

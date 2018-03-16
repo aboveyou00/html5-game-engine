@@ -11,13 +11,13 @@ export class EmptyGraphicsAdapter extends GraphicsAdapter {
     }
     
     private _initialized = false;
-    private game: Game;
     init(game: Game): void {
         if (this._initialized) throw new Error(`Cannot initialize EmptyGraphicsAdapter twice.`);
         this._initialized = true;
-        this.game = game;
+        this._game = game;
         
-        this.game.eventQueue.enqueue({
+        this._size = [640, 480];
+        this._game.eventQueue.enqueue({
             type: 'canvasResize',
             previousSize: [0, 0],
             size: this.canvasSize,
@@ -29,7 +29,12 @@ export class EmptyGraphicsAdapter extends GraphicsAdapter {
         this._initialized = false;
     }
     
-    private _size: [number, number] = [640, 480];
+    private _game: Game;
+    get game() {
+        return this._game;
+    }
+    
+    private _size: [number, number] = [0, 0];
     get canvasSize(): [number, number] {
         return [this._size[0], this._size[1]];
     }

@@ -62,16 +62,15 @@ describe('engine/game-scene', () => {
         });
         it('should invoke GameObject.handleEvent the next time onTick is called, the resource loader is done, and there is an event', () => {
             let gobj = new GameObject('name');
-            sinon.stub(gobj, 'handleEvent');
             scene.addObject(gobj);
             game.start();
+            game.eventQueue.clearQueue(); //Remove resizeCanvas event
             (<any>game)._resourceLoader = { isDone: true, render: () => void (0) };
             let e: any = { type: 'fish!' };
             game.eventQueue.enqueue(e);
+            sinon.stub(gobj, 'handleEvent');
             (<any>game).onTick();
-            let subject = expect(gobj.handleEvent).to.have.been;
-            subject.calledOnce;
-            subject.calledWithExactly(e);
+            let subject = expect(gobj.handleEvent).to.have.been.calledOnce.calledWithExactly(e);
         });
     });
     describe('.removeObject', () => {
@@ -172,6 +171,8 @@ describe('engine/game-scene', () => {
         let stubs: sinon.SinonStub[];
         
         beforeEach(() => {
+            game.start();
+            game.eventQueue.clearQueue();
             stubs = gobjs.map(gobj => {
                 scene.addObject(gobj);
                 return sinon.stub(gobj, 'handleEvent');
@@ -180,10 +181,10 @@ describe('engine/game-scene', () => {
         afterEach(() => {
             gobjs.map(gobj => scene.removeObject(gobj));
             stubs.map(stub => stub.restore());
+            if (game.isRunning) game.stop();
         });
         
         it('should invoke handleEvent on all game objects if none of them handle the event', () => {
-            game.start();
             game.eventQueue.enqueue(<any>{ type: 'fakeEvent' });
             (<any>game).sendEvents();
             expect(gobjs[0].handleEvent).to.have.been.calledOnce;
@@ -192,7 +193,6 @@ describe('engine/game-scene', () => {
         });
         it('should short-circuit if a game object handles an event', () => {
             stubs[1].returns(true);
-            game.start();
             game.eventQueue.enqueue(<any>{ type: 'fakeEvent' });
             (<any>game).sendEvents();
             expect(gobjs[0].handleEvent).to.have.been.calledOnce;
