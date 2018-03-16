@@ -211,7 +211,7 @@ export class GameScene {
     }
     
     private initCamera() {
-        this.camera = new Camera(this);
+        this.camera = new Camera();
     }
     
     private _camera: Camera | null = null;

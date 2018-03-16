@@ -1,7 +1,6 @@
 import { GameObject } from '../game-object';
 import { degToRad } from '../utils/math';
 import { GraphicsAdapter } from '../graphics/graphics-adapter';
-import { DefaultGraphicsAdapter } from '../graphics/default-graphics-adapter';
 import { CollisionT } from './collision';
 import { ForceGenerator } from './force-generator';
 
@@ -99,26 +98,17 @@ export abstract class CollisionMask {
     abstract checkForCollisions(other: CollisionMask): CollisionT[] | null;
     abstract resolveCollisions(): void;
     
+    private renderTransformedSymbol = Symbol();
     render(adapter: GraphicsAdapter) {
-        if (adapter instanceof DefaultGraphicsAdapter) this.renderContext2d(adapter.context!);
-        else throw new Error(`Not implemented!`);
-    }
-    protected renderContext2d(context: CanvasRenderingContext2D) {
-        context.save();
-
-        try {
-            context.translate(this.gameObject.x, this.gameObject.y);
-            context.rotate(-degToRad(this.gameObject.imageAngle));
-
-            this.renderImpl(context);
-        }
-        finally {
-            context.restore();
-        }
+        adapter.renderTransformed(this.gameObject.x, this.gameObject.y, -degToRad(this.gameObject.imageAngle), 1, 1, () => {
+            this.renderImpl(adapter);
+        }, this.renderTransformedSymbol);
         
         for (let forceGenerator of this.forceGenerators) {
-            forceGenerator.render(this, context);
+            forceGenerator.render(this, adapter);
         }
     }
-    abstract renderImpl(context: CanvasRenderingContext2D): void;
+    renderImpl(adapter: GraphicsAdapter) {
+        adapter.renderCollisionMask(this);
+    }
 }

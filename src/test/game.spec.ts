@@ -65,55 +65,6 @@ describe('Game', () => {
         });
     });
     
-    describe('.bodyResized', () => {
-        it('should update the canvasSize', () => {
-            game.start();
-            expect(game.canvasSize).not.to.deep.eq([123, 456]);
-            [(<any>window).innerWidth, (<any>window).innerHeight] = [123, 456];
-            game.bodyResized.emit(void(0));
-            expect(game.canvasSize).to.deep.eq([123, 456]);
-        });
-    });
-
-    describe('.canvasSize', () => {
-        beforeEach(() => {
-            game.start();
-        });
-        
-        it('should start as [640, 480]', () => {
-            expect(game.canvasSize).to.deep.eq([640, 480]);
-        });
-        it('should return an array that does not change the follow offset when changed', () => {
-            let offset = game.canvasSize;
-            offset[0] = NaN;
-            expect(game.canvasSize[0]).not.to.be.NaN;
-        });
-        it('should be updated any time the window is resized', () => {
-            [(<any>window).innerWidth, (<any>window).innerHeight] = [123, 456];
-            expect(game.canvasSize).not.to.deep.eq([123, 456]);
-            window.onresize(<any>void(0));
-            expect(game.canvasSize).to.deep.eq([123, 456]);
-        });
-    });
-    describe('.canvasSize=', () => {
-        it('should short-circuit without sending an event if the new size is the same as the last one', () => {
-            sinon.stub(game.eventQueue, 'enqueue');
-            game.canvasSize = [640, 480];
-            expect(game.eventQueue.enqueue).not.to.have.been.called;
-        });
-        it('should copy the values to prevent further changes to the object modifying the follow offset', () => {
-            let newCanvasSize: [number, number] = [25, 92];
-            game.canvasSize = newCanvasSize;
-            newCanvasSize[0] = NaN;
-            expect(game.canvasSize).to.deep.eq([25, 92]);
-        });
-        it(`should queue a 'canvasResize' event in the EventQueue`, () => {
-            sinon.stub(game.eventQueue, 'enqueue');
-            game.canvasSize = [123, 987];
-            expect(game.eventQueue.enqueue).to.have.been.called;
-        });
-    });
-    
     describe('.onTick', () => {
         it(`should throw an error if the game hasn't been started yet`, () => {
             expect(() => (<any>game).onTick()).to.throw(/game is not running/i);
@@ -206,7 +157,7 @@ describe('Game', () => {
     describe('.sendEvents', () => {
         it('should tell the current scene about events', () => {
             game.start();
-            game.eventQueue.enqueue({ type: 'canvasResize', previousSize: [0, 0], size: [0, 0] });
+            game.eventQueue.enqueue({ type: 'canvasResize', previousSize: [0, 0], size: [0, 0], adapter: <any>null });
             sinon.stub(game.scene, "handleEvent");
             (<any>game).sendEvents();
             expect(game.scene!.handleEvent).to.be.calledOnce;

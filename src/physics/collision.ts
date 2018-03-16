@@ -8,4 +8,4 @@ export type CollisionT = {
     penetration: number,
     friction?: number,
     restitutiom?: number
-}
+};

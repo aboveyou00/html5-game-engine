@@ -6,37 +6,13 @@ import * as sinonChai from 'sinon-chai';
 use(sinonChai);
 
 import { Camera } from '../camera';
-import { Game } from '../game';
-import { GameScene } from '../game-scene';
 import { GraphicsAdapter } from '../graphics/graphics-adapter';
-import { DefaultGraphicsAdapter } from '../graphics/default-graphics-adapter';
+import { Context2dGraphicsAdapter } from '../graphics/context2d-graphics-adapter';
 
 describe('Camera', () => {
-    let game: Game;
-    let scene: GameScene;
     let camera: Camera;
     beforeEach(() => {
-        game = <any>{ canvasSize: [100, 100] };
-        scene = <any>{ game: game };
-        camera = new Camera(scene);
-    });
-    
-    describe('.constructor', () => {
-        it('should throw an error if game is false', () => {
-            expect(() => new Camera(<any>null)).to.throw(/pass in a valid Scene/i);
-        });
-    });
-    
-    describe('.scene', () => {
-        it('should start as the scene you passed in to the constructor', () => {
-            expect(camera.scene).to.eq(scene);
-        });
-    });
-    
-    describe('.game', () => {
-        it('should start as the game of the scene you passed in to the constructor', () => {
-            expect(camera.game).to.eq(game);
-        });
+        camera = new Camera();
     });
     
     describe('.clearColor', () => {
@@ -130,41 +106,45 @@ describe('Camera', () => {
         });
     });
     
-    describe('.bounds', () => {
+    describe('.getBounds', () => {
         it('should be centered around the center position', () => {
             camera.center = [10, -10];
-            let bounds = camera.bounds;
+            let canvasSize: [number, number] = [640, 480];
+            let bounds = camera.getBounds(canvasSize);
             expect((bounds.right + bounds.left) / 2).to.be.closeTo(camera.center[0], .00001);
             expect((bounds.top + bounds.bottom) / 2).to.be.closeTo(camera.center[1], .00001);
         });
         it('should have the same ratio as the canvas', () => {
             camera.center = [10, -10];
-            game.canvasSize = [295, 332];
-            let canvasRatio = game.canvasSize[0] / game.canvasSize[1];
-            let bounds = camera.bounds;
+            let canvasSize: [number, number] = [295, 332];
+            let canvasRatio = canvasSize[0] / canvasSize[1];
+            let bounds = camera.getBounds(canvasSize);
             let [width, height] = [bounds.right - bounds.left, bounds.top - bounds.bottom];
             let cameraRatio = width / height;
             expect(cameraRatio).to.be.closeTo(canvasRatio, .00001);
         });
         it('should be the size of the canvas if zoomScale is 1', () => {
             camera.center = [10, -10];
-            let bounds = camera.bounds;
-            expect(bounds.right - bounds.left).to.be.closeTo(game.canvasSize[0], .00001);
-            expect(bounds.top - bounds.bottom).to.be.closeTo(game.canvasSize[1], .00001);
+            let canvasSize: [number, number] = [640, 480];
+            let bounds = camera.getBounds(canvasSize);
+            expect(bounds.right - bounds.left).to.be.closeTo(canvasSize[0], .00001);
+            expect(bounds.top - bounds.bottom).to.be.closeTo(canvasSize[1], .00001);
         });
         it('should be half the size of the canvas if zoomScale is 2', () => {
             camera.center = [10, -10];
             camera.zoomScale = 2;
-            let bounds = camera.bounds;
-            expect(bounds.right - bounds.left).to.be.closeTo(game.canvasSize[0] * .5, .00001);
-            expect(bounds.top - bounds.bottom).to.be.closeTo(game.canvasSize[1] * .5, .00001);
+            let canvasSize: [number, number] = [640, 480];
+            let bounds = camera.getBounds(canvasSize);
+            expect(bounds.right - bounds.left).to.be.closeTo(canvasSize[0] * .5, .00001);
+            expect(bounds.top - bounds.bottom).to.be.closeTo(canvasSize[1] * .5, .00001);
         });
         it('should be twice the size of the canvas if zoomScale is .5', () => {
             camera.center = [10, -10];
             camera.zoomScale = .5;
-            let bounds = camera.bounds;
-            expect(bounds.right - bounds.left).to.be.closeTo(game.canvasSize[0] * 2, .00001);
-            expect(bounds.top - bounds.bottom).to.be.closeTo(game.canvasSize[1] * 2, .00001);
+            let canvasSize: [number, number] = [640, 480];
+            let bounds = camera.getBounds(canvasSize);
+            expect(bounds.right - bounds.left).to.be.closeTo(canvasSize[0] * 2, .00001);
+            expect(bounds.top - bounds.bottom).to.be.closeTo(canvasSize[1] * 2, .00001);
         });
     });
     
@@ -196,10 +176,10 @@ describe('Camera', () => {
     
     describe('.renderTransformed', () => {
         let context: CanvasRenderingContext2D;
-        let adapter: GraphicsAdapter;
+        let adapter: Context2dGraphicsAdapter;
         beforeEach(() => {
             context = new HTMLCanvasElement().getContext('2d')!;
-            adapter = new DefaultGraphicsAdapter(context);
+            adapter = new Context2dGraphicsAdapter(context);
         });
         
         it('should invoke context.save', () => {
@@ -208,14 +188,14 @@ describe('Camera', () => {
             expect(context.save).to.have.been.calledOnce;
         });
         it('should translate further draw calls by the camera center position', () => {
-            game.canvasSize = [0, 0];
+            adapter.canvasSize = [0, 0];
             camera.center = [52, 199];
             sinon.stub(context, 'translate');
             camera.renderTransformed(adapter, () => void(0));
             expect(context.translate).to.have.been.calledWith(-52, -199);
         });
         it('should translate further draw calls by one half of the canvas size', () => {
-            game.canvasSize = [800, 600];
+            adapter.canvasSize = [800, 600];
             sinon.stub(context, 'translate');
             camera.renderTransformed(adapter, () => void(0));
             expect(context.translate).to.have.been.calledWith(400, 300);

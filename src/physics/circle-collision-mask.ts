@@ -110,7 +110,7 @@ export class CircleCollisionMask extends CollisionMask {
         if (this.updatePositions === 'once') this.updatePositions = false;
     }
     
-    renderImpl(context: CanvasRenderingContext2D) {
+    renderImplContext2d(context: CanvasRenderingContext2D) {
         let camera = this.gameObject.renderCamera === 'default' ? this.gameObject.scene.camera :
                         this.gameObject.renderCamera !== 'none' ? this.gameObject.renderCamera :
                                                                   null;

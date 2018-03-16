@@ -226,7 +226,7 @@ describe('engine/game-scene', () => {
         });
         it('should invoke tick on the camera, if there is one', () => {
             game.start();
-            scene.camera = new Camera(scene);
+            scene.camera = new Camera();
             sinon.stub(scene.camera, 'tick');
             (<any>game).tick(game.scene, 45);
             expect(scene.camera.tick).to.have.been.calledOnce.calledWith(45);
@@ -269,7 +269,7 @@ describe('engine/game-scene', () => {
         });
         xit('should invoke push and pop on the camera, if there is one', () => {
             game.start();
-            scene.camera = new Camera(scene);
+            scene.camera = new Camera();
             sinon.stub(scene.camera, 'push');
             sinon.stub(scene.camera, 'pop');
             (<any>game).render(game.scene, game.graphicsAdapter);

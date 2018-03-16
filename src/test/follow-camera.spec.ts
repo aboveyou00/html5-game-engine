@@ -13,15 +13,11 @@ import { GameObject } from '../game-object';
 import { GraphicsAdapter } from '../graphics/graphics-adapter';
 
 describe('FollowCamera', () => {
-    let game: Game;
-    let scene: GameScene;
     let camera: FollowCamera;
     beforeEach(() => {
-        game = <any>{ canvasSize: [100, 100] };
-        scene = <any>{ game: game };
-        camera = new FollowCamera(scene);
+        camera = new FollowCamera();
     });
-
+    
     describe('.followOffset', () => {
         it('should start as [0, 0]', () => {
             expect(camera.followOffset).to.deep.eq([0, 0]);
@@ -40,7 +36,7 @@ describe('FollowCamera', () => {
             expect(camera.followOffset).to.deep.eq([25, 92]);
         });
     });
-
+    
     describe('.renderTransformed', () => {
         let adapter: GraphicsAdapter;
         let superStub: sinon.SinonStub;

@@ -1,4 +1,6 @@
-﻿export type InputTypeT = 'keyboard' | 'mouse' | 'gamepad';
+﻿import { GraphicsAdapter } from '../graphics/graphics-adapter';
+
+export type InputTypeT = 'keyboard' | 'mouse' | 'gamepad';
 
 export interface KeyTypedEvent {
     type: 'keyTyped',
@@ -65,7 +67,8 @@ export enum MouseButton {
 export interface CanvasResizeEvent {
     type: 'canvasResize',
     previousSize: [number, number],
-    size: [number, number]
+    size: [number, number],
+    adapter: GraphicsAdapter
 }
 
 export interface AbstractButtonPressedEvent {

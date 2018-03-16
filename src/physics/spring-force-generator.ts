@@ -23,8 +23,8 @@ export class SpringForceGenerator extends ForceGenerator {
         collider.addForce(hforce * (1 - massRatio), vforce * (1 - massRatio));
         if (this.modifyOther) this.other.addForce(-hforce * massRatio, -vforce * massRatio);
     }
-    render(collider: CollisionMask, context: CanvasRenderingContext2D) {
-        super.render(collider, context);
+    
+    renderContext2d(collider: CollisionMask, context: CanvasRenderingContext2D) {
         context.save();
         try {
             context.translate(collider.gameObject.x, collider.gameObject.y);

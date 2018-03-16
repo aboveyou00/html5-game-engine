@@ -4,8 +4,8 @@ import { GameObject } from './game-object';
 import { GraphicsAdapter } from './graphics/graphics-adapter';
 
 export class FollowCamera extends Camera {
-    constructor(scene: GameScene) {
-        super(scene);
+    constructor() {
+        super();
     }
     
     private _follow: GameObject | null = null;
@@ -33,7 +33,7 @@ export class FollowCamera extends Camera {
             let target: [number, number] = [this.follow.x + this._offset[0], this.follow.y + this._offset[1]];
             this.center = target;
         }
-        let bounds = this.bounds;
+        let bounds = this.getBounds(adapter);
         if (bounds.right > this.clampRight) this.center = [this.center[0] - (bounds.right - this.clampRight), this.center[1]];
         if (bounds.left < this.clampLeft) this.center = [this.center[0] + (this.clampLeft - bounds.left), this.center[1]];
         super.renderTransformed(adapter, act);

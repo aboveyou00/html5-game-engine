@@ -5,21 +5,51 @@ import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 use(sinonChai);
 
-import { DefaultGraphicsAdapter } from '../default-graphics-adapter';
+import { Context2dGraphicsAdapter } from '../context2d-graphics-adapter';
+import { Game } from '../../game';
 import { GameObject } from '../../game-object';
 import { ResourceLoader } from '../../resource-loader';
 import { simpleSprite, tiledSprite, animatedSprite } from '../../utils/test/sample-sprites';
 import _ = require('lodash');
+import { sharedGraphicsAdapterTests } from './shared-graphics-adapter-tests';
 let any = sinon.match.any;
 
 declare let global: any;
 
-describe('DefaultGraphicsAdapter', () => {
+describe('Context2dGraphicsAdapter', () => {
     let context: CanvasRenderingContext2D;
-    let adapter: DefaultGraphicsAdapter;
+    let adapter: Context2dGraphicsAdapter;
+    let game: Game;
     beforeEach(() => {
-        context = new HTMLCanvasElement().getContext('2d')!;
-        adapter = new DefaultGraphicsAdapter(context);
+        let canvas = new HTMLCanvasElement();
+        adapter = new Context2dGraphicsAdapter(canvas);
+        game = new Game({ graphicsAdapter: adapter });
+        adapter.init(game);
+        context = adapter.context!;
+    });
+    afterEach(() => {
+        adapter.cleanUp();
+    });
+    
+    sharedGraphicsAdapterTests(() => [adapter, game]);
+    
+    describe('.canvasSize=', () => {
+        it('should short-circuit without sending an event if the new size is the same as the last one', () => {
+            sinon.stub(game.eventQueue, 'enqueue');
+            adapter.canvasSize = [640, 480];
+            expect(game.eventQueue.enqueue).not.to.have.been.called;
+        });
+        it('should copy the values to prevent further changes to the object modifying the follow offset', () => {
+            let newCanvasSize: [number, number] = [25, 92];
+            adapter.canvasSize = newCanvasSize;
+            newCanvasSize[0] = NaN;
+            expect(adapter.canvasSize).to.deep.eq([25, 92]);
+        });
+        it(`should queue a 'canvasResize' event in the EventQueue`, () => {
+            sinon.stub(game.eventQueue, 'enqueue');
+            adapter.canvasSize = [123, 987];
+            expect(game.eventQueue.enqueue).to.have.been.called;
+        });
     });
     
     describe('.clear', () => {
@@ -31,6 +61,7 @@ describe('DefaultGraphicsAdapter', () => {
             expect(context.fillStyle).to.eq('green');
         });
     });
+    
     describe('.renderResourceLoader', () => {
         it('should not throw an error', () => {
             expect(() => adapter.renderResourceLoader(0, 0)).not.to.throw;
@@ -66,6 +97,7 @@ describe('DefaultGraphicsAdapter', () => {
                 .calledWith(sinon.match(/FISH and CHIPS/));
         });
     });
+    
     describe('.renderObject', () => {
         it('should render the sprite if the game object has one', () => {
             sinon.stub(adapter, 'drawSprite');

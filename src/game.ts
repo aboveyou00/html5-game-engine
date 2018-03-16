@@ -1,27 +1,24 @@
 ﻿import { ResourceLoader } from './resource-loader';
 import { GameEvent } from './events/events';
 import { EventQueue } from './events/event-queue';
-import { EventEmitter } from './events/event-emitter';
 import { GameScene } from './game-scene';
-import { GraphicsAdapter } from './graphics/graphics-adapter';
-import { DefaultGraphicsAdapter } from './graphics/default-graphics-adapter';
+import { GraphicsAdapter, DefaultGraphicsAdapter } from './graphics';
 import { AudioController } from './audio/audio-controller';
 
 export interface GameOptions {
-    framesPerSecond?: number,
     graphicsAdapter?: GraphicsAdapter,
-    maximumDelta?: number,
-    moveCanvas?: boolean
+    framesPerSecond?: number,
+    maximumDelta?: number
 };
 
 export class Game {
     constructor(options?: GameOptions) {
         if (!options) options = {};
+        
         this.framesPerSecond = options.framesPerSecond || 30;
         this.graphicsAdapter = options.graphicsAdapter || new DefaultGraphicsAdapter();
         this.timePerFixedTick = 1 / this.framesPerSecond;
         this.maximumDelta = options.maximumDelta || 0;
-        if (typeof options.moveCanvas !== 'undefined') this._moveCanvas = options.moveCanvas;
         
         this._resourceLoader = new ResourceLoader();
         this._eventQueue = new EventQueue();
@@ -33,8 +30,6 @@ export class Game {
     
     private _scene: GameScene | null = null;
     private _nextScene: GameScene | null = null;
-    
-    private _moveCanvas = true;
     
     get scene() {
         return this._scene;
@@ -67,14 +62,9 @@ export class Game {
     private maximumDelta = .25;
     
     private setUp() {
-        let body = document.getElementsByTagName('body')[0];
-        this.initResize(body);
-        
         this.eventQueue.init();
         
         this.graphicsAdapter.init(this);
-        this.bodyResized.emit(void(0));
-        if (this._moveCanvas) document.currentScript!.parentElement!.insertBefore(this.canvas!, document.currentScript);
         
         this._intervalHandle = <any>setInterval(() => this.onTick(), 1000 / this.framesPerSecond);
         this._isRunning = true;
@@ -89,27 +79,9 @@ export class Game {
             this._scene = null;
         }
         
-        this.cleanUpResize();
+        this.graphicsAdapter.cleanUp();
         
         this.eventQueue.cleanUp();
-        
-        this.graphicsAdapter.cleanUp();
-        if (this._moveCanvas && this.canvas) {
-            let parent = this.canvas!.parentElement;
-            if (parent) parent.removeChild(this.canvas!);
-        }
-    }
-    
-    public bodyResized = new EventEmitter<void>();
-    private cleanupBodyResized: () => void;
-    private initResize(body: HTMLBodyElement) {
-        window.addEventListener('resize', () => this.bodyResized.emit(void(0)));
-        this.cleanupBodyResized = this.bodyResized.addListener(() => {
-            this.canvasSize = [window.innerWidth, window.innerHeight];
-        });
-    }
-    private cleanUpResize() {
-        if (this.cleanupBodyResized) this.cleanupBodyResized();
     }
     
     private _renderPhysics = false;
@@ -120,9 +92,6 @@ export class Game {
         this._renderPhysics = val;
     }
     
-    get canvas() {
-        return this.graphicsAdapter.canvas;
-    }
     private previousTick: Date | null = null;
     
     private _resourceLoader: ResourceLoader | null = null;
@@ -153,21 +122,6 @@ export class Game {
     stop() {
         if (!this.isRunning) return;
         this.tearDown();
-    }
-    
-    private _size: [number, number] = [640, 480];
-    get canvasSize(): [number, number] {
-        return [this._size[0], this._size[1]];
-    }
-    set canvasSize([newWidth, newHeight]: [number, number]) {
-        if (newWidth == this._size[0] && newHeight == this._size[1]) return;
-        let prevSize = this._size;
-        this._size = [newWidth, newHeight];
-        this.eventQueue.enqueue({
-            type: 'canvasResize',
-            previousSize: prevSize,
-            size: [newWidth, newHeight]
-        });
     }
     
     private fixedTickDelta = 0;
@@ -253,14 +207,8 @@ export class Game {
     private updateCursor(scene: GameScene | null) {
         if (!scene) return;
         let cursors = scene.cursor;
-        if (!this.canvas || !this.canvas.style) return;
-        for (let q = 0; q < cursors.length; q++) {
-            let cursor = cursors[q];
-            this.canvas.style.cursor = cursor;
-            if (this.canvas.style.cursor === cursor) break;
-            if (q === cursors.length - 1) {
-                console.error(`Invalid set of cursors:`, cursors);
-            }
+        if (!this.graphicsAdapter.updateCursor(cursors)) {
+            console.error(`Invalid set of cursors:`, cursors);
         }
     }
     protected tick(scene: GameScene, delta: number) {

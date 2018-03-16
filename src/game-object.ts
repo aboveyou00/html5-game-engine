@@ -293,9 +293,11 @@ export class GameObject {
         adapter.renderObject(this);
     }
     
-    transformPixelCoordinates(x: number, y: number): [number, number];
-    transformPixelCoordinates(coords: { x: number, y: number }): [number, number];
-    transformPixelCoordinates(x: number | { x: number, y: number }, y?: number): [number, number] {
+    transformPixelCoordinates(adapter: GraphicsAdapter, x: number, y: number): [number, number];
+    transformPixelCoordinates(adapter: GraphicsAdapter, coords: { x: number, y: number }): [number, number];
+    transformPixelCoordinates(canvasSize: [number, number], x: number, y: number): [number, number];
+    transformPixelCoordinates(canvasSize: [number, number], coords: { x: number, y: number }): [number, number];
+    transformPixelCoordinates(canvasSize: [number, number] | GraphicsAdapter, x: number | { x: number, y: number }, y?: number): [number, number] {
         if (typeof x === 'object') {
             y = x.y;
             x = x.x;
@@ -303,6 +305,6 @@ export class GameObject {
         let camera: RenderCameraT | null = this.renderCamera;
         if (camera === 'default' || !camera) camera = this.scene.camera;
         if (camera === 'none' || !camera) return [x, y!];
-        else return camera.transformPixelCoordinates(x, y!);
+        else return camera.transformPixelCoordinates(<[number, number]><any>canvasSize, x, <any>y);
     }
 }

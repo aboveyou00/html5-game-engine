@@ -4,37 +4,53 @@ import { Game } from '../game';
 import { GameScene } from '../game-scene';
 import { GameObject } from '../game-object';
 import { ResourceLoader } from '../resource-loader';
+import { EventEmitter } from '../events/event-emitter';
 import { SpriteT, isSingleTileSprite, isAnimationSprite } from '../utils/sprite';
 import { fmod } from '../utils/math';
+import { CollisionMask } from '../physics/collision-mask';
+import { ForceGenerator } from '../physics/force-generator';
 
-export class DefaultGraphicsAdapter extends GraphicsAdapter {
+export interface Context2dGraphicsAdapterOptions {
+    canvas?: HTMLCanvasElement,
+    moveCanvas?: boolean,
+    cleanupCanvas?: boolean
+}
+
+export class Context2dGraphicsAdapter extends GraphicsAdapter {
     constructor();
-    constructor(context: CanvasRenderingContext2D);
-    constructor(private _context: CanvasRenderingContext2D | null = null) {
+    constructor(canvas: HTMLCanvasElement);
+    constructor(opts: Context2dGraphicsAdapterOptions);
+    constructor(opts: HTMLCanvasElement | Context2dGraphicsAdapterOptions | null = null) {
         super();
+        if (opts) {
+            if (opts instanceof HTMLCanvasElement) opts = { canvas: opts };
+            if (opts.canvas) {
+                this._canvas = opts.canvas;
+                this._moveCanvas = false;
+                this._cleanupCanvas = false;
+            }
+            if (typeof opts.moveCanvas === 'boolean') this._moveCanvas = opts.moveCanvas;
+            if (typeof opts.cleanupCanvas === 'boolean') this._cleanupCanvas = opts.cleanupCanvas;
+            if (!this._canvas && !this._moveCanvas) throw new Error(`Invalid option combination. If you do not provide a canvas, you cannot set moveCanvas to false`);
+        }
     }
     
+    private _cleanupCanvas = true;
+    private _moveCanvas = true;
+    
     private _initialized = false;
-    private _cleanupCanvas = false;
-    private game: Game;
-    private cleanupBodyListener: () => void;
     init(game: Game) {
-        if (this._initialized) throw new Error(`Cannot initialize DefaultGraphicsAdapter twice.`);
+        if (this._initialized) throw new Error(`Cannot initialize Context2dGraphicsAdapter twice.`);
         this._initialized = true;
         
-        this.game = game;
+        this._game = game;
         
-        if (this._context) throw new Error(`This DefaultGraphicsAdapter was created with a context`);
-        
-        if (!this.canvas) {
-            this._canvas = document.createElement('canvas');
-            this._cleanupCanvas = true;
-        }
+        if (!this.canvas) this._canvas = document.createElement('canvas');
+        if (this._moveCanvas) document.currentScript!.parentElement!.insertBefore(this.canvas!, document.currentScript);
         this._context = this.canvas!.getContext("2d")!;
         
-        this.cleanupBodyListener = game.bodyResized.addListener(() => {
-            [this.canvas!.width, this.canvas!.height] = [window.innerWidth, window.innerHeight];
-        });
+        let body = document.getElementsByTagName('body')[0];
+        this.initResize(body);
     }
     cleanUp() {
         if (!this._initialized) return;
@@ -42,18 +58,69 @@ export class DefaultGraphicsAdapter extends GraphicsAdapter {
         
         if (this._cleanupCanvas) {
             this._context = null;
+            if (this._canvas && this._canvas.parentElement) this._canvas.parentElement.removeChild(this._canvas);
             this._canvas = null;
         }
         
-        this.cleanupBodyListener();
+        this.cleanUpResize();
     }
     
-    private _canvas: HTMLCanvasElement | null;
+    private bodyResized = new EventEmitter<void>();
+    private cleanupBodyResized: (() => void) | null = null;
+    private initResize(body: HTMLBodyElement) {
+        let resizeEventHandler = () => {
+            this.canvasSize = [window.innerWidth, window.innerHeight];
+        };
+        resizeEventHandler();
+        
+        window.addEventListener('resize', resizeEventHandler);
+        this.cleanupBodyResized = () => {
+            window.removeEventListener('resize', resizeEventHandler);
+        };
+    }
+    private cleanUpResize() {
+        if (this.cleanupBodyResized) {
+            this.cleanupBodyResized();
+            this.cleanupBodyResized = null;
+        }
+    }
+    
+    private _game: Game;
+    get game() {
+        return this._game;
+    }
+    
+    private _canvas: HTMLCanvasElement | null = null;
     get canvas() {
         return this._canvas;
     }
+    private _context: CanvasRenderingContext2D | null = null;
     get context() {
         return this._context;
+    }
+    
+    private _canvasSize: [number, number] = [0, 0];
+    get canvasSize(): [number, number] {
+        return [this._canvasSize[0], this._canvasSize[1]];
+    }
+    set canvasSize([newWidth, newHeight]: [number, number]) {
+        if (newWidth == this._canvasSize[0] && newHeight == this._canvasSize[1]) return;
+        let prevSize = this._canvasSize;
+        this._canvasSize = [newWidth, newHeight];
+        [this.canvas!.width, this.canvas!.height] = this._canvasSize;
+        if (this._game) {
+            this._game.eventQueue.enqueue({
+                type: 'canvasResize',
+                previousSize: prevSize,
+                size: [newWidth, newHeight],
+                adapter: this
+            });
+        }
+    }
+    
+    updateCursor(fallbacks: string[]): boolean {
+        if (!this.canvas || !this.canvas.style) return false;
+        return this.updateCursorStyle(this.canvas, fallbacks);
     }
     
     clear(color: string) {
@@ -104,6 +171,20 @@ export class DefaultGraphicsAdapter extends GraphicsAdapter {
                 context.fillText('?', 0 + 8, 0 + 8);
             }
         }
+    }
+    renderCollisionMask(mask: CollisionMask) {
+        let context = this.context!;
+        if (typeof (<any>mask).renderImplContext2d === 'function') {
+            (<any>mask).renderImplContext2d(context);
+        }
+        else throw new Error(`Not implemented! Cannot render collision mask ${mask}`);
+    }
+    renderForceGenerator(collider: CollisionMask, generator: ForceGenerator) {
+        let context = this.context!;
+        if (typeof (<any>generator).renderImplContext2d === 'function') {
+            (<any>generator).renderImplContext2d(collider, context);
+        }
+        else throw new Error(`Not implemented! Cannot render force generator ${generator}`);
     }
     
     renderTransformed(translateX: number, translateY: number, rotate: number, scaleX: number, scaleY: number, act: () => void) {
