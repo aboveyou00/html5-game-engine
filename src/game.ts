@@ -66,7 +66,7 @@ export class Game {
     private LOGIC_TICKS_PER_RENDER_TICK = 3;
     private maximumDelta = .25;
     
-    private init() {
+    private setUp() {
         let body = document.getElementsByTagName('body')[0];
         this.initResize(body);
         
@@ -79,7 +79,7 @@ export class Game {
         this._intervalHandle = <any>setInterval(() => this.onTick(), 1000 / this.framesPerSecond);
         this._isRunning = true;
     }
-    private cleanUp() {
+    private tearDown() {
         clearInterval(this._intervalHandle);
         this._intervalHandle = null;
         this._isRunning = false;
@@ -148,11 +148,11 @@ export class Game {
     
     start() {
         if (this.isRunning) throw new Error(`This game is already running. You can't run it again.`);
-        this.init();
+        this.setUp();
     }
     stop() {
         if (!this.isRunning) return;
-        this.cleanUp();
+        this.tearDown();
     }
     
     private _size: [number, number] = [640, 480];
