@@ -3,6 +3,7 @@ import { GameObject } from '../game-object';
 import { GameScene } from '../game-scene';
 import { CollisionMask } from '../physics/collision-mask';
 import { ForceGenerator } from '../physics/force-generator';
+import { Component } from '../component';
 
 export abstract class GraphicsAdapter {
     abstract init(game: Game): void;
@@ -22,9 +23,11 @@ export abstract class GraphicsAdapter {
     }
     
     abstract clear(color: string): void;
+    
     abstract renderResourceLoader(resourcesLoaded: number, totalResources: number, errors?: string): void;
     abstract renderScene(scene: GameScene): void;
-    abstract renderObject(obj: GameObject): void;
+    abstract renderEmptyObject(obj: GameObject): void;
+    abstract renderComponent(comp: Component): void;
     abstract renderCollisionMask(mask: CollisionMask): void;
     abstract renderForceGenerator(collider: CollisionMask, generator: ForceGenerator): void;
     

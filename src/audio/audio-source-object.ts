@@ -11,11 +11,11 @@ export interface AudioSourceObjectOptions extends GameObjectOptions {
 }
 
 export class AudioSourceObject extends GameObject {
-    constructor(name: string, private audio: AudioT, opts: AudioSourceObjectOptions = {}) {
-        super(name, merge({
+    constructor(private audio: AudioT, opts: AudioSourceObjectOptions = {}) {
+        super(merge({
             shouldRender: false
         }, opts));
-
+        
         if (typeof opts.shouldLoop !== 'undefined') this._shouldLoop = opts.shouldLoop;
         if (typeof opts.sceneIndependent !== 'undefined') this._sceneIndependent = opts.sceneIndependent;
         if (typeof opts.beginPlay !== 'undefined') this._beginPlay = opts.beginPlay;

@@ -59,21 +59,21 @@ export class GameScene {
     
     public handleEvent(evt: GameEvent) {
         for (let obj of this._objects) {
-            if (obj.shouldTick && obj.handleEvent(evt)) return true;
+            if (obj.handleEvent(evt)) return true;
         }
         return false;
     }
     
     public tick(delta: number) {
         for (let obj of this._objects) {
-            if (obj.shouldTick) obj.tick(delta);
+            obj.tick(delta);
         }
         if (this.camera) this.camera.tick(delta);
         this.physicsTick(delta);
     }
     public fixedTick() {
         for (let obj of this._objects) {
-            if (obj.shouldTick) obj.fixedTick();
+            obj.fixedTick();
         }
         if (this.camera) this.camera.fixedTick();
         this.physicsTick(0);
@@ -110,13 +110,11 @@ export class GameScene {
         this.verifyRenderOrder();
         
         for (let obj of this._renderOrder) {
-            if (obj.shouldRender) {
-                let renderCamera = obj.renderCamera === 'default' ? defaultCamera :
-                                      obj.renderCamera !== 'none' ? obj.renderCamera :
-                                                                    null;
-                if (!renderCamera) obj.render(adapter);
-                else renderCamera.renderTransformed(adapter, () => obj.render(adapter));
-            }
+            let renderCamera = obj.renderCamera === 'default' ? defaultCamera :
+                                  obj.renderCamera !== 'none' ? obj.renderCamera :
+                                                                null;
+            if (!renderCamera) obj.render(adapter);
+            else renderCamera.renderTransformed(adapter, () => obj.render(adapter));
         }
         
         if (this.game.renderPhysics) this.renderPhysics(adapter);

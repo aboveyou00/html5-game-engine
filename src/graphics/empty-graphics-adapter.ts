@@ -4,6 +4,7 @@ import { GameScene } from '../game-scene';
 import { GameObject } from '../game-object';
 import { CollisionMask } from '../physics/collision-mask';
 import { ForceGenerator } from '../physics/force-generator';
+import { Component } from '../component';
 
 export class EmptyGraphicsAdapter extends GraphicsAdapter {
     constructor() {
@@ -47,7 +48,8 @@ export class EmptyGraphicsAdapter extends GraphicsAdapter {
     
     renderResourceLoader(resourcesLoaded: number, totalResources: number, errors?: string | undefined): void { }
     renderScene(scene: GameScene): void { }
-    renderObject(obj: GameObject): void { }
+    renderEmptyObject(obj: GameObject) { }
+    renderComponent(comp: Component) { }
     renderCollisionMask(mask: CollisionMask) { }
     renderForceGenerator(collider: CollisionMask, generator: ForceGenerator) { }
     

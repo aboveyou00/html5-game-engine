@@ -89,20 +89,23 @@ export class CircleCollisionMask extends CollisionMask {
                     other.impulseCount++;
                 }
                 
-                let a1 = (contact.contactNormal[0] * this.gameObject.hspeed) + ((contact.contactNormal[1] * this.gameObject.vspeed));
-                let a2 = (contact.contactNormal[0] * other.gameObject.hspeed) + ((contact.contactNormal[1] * other.gameObject.vspeed));
+                let thisPhysics = this.gameObject.physics!;
+                let otherPhysics = other.gameObject.physics!;
+                
+                let a1 = (contact.contactNormal[0] * thisPhysics.hspeed) + ((contact.contactNormal[1] * thisPhysics.vspeed));
+                let a2 = (contact.contactNormal[0] * otherPhysics.hspeed) + ((contact.contactNormal[1] * otherPhysics.vspeed));
                 let optimizedP = (2 * (a1 - a2)) / (this.mass + other.mass);
                 
                 if (!this.isFixed) {
-                    [this.gameObject.hspeed, this.gameObject.vspeed] = [
-                        this.gameObject.hspeed - optimizedP * other.mass * contact.contactNormal[0],
-                        this.gameObject.vspeed - optimizedP * other.mass * contact.contactNormal[1]
+                    [thisPhysics.hspeed, thisPhysics.vspeed] = [
+                        thisPhysics.hspeed - optimizedP * other.mass * contact.contactNormal[0],
+                        thisPhysics.vspeed - optimizedP * other.mass * contact.contactNormal[1]
                     ];
                 }
                 if (!other.isFixed) {
-                    [other.gameObject.hspeed, other.gameObject.vspeed] = [
-                        other.gameObject.hspeed + optimizedP * this.mass * contact.contactNormal[0],
-                        other.gameObject.vspeed + optimizedP * this.mass * contact.contactNormal[1]
+                    [otherPhysics.hspeed, otherPhysics.vspeed] = [
+                        otherPhysics.hspeed + optimizedP * this.mass * contact.contactNormal[0],
+                        otherPhysics.vspeed + optimizedP * this.mass * contact.contactNormal[1]
                     ];
                 }
             }

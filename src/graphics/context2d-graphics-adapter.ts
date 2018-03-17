@@ -5,10 +5,11 @@ import { GameScene } from '../game-scene';
 import { GameObject } from '../game-object';
 import { ResourceLoader } from '../resource-loader';
 import { EventEmitter } from '../events/event-emitter';
-import { SpriteT, isSingleTileSprite, isAnimationSprite } from '../utils/sprite';
+import { SpriteT, isSingleTileSprite, isAnimationSprite } from '../utils/render/sprite';
 import { fmod } from '../utils/math';
 import { CollisionMask } from '../physics/collision-mask';
 import { ForceGenerator } from '../physics/force-generator';
+import { Component } from '../component';
 
 export interface Context2dGraphicsAdapterOptions {
     canvas?: HTMLCanvasElement,
@@ -154,38 +155,33 @@ export class Context2dGraphicsAdapter extends GraphicsAdapter {
     renderScene(scene: GameScene) {
         scene.render(this);
     }
-    renderObject(obj: GameObject) {
+    renderEmptyObject(obj: GameObject) {
         let context = this.context!;
-        if (typeof (<any>obj).renderImplContext2d === 'function') {
-            (<any>obj).renderImplContext2d(context);
+        
+        context.fillStyle = 'red';
+        context.fillRect(0, 0, 16, 16);
+        
+        context.fillStyle = 'white';
+        context.font = '16px Consolas';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText('?', 0 + 8, 0 + 8);
+    }
+    renderComponent(comp: Component) {
+        if (typeof (<any>comp).renderContext2d === 'function') {
+            (<any>comp).renderContext2d(this);
         }
-        else {
-            if (obj.sprite) {
-                this.drawSprite(obj.resources, obj.sprite, 0, 0, obj.animationAge);
-            }
-            else {
-                context.fillStyle = 'red';
-                context.fillRect(0, 0, 16, 16);
-                
-                context.fillStyle = 'white';
-                context.font = '16px Consolas';
-                context.textAlign = 'center';
-                context.textBaseline = 'middle';
-                context.fillText('?', 0 + 8, 0 + 8);
-            }
-        }
+        else throw new Error(`Not implemented! Cannot render component ${comp.constructor.name}`);
     }
     renderCollisionMask(mask: CollisionMask) {
-        let context = this.context!;
         if (typeof (<any>mask).renderImplContext2d === 'function') {
-            (<any>mask).renderImplContext2d(context);
+            (<any>mask).renderImplContext2d(this);
         }
         else throw new Error(`Not implemented! Cannot render collision mask ${mask}`);
     }
     renderForceGenerator(collider: CollisionMask, generator: ForceGenerator) {
-        let context = this.context!;
         if (typeof (<any>generator).renderImplContext2d === 'function') {
-            (<any>generator).renderImplContext2d(collider, context);
+            (<any>generator).renderImplContext2d(collider, this);
         }
         else throw new Error(`Not implemented! Cannot render force generator ${generator}`);
     }
@@ -201,32 +197,6 @@ export class Context2dGraphicsAdapter extends GraphicsAdapter {
         }
         finally {
             context.restore();
-        }
-    }
-    
-    drawSprite(loader: ResourceLoader, sprite: SpriteT, x = 0, y = 0, imageIndex = 0, defaultFps = 30) {
-        if (!loader || !loader.loadImage) throw new Error(`You must pass in a valid ResourceLoader to draw a sprite.`);
-        if (!sprite || !sprite.src) throw new Error(`Invalid sprite. Cannot render ${sprite}.`);
-        let img = loader.loadImage(sprite.src);
-        let pivot = sprite.pivot || { x: 0, y: 0 };
-        let context = this.context!;
-        
-        if (isAnimationSprite(sprite)) {
-            let tileset = sprite.tileset;
-            let frames = sprite.frames;
-            let fps = sprite.framesPerSecond;
-            if (typeof fps === 'undefined') fps = defaultFps;
-            let frameIdx = fmod(Math.floor(imageIndex * fps), frames.length);
-            let frame = frames[frameIdx];
-            context.drawImage(img, frame.tilex * tileset.width, frame.tiley * tileset.height, tileset.width, tileset.height, x - pivot.x, y - pivot.y, tileset.width, tileset.height);
-        }
-        else if (isSingleTileSprite(sprite)) {
-            let tileset = sprite.tileset;
-            context.drawImage(img, tileset.tilex * tileset.width, tileset.tiley * tileset.height, tileset.width, tileset.height, x - pivot.x, y - pivot.y, tileset.width, tileset.height);
-        }
-        else {
-            //This sprite is a SimpleSpriteT
-            context.drawImage(img, x - pivot.x, y - pivot.y, img.width, img.height);
         }
     }
 }

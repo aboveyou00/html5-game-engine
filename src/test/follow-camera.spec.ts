@@ -59,7 +59,7 @@ describe('FollowCamera', () => {
         });
         it('should center the camera at the follow object if it exists', () => {
             camera.center = [128, 256];
-            let gobj = new GameObject('test', { x: 500, y: 1000 });
+            let gobj = new GameObject({ x: 500, y: 1000 });
             camera.follow = gobj;
             camera.renderTransformed(adapter, () => void(0));
             expect(camera.center).to.deep.eq([500, 1000]);
@@ -67,7 +67,7 @@ describe('FollowCamera', () => {
         it('should should offset the camera by followOffset', () => {
             camera.center = [128, 256];
             camera.followOffset = [50, 25];
-            let gobj = new GameObject('test', { x: 500, y: 1000 });
+            let gobj = new GameObject({ x: 500, y: 1000 });
             camera.follow = gobj;
             camera.renderTransformed(adapter, () => void(0));
             expect(camera.center).to.deep.eq([550, 1025]);

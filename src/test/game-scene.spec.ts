@@ -42,15 +42,15 @@ describe('engine/game-scene', () => {
         });
     });
     
-    describe('.addObject', () => {
+    describe.only('.addObject', () => {
         it('should invoke GameObject.addToScene()', () => {
-            let gobj = new GameObject('name');
+            let gobj = new GameObject();
             sinon.stub(gobj, 'addToScene');
             scene.addObject(gobj);
             expect((<any>gobj).addToScene).to.have.been.calledOnce;
         });
         it('should invoke GameObject.tick and GameObject.render the next time onTick is called and the resource loader is done', () => {
-            let gobj = new GameObject('name');
+            let gobj = new GameObject();
             sinon.stub(gobj, 'tick');
             sinon.stub(gobj, 'render');
             scene.addObject(gobj);
@@ -61,7 +61,7 @@ describe('engine/game-scene', () => {
             expect(gobj.render).to.have.been.calledOnce;
         });
         it('should invoke GameObject.handleEvent the next time onTick is called, the resource loader is done, and there is an event', () => {
-            let gobj = new GameObject('name');
+            let gobj = new GameObject();
             scene.addObject(gobj);
             game.start();
             game.eventQueue.clearQueue(); //Remove resizeCanvas event
@@ -75,18 +75,18 @@ describe('engine/game-scene', () => {
     });
     describe('.removeObject', () => {
         it('should invoke GameObject.removeFromScene()', () => {
-            let gobj = new GameObject('name');
+            let gobj = new GameObject();
             sinon.stub(gobj, 'removeFromScene');
             scene.addObject(gobj);
             scene.removeObject(gobj);
             expect((<any>gobj).removeFromScene).to.have.been.calledOnce;
         });
         it('should throw an error if the game object is not in the game', () => {
-            let gobj = new GameObject('name');
+            let gobj = new GameObject();
             expect(() => scene.removeObject(gobj)).to.throw(/not .*added/i);
         });
         it('should not invoke GameObject.tick or GameObject.render when onTick is called', () => {
-            let gobj = new GameObject('name');
+            let gobj = new GameObject();
             sinon.stub(gobj, 'tick');
             sinon.stub(gobj, 'render');
             scene.addObject(gobj);
@@ -98,7 +98,7 @@ describe('engine/game-scene', () => {
             expect(gobj.render).not.to.have.been.called;
         });
         it('should not invoke GameObject.handleEvent when onTick is called and there is an event', () => {
-            let gobj = new GameObject('name');
+            let gobj = new GameObject();
             sinon.stub(gobj, 'handleEvent');
             scene.addObject(gobj);
             scene.removeObject(gobj);
@@ -111,7 +111,7 @@ describe('engine/game-scene', () => {
     });
     describe('.findObject', () => {
         let names = ['one', 'two', 'three'];
-        let gobjs = names.map(name => new GameObject(name));
+        let gobjs = names.map(name => new GameObject({ name: name }));
         
         beforeEach(() => {
             gobjs.map(gobj => scene.addObject(gobj));
@@ -135,7 +135,7 @@ describe('engine/game-scene', () => {
     });
     describe('.findObjects', () => {
         let names = ['one', 'two', 'three'];
-        let gobjs = names.map(name => new GameObject(name));
+        let gobjs = names.map(name => new GameObject({ name: name }));
         
         beforeEach(() => {
             gobjs.map(gobj => scene.addObject(gobj));
@@ -167,7 +167,7 @@ describe('engine/game-scene', () => {
     
     describe('.sendEvents', () => {
         let names = ['one', 'two', 'three'];
-        let gobjs = names.map(name => new GameObject(name));
+        let gobjs = names.map(name => new GameObject({ name: name }));
         let stubs: sinon.SinonStub[];
         
         beforeEach(() => {
@@ -203,7 +203,7 @@ describe('engine/game-scene', () => {
     
     describe('.tick', () => {
         let names = ['one', 'two', 'three'];
-        let gobjs = names.map(name => new GameObject(name));
+        let gobjs = names.map(name => new GameObject({ name: name }));
         let stubs: sinon.SinonStub[];
         
         beforeEach(() => {
@@ -233,9 +233,9 @@ describe('engine/game-scene', () => {
         });
     });
     
-    describe('.render', () => {
+    describe.only('.render', () => {
         let names = ['one', 'two', 'three'];
-        let gobjs = names.map(name => new GameObject(name));
+        let gobjs = names.map(name => new GameObject({ name: name }));
         let stubs: sinon.SinonStub[];
         
         beforeEach(() => {
@@ -258,14 +258,6 @@ describe('engine/game-scene', () => {
             expect(gobjs[0].render).to.have.been.calledOnce;
             expect(gobjs[1].render).to.have.been.calledOnce;
             expect(gobjs[2].render).to.have.been.calledOnce;
-        });
-        it('should not call GameObject.render if shouldRender is false', () => {
-            game.start();
-            let gobj = new GameObject('name', { shouldRender: false });
-            sinon.stub(gobj, 'render');
-            scene.addObject(gobj);
-            (<any>game).render(game.scene, game.graphicsAdapter);
-            expect(gobj.render).not.to.have.been.called;
         });
         xit('should invoke push and pop on the camera, if there is one', () => {
             game.start();

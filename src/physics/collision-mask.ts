@@ -88,8 +88,8 @@ export abstract class CollisionMask {
             generator.updateCollider(this, delta);
         }
         if (isNaN(this.impulseAccumX)) console.error(`impulseAccumX is NaN`);
-        this.gameObject.hspeed += this.forceAccumX;
-        this.gameObject.vspeed += this.forceAccumY;
+        this.gameObject.physics!.hspeed += this.forceAccumX;
+        this.gameObject.physics!.vspeed += this.forceAccumY;
         this.gameObject.x += this.impulseAccumX;
         this.gameObject.y += this.impulseAccumY;
         this.forceAccumX = this.forceAccumY = this.impulseAccumX = this.impulseAccumY = 0;
@@ -100,7 +100,8 @@ export abstract class CollisionMask {
     
     private renderTransformedSymbol = Symbol();
     render(adapter: GraphicsAdapter) {
-        adapter.renderTransformed(this.gameObject.x, this.gameObject.y, -degToRad(this.gameObject.imageAngle), 1, 1, () => {
+        let angle = (this.gameObject.spriteRenderer && this.gameObject.spriteRenderer.imageAngle) || 0;
+        adapter.renderTransformed(this.gameObject.x, this.gameObject.y, -degToRad(angle), 1, 1, () => {
             this.renderImpl(adapter);
         }, this.renderTransformedSymbol);
         
