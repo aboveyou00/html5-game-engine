@@ -12,12 +12,12 @@ import { GameScene } from '../game-scene';
 import { Rect } from '../utils/rect';
 import { GraphicsAdapter } from '../graphics/graphics-adapter';
 
-describe.only('GameObject', () => {
+describe('GameObject', () => {
     it('should start without a resourceLoader, eventQueue, or game', () => {
         let gobj = new GameObject();
-        expect(gobj.game).not.to.be.ok;
-        expect(gobj.resources).not.to.be.ok;
-        expect(gobj.events).not.to.be.ok;
+        expect(() => gobj.game).to.throw(/hasn't been added to a scene/i);
+        expect(() => gobj.resources).to.throw(/hasn't been added to a scene/i);
+        expect(() => gobj.events).to.throw(/hasn't been added to a scene/i);
     });
     
     describe('.constructor', () => {
@@ -85,7 +85,7 @@ describe.only('GameObject', () => {
             try {
                 stub = sinon.stub(console, 'log');
                 let gobj = new GameObject();
-                (<any>gobj).DEBUG_MOVEMENT = true;
+                (<any>gobj.physics).DEBUG_MOVEMENT = true;
                 gobj.physics!.direction = 32;
                 expect(console.log).to.have.been.calledWith(sinon.match(/setting direction/i));
                 expect(console.log).to.have.been.calledWith(sinon.match(/hspeed:.*vspeed:/i));
@@ -157,8 +157,8 @@ describe.only('GameObject', () => {
         });
         it('should not change hspeed and vspeed if set to the same value', () => {
             let gobj = new GameObject({ physics: { hspeed: -4, vspeed: 0 } });
-            (<any>gobj)._hspeed = 29;
-            (<any>gobj)._vspeed = 63;
+            (<any>gobj.physics)._hspeed = 29;
+            (<any>gobj.physics)._vspeed = 63;
             gobj.physics!.speed = 4;
             expect(gobj.physics!.hspeed).to.be.closeTo(29, .00001);
             expect(gobj.physics!.vspeed).to.be.closeTo(63, .00001);
@@ -168,7 +168,7 @@ describe.only('GameObject', () => {
             try {
                 stub = sinon.stub(console, 'log');
                 let gobj = new GameObject();
-                (<any>gobj).DEBUG_MOVEMENT = true;
+                (<any>gobj.physics).DEBUG_MOVEMENT = true;
                 gobj.physics!.speed = 12;
                 expect(console.log).to.have.been.calledWith(sinon.match(/setting speed/i));
                 expect(console.log).to.have.been.calledWith(sinon.match(/hspeed:.*vspeed:/i));
@@ -197,7 +197,7 @@ describe.only('GameObject', () => {
             try {
                 stub = sinon.stub(console, 'log');
                 let gobj = new GameObject();
-                (<any>gobj).DEBUG_MOVEMENT = true;
+                (<any>gobj.physics).DEBUG_MOVEMENT = true;
                 gobj.physics!.hspeed = 12;
                 expect(console.log).to.have.been.calledWith(sinon.match(/setting hspeed/i));
                 expect(console.log).to.have.been.calledWith(sinon.match(/speed:.*direction:/i));
@@ -226,7 +226,7 @@ describe.only('GameObject', () => {
             try {
                 stub = sinon.stub(console, 'log');
                 let gobj = new GameObject();
-                (<any>gobj).DEBUG_MOVEMENT = true;
+                (<any>gobj.physics).DEBUG_MOVEMENT = true;
                 gobj.physics!.vspeed = 12;
                 expect(console.log).to.have.been.calledWith(sinon.match(/setting vspeed/i));
                 expect(console.log).to.have.been.calledWith(sinon.match(/speed:.*direction:/i));
@@ -257,9 +257,9 @@ describe.only('GameObject', () => {
             let gobj = new GameObject();
             (<any>gobj).addToScene(new GameScene());
             (<any>gobj).removeFromScene();
-            expect(gobj.game).not.to.be.ok;
-            expect(gobj.resources).not.to.be.ok;
-            expect(gobj.events).not.to.be.ok;
+            expect(() => gobj.game).to.throw(/hasn't been added to a scene/i);
+            expect(() => gobj.resources).to.throw(/hasn't been added to a scene/i);
+            expect(() => gobj.events).to.throw(/hasn't been added to a scene/i);
         });
     });
     
@@ -306,12 +306,6 @@ describe.only('GameObject', () => {
             sinon.stub(adapter, 'renderTransformed');
             gobj.render(adapter);
             expect(adapter.renderTransformed).to.have.been.calledOnce;
-        });
-        it('should invoke renderImpl', () => {
-            let gobj = new GameObject();
-            sinon.stub(gobj, 'renderImpl');
-            gobj.render(adapter);
-            expect((<any>gobj).renderImpl).to.have.been.calledOnce.calledWith(adapter);
         });
     });
 });

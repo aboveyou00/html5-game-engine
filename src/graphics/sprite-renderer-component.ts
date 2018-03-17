@@ -14,7 +14,7 @@ export type SpriteRendererComponentOptions = ComponentOptions & {
 
 export class SpriteRendererComponent extends Component {
     constructor(opts: SpriteRendererComponentOptions = {}) {
-        super(merge({ shouldRender: true }, opts));
+        super(merge({ shouldTick: true, shouldRender: true }, opts));
         
         if (typeof opts.sprite != 'undefined') this.sprite = opts.sprite;
         if (typeof opts.animationAge != 'undefined') this.animationAge = opts.animationAge;

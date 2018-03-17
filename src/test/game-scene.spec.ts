@@ -42,7 +42,7 @@ describe('engine/game-scene', () => {
         });
     });
     
-    describe.only('.addObject', () => {
+    describe('.addObject', () => {
         it('should invoke GameObject.addToScene()', () => {
             let gobj = new GameObject();
             sinon.stub(gobj, 'addToScene');
@@ -233,7 +233,7 @@ describe('engine/game-scene', () => {
         });
     });
     
-    describe.only('.render', () => {
+    describe('.render', () => {
         let names = ['one', 'two', 'three'];
         let gobjs = names.map(name => new GameObject({ name: name }));
         let stubs: sinon.SinonStub[];
