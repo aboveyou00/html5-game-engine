@@ -1,4 +1,5 @@
 
 
-export * from './audio-source-object';
 export * from './audio-controller';
+
+export * from './audio-source-component';
