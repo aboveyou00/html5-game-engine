@@ -184,21 +184,6 @@ export class GameScene {
         return this._objects.filter(predicate);
     }
     
-    bringObjectToFront(obj: GameObject) {
-        let idx = this._objects.indexOf(obj);
-        if (idx === -1) throw new Error(`Cannot repostion game object that is not a child of the scene.`);
-        if (idx === this._objects.length - 1) return;
-        this._objects.splice(idx, 1);
-        this._objects.push(obj);
-    }
-    sendObjectToBack(obj: GameObject) {
-        let idx = this._objects.indexOf(obj);
-        if (idx === -1) throw new Error(`Cannot repostion game object that is not a child of the scene.`);
-        if (idx === 0) return;
-        this._objects.splice(idx, 1);
-        this._objects.unshift(obj);
-    }
-    
     private _colliders: CollisionMask[] = [];
     removeCollider(mask: CollisionMask) {
         let idx = this._colliders.indexOf(mask);

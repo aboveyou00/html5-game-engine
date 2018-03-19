@@ -198,13 +198,6 @@ export class GameObject {
         }
     }
     
-    bringToFront() {
-        this.scene.bringObjectToFront(this);
-    }
-    sendToBack() {
-        this.scene.sendObjectToBack(this);
-    }
-    
     handleEvent(evt: GameEvent): boolean {
         for (let comp of this._components.filter(comp => comp.enabled)) {
             if (comp.handleEvent(evt)) return true;
