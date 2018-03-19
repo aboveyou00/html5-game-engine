@@ -152,12 +152,6 @@ describe('Camera', () => {
         });
     });
     
-    describe('.tick', () => {
-        it('should not throw an error', () => {
-            expect(() => camera.tick(.02)).not.to.throw;
-        });
-    });
-    
     describe('.clear', () => {
         let adapter: GraphicsAdapter;
         beforeEach(() => {

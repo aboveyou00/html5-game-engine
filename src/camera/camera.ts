@@ -85,9 +85,6 @@ export class Camera {
         };
     }
     
-    tick(delta: number) { }
-    fixedTick() { }
-    
     clear(adapter: GraphicsAdapter) {
         if (this._clearColor) adapter.clear(this._clearColor);
     }

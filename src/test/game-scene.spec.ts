@@ -224,13 +224,6 @@ describe('engine/game-scene', () => {
             expect((<any>gobjs[1]).tick).to.have.been.calledOnce;
             expect((<any>gobjs[2]).tick).to.have.been.calledOnce;
         });
-        it('should invoke tick on the camera, if there is one', () => {
-            game.start();
-            scene.camera = new Camera();
-            sinon.stub(scene.camera, 'tick');
-            (<any>game).tick(game.scene, 45);
-            expect(scene.camera.tick).to.have.been.calledOnce.calledWith(45);
-        });
     });
     
     describe('.render', () => {

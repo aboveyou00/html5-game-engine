@@ -73,14 +73,12 @@ export class GameScene {
         for (let obj of this._objects) {
             obj.tick(delta);
         }
-        if (this.camera) this.camera.tick(delta);
         this.physicsTick(delta);
     }
     public fixedTick() {
         for (let obj of this._objects) {
             obj.fixedTick();
         }
-        if (this.camera) this.camera.fixedTick();
     }
     public physicsTick(delta: number) {
         for (let q = 0; q < this._colliders.length; q++) {
