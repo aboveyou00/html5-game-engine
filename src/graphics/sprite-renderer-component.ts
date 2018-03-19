@@ -1,15 +1,16 @@
 import { Component, ComponentOptions } from '../component';
 import { SpriteT } from '../utils/render/sprite';
 import { drawSprite } from '../utils/render/draw-sprite';
+import { Context2dGraphicsAdapter } from './context2d-graphics-adapter';
 import merge = require('lodash.merge');
-import { Context2dGraphicsAdapter } from '.';
 
 export type SpriteRendererComponentOptions = ComponentOptions & {
     sprite?: SpriteT,
     animationAge?: number,
     animationSpeed?: number,
     imageAngle?: number,
-    imageScale?: number
+    imageScale?: number,
+    imageOpacity?: number
 };
 
 export class SpriteRendererComponent extends Component {
@@ -21,6 +22,7 @@ export class SpriteRendererComponent extends Component {
         if (typeof opts.animationSpeed != 'undefined') this.animationSpeed = opts.animationSpeed;
         if (typeof opts.imageAngle != 'undefined') this.imageAngle = opts.imageAngle;
         if (typeof opts.imageScale != 'undefined') this.imageScale = opts.imageScale;
+        if (typeof opts.imageOpacity != 'undefined') this.imageOpacity = opts.imageOpacity;
     }
     
     private _sprite: SpriteT | null = null;
@@ -62,6 +64,14 @@ export class SpriteRendererComponent extends Component {
         this._imageScale = val;
     }
     
+    private _imageOpacity = 1;
+    get imageOpacity() {
+        return this._imageOpacity;
+    }
+    set imageOpacity(val) {
+        this._imageOpacity = val;
+    }
+    
     tick(delta: number) {
         super.tick(delta);
         
@@ -70,11 +80,12 @@ export class SpriteRendererComponent extends Component {
     
     renderContext2d(adapter: Context2dGraphicsAdapter) {
         let context = adapter.context!;
-        if (this.imageScale !== 1 || this.imageAngle !== 0) {
+        if (this.imageScale !== 1 || this.imageAngle !== 0 || this.imageOpacity !== 1) {
             context.save();
             try {
                 context.rotate(this.imageAngle);
                 context.scale(this.imageScale, this.imageScale);
+                context.globalAlpha *= this.imageOpacity;
                 this.renderContext2d_core(adapter);
             }
             finally {
