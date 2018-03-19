@@ -47,9 +47,8 @@ export class BindCameraComponent extends Component {
     clampBottom = -Infinity;
     clampTop = Infinity;
     
-    //TODO: add lateUpdate lifecycle hook; use that to avoid race conditions
-    tick(delta: number) {
-        super.tick(delta);
+    lateTick() {
+        super.lateTick();
         if (this.camera) {
             let target: [number, number] = [this.gameObject.x + this._offset[0], this.gameObject.y + this._offset[1]];
             this.camera.center = target;

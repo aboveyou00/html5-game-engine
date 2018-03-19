@@ -48,23 +48,23 @@ describe('BindCameraComponent', () => {
         });
     });
     
-    describe('.tick', () => {
+    describe('.lateTick', () => {
         let superStub: sinon.SinonStub;
         beforeEach(() => {
-            superStub = sinon.stub(Component.prototype, 'tick');;
+            superStub = sinon.stub(Component.prototype, 'lateTick');;
         });
         afterEach(() => {
             superStub.restore();
         });
         
         it('should call the base class implementation', () => {
-            bindCamera.tick(.05);
-            expect(Component.prototype.tick).to.have.been.calledOnce;
+            bindCamera.lateTick();
+            expect(Component.prototype.lateTick).to.have.been.calledOnce;
         });
         describe('when there is no camera specified', () => {
             it('should not fail if there is no camera specified', () => {
                 bindCamera.camera = null;
-                expect(() => bindCamera.tick(.05)).not.to.throw;
+                expect(() => bindCamera.lateTick()).not.to.throw;
             });
         });
         describe('when there is a camera specified', () => {
@@ -72,7 +72,7 @@ describe('BindCameraComponent', () => {
                 camera.center = [128, 256];
                 gobj.x = 500;
                 gobj.y = 1000;
-                bindCamera.tick(.05);
+                bindCamera.lateTick();
                 expect(camera.center).to.deep.eq([500, 1000]);
             });
             it('should should offset the camera by followOffset', () => {
@@ -80,7 +80,7 @@ describe('BindCameraComponent', () => {
                 bindCamera.offset = [50, 25];
                 gobj.x = 500;
                 gobj.y = 1000;
-                bindCamera.tick(.05);
+                bindCamera.lateTick();
                 expect(camera.center).to.deep.eq([550, 1025]);
             });
         });
