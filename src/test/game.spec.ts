@@ -7,7 +7,7 @@ use(sinonChai);
 
 import { Game } from '../game';
 import { GameObject } from '../game-object';
-import { Camera } from '../camera';
+import { Camera } from '../camera/camera';
 import { delay } from '../utils/delay';
 import { GameScene } from '../game-scene';
 import { MockEventQueue } from '../events/test/mock-event-queue';

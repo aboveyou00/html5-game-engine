@@ -6,9 +6,9 @@ import * as sinonChai from 'sinon-chai';
 use(sinonChai);
 
 import { Camera } from '../camera';
-import { GraphicsAdapter } from '../graphics/graphics-adapter';
-import { Context2dGraphicsAdapter } from '../graphics/context2d-graphics-adapter';
-import { Game } from '../game';
+import { GraphicsAdapter } from '../../graphics/graphics-adapter';
+import { Context2dGraphicsAdapter } from '../../graphics/context2d-graphics-adapter';
+import { Game } from '../../game';
 
 describe('Camera', () => {
     let camera: Camera;

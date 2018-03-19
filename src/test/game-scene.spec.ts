@@ -7,7 +7,7 @@ use(sinonChai);
 
 import { GameScene } from '../game-scene';
 import { Game } from '../game';
-import { Camera } from '../camera';
+import { Camera } from '../camera/camera';
 import { GameObject } from '../game-object';
 
 describe('engine/game-scene', () => {

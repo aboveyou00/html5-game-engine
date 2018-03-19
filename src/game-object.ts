@@ -4,7 +4,7 @@ import { GameEvent } from './events/events';
 import { measureSprite } from './utils/render';
 import { degToRad } from './utils/math';
 import { GameScene } from './game-scene';
-import { Camera } from './camera';
+import { Camera } from './camera/camera';
 import { ResourceLoader } from './resource-loader';
 import { EventQueue } from './events/event-queue';
 import { CollisionMask } from './physics/collision-mask';

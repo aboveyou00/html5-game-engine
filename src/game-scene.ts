@@ -1,6 +1,6 @@
 ﻿import { Game } from './game';
 import { GameObject } from './game-object';
-import { Camera } from './camera';
+import { Camera } from './camera/camera';
 import { CollisionMask } from './physics/collision-mask';
 import { ForceGenerator } from './physics/force-generator';
 import { GraphicsAdapter } from './graphics/graphics-adapter';

@@ -1,7 +1,7 @@
-﻿import { Game } from './game';
-import { GameScene } from './game-scene';
-import { clamp } from './utils/math';
-import { GraphicsAdapter } from './graphics/graphics-adapter';
+﻿import { Game } from '../game';
+import { GameScene } from '../game-scene';
+import { clamp } from '../utils/math';
+import { GraphicsAdapter } from '../graphics/graphics-adapter';
 
 export type BoundsT = {
     left: number,
