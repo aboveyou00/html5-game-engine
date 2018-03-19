@@ -5,8 +5,8 @@ import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 use(sinonChai);
 
-import { GameObject } from '../../game-object';
 import { PhysicsComponent } from '../physics-component';
+import { GameObject } from '../../game-object';
 import { GameScene } from '../../game-scene';
 import { Game } from '../../game';
 import { MockGame } from '../../test/mock-game';
@@ -28,7 +28,6 @@ describe('PhysicsComponent', () => {
             let expectedDir = 195;
             let expectedSpeed = 4.5;
             let physics = new PhysicsComponent({ direction: expectedDir, speed: expectedSpeed });
-            gobj = new GameObject({ physics: physics });
             expect(physics.direction).to.eq(expectedDir);
             expect(physics.speed).to.eq(expectedSpeed);
         });
@@ -36,7 +35,6 @@ describe('PhysicsComponent', () => {
             let expectedHspeed = 6;
             let expectedVspeed= 4;
             let physics = new PhysicsComponent({ hspeed: 6, vspeed: 4 });
-            gobj = new GameObject({ physics: physics });
             expect(physics.hspeed).to.eq(expectedHspeed);
             expect(physics.vspeed).to.eq(expectedVspeed);
         });
