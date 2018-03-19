@@ -81,8 +81,10 @@ export abstract class Component {
         return false;
     }
     
+    earlyTick() { }
     tick(delta: number) { }
     fixedTick() { }
+    lateTick() { }
     
     render(adapter: GraphicsAdapter) {
         adapter.renderComponent(this);

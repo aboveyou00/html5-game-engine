@@ -146,6 +146,9 @@ export class Game {
         
         let scene: GameScene | null;
         
+        scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
+        if (scene) this.earlyTick(scene);
+        
         this.eventQueue.tick(delta);
         
         scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
@@ -164,6 +167,9 @@ export class Game {
                 if (scene) this.fixedTick(scene);
             }
         }
+        
+        scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
+        if (scene) this.lateTick(scene);
         
         scene = this.resourceLoader.isDone ? this.scene : this.loadingScene;
         this.updateCursor(scene);
@@ -223,12 +229,20 @@ export class Game {
             console.error(`Invalid set of cursors:`, cursors);
         }
     }
+    protected earlyTick(scene: GameScene) {
+        scene.earlyTick();
+        this.handleSceneChange();
+    }
     protected tick(scene: GameScene, delta: number) {
         scene.tick(delta);
         this.handleSceneChange();
     }
     protected fixedTick(scene: GameScene) {
         scene.fixedTick();
+        this.handleSceneChange();
+    }
+    protected lateTick(scene: GameScene) {
+        scene.lateTick();
         this.handleSceneChange();
     }
     protected render(scene: GameScene, adapter: GraphicsAdapter) {

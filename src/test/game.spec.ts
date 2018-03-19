@@ -75,24 +75,32 @@ describe('Game', () => {
                 game.start();
                 (<any>game)._resourceLoader = { isDone: false, render: () => void (0) };
                 sinon.stub(game.resourceLoader, 'render');
+                sinon.stub(game, 'earlyTick');
                 sinon.stub(game, 'tick');
                 sinon.stub(game, 'render');
+                sinon.stub(game, 'lateTick');
                 game.loadingScene = <any>Symbol();
                 (<any>game).onTick();
                 expect(game.resourceLoader.render).not.to.have.been.calledOnce;
+                expect((<any>game).earlyTick).to.have.been.calledOnce.calledWith(game.loadingScene);
                 expect((<any>game).tick).to.have.been.calledThrice.calledWith(game.loadingScene);
                 expect((<any>game).render).to.have.been.calledOnce.calledWith(game.loadingScene);
+                expect((<any>game).lateTick).to.have.been.calledOnce.calledWith(game.loadingScene);
             });
             it('should invoke ResourceLoader.render if there is no loading scene', () => {
                 game.start();
                 (<any>game)._resourceLoader = { isDone: false, render: () => void (0) };
                 sinon.stub(game.resourceLoader, 'render');
+                sinon.stub(game, 'earlyTick');
                 sinon.stub(game, 'tick');
                 sinon.stub(game, 'render');
+                sinon.stub(game, 'lateTick');
                 (<any>game).onTick();
                 expect(game.resourceLoader.render).to.have.been.calledOnce;
+                expect((<any>game).earlyTick).not.to.have.been.called;
                 expect((<any>game).tick).not.to.have.been.called;
                 expect((<any>game).render).not.to.have.been.called;
+                expect((<any>game).lateTick).not.to.have.been.called;
             });
         });
         

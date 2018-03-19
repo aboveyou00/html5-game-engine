@@ -64,6 +64,11 @@ export class GameScene {
         return false;
     }
     
+    public earlyTick() {
+        for (let obj of this._objects) {
+            obj.earlyTick();
+        }
+    }
     public tick(delta: number) {
         for (let obj of this._objects) {
             obj.tick(delta);
@@ -76,7 +81,6 @@ export class GameScene {
             obj.fixedTick();
         }
         if (this.camera) this.camera.fixedTick();
-        this.physicsTick(0);
     }
     public physicsTick(delta: number) {
         for (let q = 0; q < this._colliders.length; q++) {
@@ -100,6 +104,11 @@ export class GameScene {
         for (let q = 0; q < this._colliders.length; q++) {
             let collider = this._colliders[q];
             collider.applyForces(delta);
+        }
+    }
+    public lateTick() {
+        for (let obj of this._objects) {
+            obj.lateTick();
         }
     }
     

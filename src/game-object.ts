@@ -205,21 +205,36 @@ export class GameObject {
         return false;
     }
     
+    earlyTick() {
+        for (let comp of this._components) {
+            if (!comp.enabled || !comp.shouldTick) continue;
+            comp.earlyTick();
+        }
+    }
     tick(delta: number) {
-        for (let comp of this._components.filter(comp => comp.enabled && comp.shouldTick)) {
+        for (let comp of this._components) {
+            if (!comp.enabled || !comp.shouldTick) continue;
             comp.tick(delta);
         }
     }
     fixedTick() {
-        for (let comp of this._components.filter(comp => comp.enabled && comp.shouldTick)) {
+        for (let comp of this._components) {
+            if (!comp.enabled || !comp.shouldTick) continue;
             comp.fixedTick();
+        }
+    }
+    lateTick() {
+        for (let comp of this._components) {
+            if (!comp.enabled || !comp.shouldTick) continue;
+            comp.lateTick();
         }
     }
     
     private renderTransformedSymbol = Symbol();
     render(adapter: GraphicsAdapter) {
         adapter.renderTransformed(this.x, this.y, 0, 1, 1, () => {
-            for (let comp of this._components.filter(comp => comp.enabled && comp.shouldRender)) {
+            for (let comp of this._components) {
+                if (!comp.enabled || !comp.shouldRender) continue;
                 comp.render(adapter);
             }
         }, this.renderTransformedSymbol);
