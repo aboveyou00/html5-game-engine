@@ -3,8 +3,9 @@
 export * from './resource-loader';
 
 export * from './game';
-export * from './game-object';
 export * from './game-scene';
+export * from './game-object';
+export * from './component';
 
 export * from './utils';
 export * from './audio';
