@@ -1,4 +1,5 @@
 import { Component, ComponentOptions } from '../component';
+import { Camera } from '../camera/camera';
 import { SpriteT } from '../utils/render/sprite';
 import { drawSprite } from '../utils/render/draw-sprite';
 import { Context2dGraphicsAdapter } from './context2d-graphics-adapter';
@@ -10,7 +11,8 @@ export type SpriteRendererComponentOptions = ComponentOptions & {
     animationSpeed?: number,
     imageAngle?: number,
     imageScale?: number,
-    imageOpacity?: number
+    imageOpacity?: number,
+    unitSpace?: boolean
 };
 
 export class SpriteRendererComponent extends Component {
@@ -23,6 +25,7 @@ export class SpriteRendererComponent extends Component {
         if (typeof opts.imageAngle != 'undefined') this.imageAngle = opts.imageAngle;
         if (typeof opts.imageScale != 'undefined') this.imageScale = opts.imageScale;
         if (typeof opts.imageOpacity != 'undefined') this.imageOpacity = opts.imageOpacity;
+        if (typeof opts.unitSpace != 'undefined') this.unitSpace = opts.unitSpace;
     }
     
     private _sprite: SpriteT | null = null;
@@ -72,6 +75,14 @@ export class SpriteRendererComponent extends Component {
         this._imageOpacity = val;
     }
     
+    private _unitSpace = false;
+    get unitSpace() {
+        return this._unitSpace;
+    }
+    set unitSpace(val) {
+        this._unitSpace = val;
+    }
+    
     tick(delta: number) {
         super.tick(delta);
         
@@ -80,11 +91,17 @@ export class SpriteRendererComponent extends Component {
     
     renderContext2d(adapter: Context2dGraphicsAdapter) {
         let context = adapter.context!;
-        if (this.imageScale !== 1 || this.imageAngle !== 0 || this.imageOpacity !== 1) {
+        let scale = this.imageScale;
+        if (this.unitSpace) {
+            if (this.gameObject.renderCamera === 'none') { ; }
+            else if (this.gameObject.renderCamera instanceof Camera) scale /= this.gameObject.renderCamera.zoomScale;
+            else if (this.scene.camera) scale /= this.scene.camera.zoomScale;
+        }
+        if (scale !== 1 || this.imageAngle !== 0 || this.imageOpacity !== 1) {
             context.save();
             try {
                 context.rotate(this.imageAngle);
-                context.scale(this.imageScale, this.imageScale);
+                context.scale(scale, scale);
                 context.globalAlpha *= this.imageOpacity;
                 this.renderContext2d_core(adapter);
             }
