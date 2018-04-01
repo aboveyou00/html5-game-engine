@@ -184,7 +184,7 @@ export class Game {
             let handled = false;
             if (this.resourceLoader.isDone && this.sendEvent(sendTo, evt)) handled = true;
             if (!handled && this.handleEvent(evt)) handled = true;
-            if (!handled && (evt.type === 'abstractButtonPressed' || evt.type === 'abstractButtonReleased') && evt.wrappedEvent) {
+            if (!handled && (evt.type === 'abstractButtonPressed' || evt.type === 'abstractButtonTyped' || evt.type === 'abstractButtonReleased') && evt.wrappedEvent && evt.sendWrappedEvent) {
                 if (this.resourceLoader.isDone && this.sendEvent(sendTo, evt.wrappedEvent)) handled = true;
                 if (!handled && this.handleEvent(evt.wrappedEvent)) handled = true;
             }

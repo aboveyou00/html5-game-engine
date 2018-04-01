@@ -455,7 +455,8 @@ export class EventQueue {
             this.enqueue({
                 type: 'abstractButtonTyped',
                 name: e.name,
-                wrappedEvent: e.wrappedEvent
+                wrappedEvent: e.wrappedEvent,
+                sendWrappedEvent: false
             });
         }
     }

@@ -74,17 +74,20 @@ export interface CanvasResizeEvent {
 export interface AbstractButtonPressedEvent {
     type: 'abstractButtonPressed',
     name: string,
-    wrappedEvent?: GameEvent
+    wrappedEvent?: GameEvent,
+    sendWrappedEvent?: boolean
 }
 export interface AbstractButtonReleasedEvent {
     type: 'abstractButtonReleased',
     name: string,
-    wrappedEvent?: GameEvent
+    wrappedEvent?: GameEvent,
+    sendWrappedEvent?: boolean
 }
 export interface AbstractButtonTypedEvent {
     type: 'abstractButtonTyped',
     name: string,
-    wrappedEvent?: GameEvent
+    wrappedEvent?: GameEvent,
+    sendWrappedEvent?: boolean
 }
 
 export interface CurrentInputTypeChangedEvent {
