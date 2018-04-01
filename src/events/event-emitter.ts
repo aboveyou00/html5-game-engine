@@ -3,9 +3,9 @@
 export class EventEmitter<T = void> {
     constructor() {
     }
-
+    
     private _listeners: ((val: T) => void)[] = [];
-
+    
     addListener(listener: (val: T) => void): () => void {
         if (!listener || typeof listener !== 'function') throw new Error(`Listener is not a function: ${listener}`);
         this._listeners.push(listener);
@@ -14,7 +14,7 @@ export class EventEmitter<T = void> {
             if (idx !== -1) this._listeners.splice(idx, 1);
         }
     }
-
+    
     private _isEmitting = false;
     emit(val: T) {
         if (this._isEmitting) throw new Error(`EventEmitter.emit was recursively invoked. New value: ${val}`);
