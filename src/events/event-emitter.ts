@@ -1,6 +1,6 @@
 ﻿
 
-export class EventEmitter<T> {
+export class EventEmitter<T = void> {
     constructor() {
     }
 
