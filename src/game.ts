@@ -202,8 +202,7 @@ export class Game {
         return false;
     }
     protected sendEvent(sendTo: GameScene, evt: GameEvent) {
-        if (this._scene) return this._scene.handleEvent(evt);
-        return false;
+        return sendTo.handleEvent(evt);
     }
     private toggleFullscreen() {
         let document = this.document;
