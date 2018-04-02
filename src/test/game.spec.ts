@@ -167,7 +167,7 @@ describe('Game', () => {
             game.start();
             game.eventQueue.enqueue({ type: 'canvasResize', previousSize: [0, 0], size: [0, 0], adapter: <any>null });
             sinon.stub(game.scene, "handleEvent");
-            (<any>game).sendEvents();
+            (<any>game).sendEvents(game.scene);
             expect(game.scene!.handleEvent).to.be.calledOnce;
         });
     });

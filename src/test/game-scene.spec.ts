@@ -186,7 +186,7 @@ describe('engine/game-scene', () => {
         
         it('should invoke handleEvent on all game objects if none of them handle the event', () => {
             game.eventQueue.enqueue(<any>{ type: 'fakeEvent' });
-            (<any>game).sendEvents();
+            (<any>game).sendEvents(game.scene);
             expect(gobjs[0].handleEvent).to.have.been.calledOnce;
             expect(gobjs[1].handleEvent).to.have.been.calledOnce;
             expect(gobjs[2].handleEvent).to.have.been.calledOnce;
@@ -194,7 +194,7 @@ describe('engine/game-scene', () => {
         it('should short-circuit if a game object handles an event', () => {
             stubs[1].returns(true);
             game.eventQueue.enqueue(<any>{ type: 'fakeEvent' });
-            (<any>game).sendEvents();
+            (<any>game).sendEvents(game.scene);
             expect(gobjs[0].handleEvent).to.have.been.calledOnce;
             expect(gobjs[1].handleEvent).to.have.been.calledOnce;
             expect(gobjs[2].handleEvent).not.to.have.been.called;
