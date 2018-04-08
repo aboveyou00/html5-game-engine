@@ -25,7 +25,7 @@ export abstract class Component {
         return this._gameObject;
     }
     
-    private addToGameObject(gameObject: GameObject) {
+    protected addToGameObject(gameObject: GameObject) {
         if (this._gameObject) throw new Error(`This Component has already been added to a GameObject!`);
         this._gameObject = gameObject;
         this.onAddToGameObject();
