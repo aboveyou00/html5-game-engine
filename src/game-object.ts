@@ -247,11 +247,14 @@ export class GameObject {
     private renderTransformedSymbol = Symbol();
     render(adapter: GraphicsAdapter) {
         adapter.renderTransformed(this.x, this.y, 0, 1, 1, () => {
-            for (let comp of this._components) {
-                if (!comp.enabled || !comp.shouldRender) continue;
-                comp.render(adapter);
-            }
+            this.renderTransformed(adapter);
         }, this.renderTransformedSymbol);
+    }
+    renderTransformed(adapter: GraphicsAdapter) {
+        for (let comp of this._components) {
+            if (!comp.enabled || !comp.shouldRender) continue;
+            comp.render(adapter);
+        }
     }
     
     transformPixelCoordinates(adapter: GraphicsAdapter, x: number, y: number): [number, number];
