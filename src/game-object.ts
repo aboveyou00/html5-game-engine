@@ -172,8 +172,22 @@ export class GameObject {
         }
         return comp;
     }
-    getComponents<T extends Component>(ctor: new(...args: any[]) => T): T[] {
-        return <T[]>this._components.filter(comp => comp instanceof ctor);
+    getComponents(): Component[];
+    getComponents<T extends Component>(ctor: new(...args: any[]) => T): T[];
+    getComponents<T extends Component>(ctor?: new(...args: any[]) => T): T[] {
+        if (ctor) return <T[]>this._components.filter(comp => comp instanceof ctor);
+        else return <T[]>[...this._components];
+    }
+    
+    sendMessage(name: string, required = false, ...args: any[]) {
+        let found = false;
+        for (let comp of this._components) {
+            if (typeof <any>(comp)[name] === 'function') {
+                found = true;
+                (<any>(comp)[name])(...args);
+            }
+        }
+        if (!found && required) throw new Error(`No components accepted the message "${name}"`);
     }
     
     onAddToScene() {
