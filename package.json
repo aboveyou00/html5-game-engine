@@ -1,6 +1,6 @@
 {
   "name": "@aboveyou00/html5-game-engine",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "HTML5 Game Engine created by students at Neumont College of Computer Science",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
