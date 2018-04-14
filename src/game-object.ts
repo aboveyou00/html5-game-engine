@@ -182,9 +182,9 @@ export class GameObject {
     sendMessage(name: string, required = false, ...args: any[]) {
         let found = false;
         for (let comp of this._components) {
-            if (typeof <any>(comp)[name] === 'function') {
+            if (typeof (<any>comp)[name] === 'function') {
                 found = true;
-                (<any>(comp)[name])(...args);
+                ((<any>comp)[name])(...args);
             }
         }
         if (!found && required) throw new Error(`No components accepted the message "${name}"`);
